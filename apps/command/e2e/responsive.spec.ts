@@ -25,6 +25,7 @@ for (const vp of VIEWPORTS) {
 
 test('every metric on the portfolio shows its period and freshness', async ({ page }) => {
   await page.goto('/');
+  await page.locator('.stat').first().waitFor();
   const stats = page.locator('.stat');
   const n = await stats.count();
   expect(n).toBeGreaterThan(5);

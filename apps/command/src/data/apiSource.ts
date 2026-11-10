@@ -11,7 +11,12 @@ import {
   mapOpportunityBoard,
   mapSeries,
 } from './apiMap';
-import type { CommandDataSource, Job, Niche, NicheId, PortfolioSummary } from './types';
+import { mapContent, mapPolicy, mapSchedule, mapSummary, rollupChecks, type RawCheck, type RawContent, type RawPolicy, type RawSchedule, type RawSummary } from './operatorMap';
+import type { BriefRef, CommandDataSource, Job, Niche, NicheId, OperatorBoard, PortfolioSummary } from './types';
+
+/** Shown when a request never got an answer: offline, or (behind Cloudflare Access) a sign-in that expired and redirected. */
+export const UNREACHABLE =
+  'Could not reach the FORGE API. If this page has been open a while, your Cloudflare Access sign-in may have expired: reload the page to sign in again.';
 
 export class ApiError extends Error {
   constructor(
@@ -40,13 +45,21 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
   let jobCache: Job[] = [];
 
   async function call<T>(path: string, init?: RequestInit): Promise<{ data: T; meta: C.ResponseMeta | null }> {
-    const res = await fetcher(`${base}${path}`, { credentials: 'include', ...init, headers: { ...headers, ...(init?.headers ?? {}) } });
+    let res: Response;
+    try {
+      res = await fetcher(`${base}${path}`, { credentials: 'include', redirect: 'manual', ...init, headers: { ...headers, ...(init?.headers ?? {}) } });
+    } catch {
+      throw new ApiError(0, 'unreachable', UNREACHABLE);
+    }
+    // Access answers an expired session with a redirect to its login page; with redirect:'manual' that is an opaque response.
+    if (res.type === 'opaqueredirect' || (res.status >= 300 && res.status < 400)) throw new ApiError(401, 'unauthorized', UNREACHABLE);
     let body: C.ApiResponse<T> | null = null;
     try {
       body = (await res.json()) as C.ApiResponse<T>;
     } catch {
       /* non-JSON error page */
     }
+    if (!body && (res.status === 401 || res.status === 403)) throw new ApiError(res.status, 'unauthorized', UNREACHABLE);
     if (!res.ok || !body || body.ok === false) {
       const err = body && body.ok === false ? body.error : { code: 'internal', message: `HTTP ${res.status}` };
       throw new ApiError(res.status, err.code, err.message);
@@ -62,6 +75,15 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
       return live[0] ? `${live[0].version}${live[0].status === 'draft' ? ' (draft)' : ''}` : null;
     } catch {
       return null;
+    }
+  }
+
+  async function allBriefs(): Promise<BriefRef[] | undefined> {
+    try {
+      const briefs = await get<C.MarketBriefEnvelope[]>('/briefs');
+      return briefs.map((b) => ({ id: b.id, nicheId: b.nicheId, version: b.version, status: b.status, createdAt: b.createdAt, approvedBy: b.approvedBy }));
+    } catch {
+      return undefined;
     }
   }
 
@@ -112,7 +134,41 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
     },
     getNiche: (id: NicheId) => niche(id),
     async getOpportunities() {
-      return mapOpportunityBoard(await get<C.OpportunityBoard>('/opportunities'));
+      const [board, briefs] = await Promise.all([get<C.OpportunityBoard>('/opportunities'), allBriefs()]);
+      return { ...mapOpportunityBoard(board), briefs };
+    },
+    async getOperator(): Promise<OperatorBoard> {
+      // Each part degrades on its own: a failed call becomes an empty list plus a note, never invented rows.
+      const failed: string[] = [];
+      const soft = async <T,>(label: string, path: string, empty: T): Promise<{ v: T; at: string | null }> => {
+        try {
+          const r = await call<T>(path);
+          return { v: r.data, at: r.meta?.generatedAt ?? null };
+        } catch {
+          failed.push(label);
+          return { v: empty, at: null };
+        }
+      };
+      const [control, summary, schedules, checks, content, policies] = await Promise.all([
+        soft<C.SystemControl | null>('emergency-stop state', '/control', null),
+        soft<RawSummary | null>('weekly summary', '/operator/summaries/latest', null),
+        soft<RawSchedule[]>('schedules', '/operator/schedules', []),
+        soft<RawCheck[]>('site checks', '/operator/checks?limit=500', []),
+        soft<RawContent[]>('content pipeline', '/operator/content', []),
+        soft<RawPolicy[]>('channel policies', '/operator/policies', []),
+      ]);
+      if (failed.length === 6) throw new ApiError(0, 'unreachable', 'The Operator endpoints did not answer.');
+      return {
+        state: 'ready',
+        note: failed.length ? `Could not load: ${failed.join(', ')}. Those parts are left empty rather than guessed.` : '',
+        asOf: control.at ?? schedules.at ?? null,
+        control: control.v,
+        summary: mapSummary(summary.v),
+        schedules: schedules.v.map(mapSchedule),
+        checks: rollupChecks(checks.v),
+        content: content.v.map(mapContent),
+        policies: policies.v.map(mapPolicy),
+      };
     },
     async getBuilds() {
       const { data, meta } = await call<C.BuildBoard>('/builds');

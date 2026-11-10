@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useResource, useSource } from '../data/DataContext';
-import type { Job, PortfolioSummary, Severity } from '../data/types';
+import type { Job, OperatorBoard, PortfolioSummary, Severity } from '../data/types';
 import { AlertList } from '../components/blocks';
+import { ControlsFindings, OperatorPanel } from '../components/operator';
 import { Icon } from '../components/Icon';
 import {
   EmptyState,
@@ -28,16 +29,42 @@ const RUNNER: Record<Job['runner'], string> = {
 
 export function OperationsScreen() {
   const [res, setRes] = useResource((s) => s.getPortfolio(), []);
+  const [ops] = useResource((s) => s.getOperator(), []);
   if (res.status === 'loading') return <Loading />;
   if (res.status === 'error') return <ErrorNote error={res.error} />;
-  return <OperationsView p={res.data} onJobChange={(j) => setRes({ ...res.data, jobs: res.data.jobs.map((x) => (x.id === j.id ? j : x)) })} />;
+  const operator: OperatorBoard | 'loading' | Error = ops.status === 'ready' ? ops.data : ops.status === 'error' ? ops.error : 'loading';
+  return (
+    <OperationsView
+      p={res.data}
+      operator={operator}
+      onJobChange={(j) => setRes({ ...res.data, jobs: res.data.jobs.map((x) => (x.id === j.id ? j : x)) })}
+    />
+  );
 }
 
-export function OperationsView({ p, onJobChange }: { p: PortfolioSummary; onJobChange: (j: Job) => void }) {
+const ALERT_PREVIEW = 8;
+type SourceFilter = 'all' | 'controls' | 'operator' | 'audit' | 'other';
+const sourceKind = (src: string): Exclude<SourceFilter, 'all'> =>
+  src.startsWith('controls:') ? 'controls' : src.startsWith('ops.') ? 'operator' : src.startsWith('audit.') ? 'audit' : 'other';
+
+export function OperationsView({
+  p,
+  operator,
+  onJobChange,
+}: {
+  p: PortfolioSummary;
+  operator?: OperatorBoard | 'loading' | Error;
+  onJobChange: (j: Job) => void;
+}) {
   const [sev, setSev] = useState<Severity | 'all'>('all');
   const [scope, setScope] = useState<string>('all');
+  const [src, setSrc] = useState<SourceFilter>('all');
+  const [showAll, setShowAll] = useState(false);
   const open = sortAlerts(p.alerts.filter((a) => a.state !== 'resolved'));
-  const shown = open.filter((a) => (sev === 'all' || a.severity === sev) && (scope === 'all' || a.nicheId === scope));
+  const shown = open.filter(
+    (a) => (sev === 'all' || a.severity === sev) && (scope === 'all' || a.nicheId === scope) && (src === 'all' || sourceKind(a.source) === src),
+  );
+  const board = operator && typeof operator === 'object' && !(operator instanceof Error) ? operator : null;
   const failing = p.jobs.filter((j) => j.lastResult === 'failure');
   const withDefects = p.jobs.filter((j) => j.defects.length > 0);
   const heartbeat = p.jobs.some((j) => j.heartbeatOk !== null && j.lastResult !== 'failure');
@@ -69,7 +96,7 @@ export function OperationsView({ p, onJobChange }: { p: PortfolioSummary; onJobC
         />
       </div>
 
-      <WeeklySummary p={p} />
+      <WeeklySummary p={p} board={board} />
 
       <Section title="Alerts" kicker={`${open.length} open`} id="alerts">
         <div className="filters" role="group" aria-label="Filter alerts">
@@ -96,16 +123,47 @@ export function OperationsView({ p, onJobChange }: { p: PortfolioSummary; onJobC
               ))}
             </select>
           </label>
+          <label>
+            <span>Raised by</span>
+            <select value={src} onChange={(e) => setSrc(e.target.value as SourceFilter)}>
+              <option value="all">All</option>
+              <option value="controls">Controls</option>
+              <option value="operator">Operator checks</option>
+              <option value="audit">Nov 10 audit</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
           <span className="filters__count" aria-live="polite">
             {shown.length} shown
           </span>
         </div>
         {shown.length ? (
-          <AlertList alerts={shown} niches={p.niches} />
+          <>
+            <AlertList alerts={shown} niches={p.niches} limit={showAll ? undefined : ALERT_PREVIEW} />
+            {shown.length > ALERT_PREVIEW && (
+              <button className="btn btn--quiet" aria-expanded={showAll} onClick={() => setShowAll(!showAll)}>
+                {showAll ? 'Show the most severe only' : `Show all ${shown.length} alerts`}
+              </button>
+            )}
+          </>
         ) : (
           <EmptyState icon="check-circle" title="No alerts match">
             <p>Try a different filter.</p>
           </EmptyState>
+        )}
+      </Section>
+
+      <Section title="Controls findings" kicker="Finance, ledger and spend checks" id="controls">
+        <ControlsFindings alerts={p.alerts} niches={p.niches} />
+      </Section>
+
+      <Section title="Operator" kicker="What FORGE runs on its own" id="operator">
+        {operator === 'loading' || operator === undefined ? (
+          <Loading />
+        ) : operator instanceof Error ? (
+          <ErrorNote error={operator} />
+        ) : (
+          <OperatorPanel board={operator} niches={p.niches} />
         )}
       </Section>
 
@@ -153,8 +211,15 @@ export function opsHeadline(jobs: Job[], failed: number, heartbeat: boolean): st
   const lead = failed ? `${failed} scheduled ${failed === 1 ? 'job has' : 'jobs have'} failed.` : 'No scheduled job reported a failure.';
   const rest = jobs.length - failed;
   if (!heartbeat) return `${lead} ${rest} others last reported success, but nothing yet checks that they are still running.`;
-  const late = jobs.filter((j) => j.heartbeatOk === false).length;
-  return `${lead} ${late ? `${late} running late.` : 'The rest are on schedule.'}`;
+  const live = jobs.filter((j) => j.lastResult !== 'failure');
+  const late = live.filter((j) => j.heartbeatOk === false).length;
+  const unseen = live.filter((j) => j.heartbeatOk === null).length;
+  const onTime = live.length - late - unseen;
+  const parts: string[] = [];
+  if (late) parts.push(`${late} running late`);
+  if (unseen) parts.push(`${unseen} with no heartbeat yet, so FORGE can't confirm they run`);
+  if (!parts.length) return `${lead} The rest are on schedule.`;
+  return `${lead} ${onTime} on schedule, ${parts.join(', ')}.`;
 }
 
 function OpsFact({ label, value, sub, tone }: { label: string; value: string; sub: string; tone?: 'critical' | 'warn' }) {
@@ -167,8 +232,11 @@ function OpsFact({ label, value, sub, tone }: { label: string; value: string; su
   );
 }
 
-/** Deterministic in-app weekly summary built from the same records. No email is sent. */
-function WeeklySummary({ p }: { p: PortfolioSummary }) {
+/**
+ * In-app weekly summary. Prefers the one the Operator generated (OPS-WEEKLY-SUMMARY); otherwise derives one
+ * deterministically from the same records and says so. No email is sent either way.
+ */
+function WeeklySummary({ p, board }: { p: PortfolioSummary; board: OperatorBoard | null }) {
   const lines = useMemo(() => {
     const out: string[] = [];
     const rev = p.financials.grossRevenue;
@@ -181,18 +249,33 @@ function WeeklySummary({ p }: { p: PortfolioSummary }) {
     if (owner.length) out.push(`Waiting on you: ${owner.map((a) => a.nextAction.replace(/\.$/, '')).join('; ')}.`);
     return out;
   }, [p]);
+  const gen = board?.summary;
   return (
     <section className="weekly" aria-labelledby="weekly-title">
       <div className="weekly__head">
         <Icon name="doc" size={18} />
         <h2 id="weekly-title">Weekly summary</h2>
-        <span className="weekly__period">{p.period.label} · in-app only, no email</span>
+        <span className="weekly__period">
+          {gen
+            ? `${gen.period.label} · generated ${formatDateTime(gen.generatedAt)} by the Operator · in-app only, no email`
+            : `${p.period.label} · derived in Command from current records · in-app only, no email`}
+        </span>
       </div>
       <ul>
-        {lines.map((l) => (
+        {(gen ? gen.headline : lines).map((l) => (
           <li key={l}>{l}</li>
         ))}
       </ul>
+      {gen && gen.unknowns.length > 0 && (
+        <details className="weekly__unknowns">
+          <summary>{gen.unknowns.length} things the summary could not see</summary>
+          <ul>
+            {gen.unknowns.map((u) => (
+              <li key={u}>{u}</li>
+            ))}
+          </ul>
+        </details>
+      )}
     </section>
   );
 }

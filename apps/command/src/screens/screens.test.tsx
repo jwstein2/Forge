@@ -181,3 +181,65 @@ describe('Accounts with 1Password links', () => {
     expect(screen.getByRole('link', { name: /Open in 1Password/ })).toHaveAttribute('href', 'https://start.1password.com/open/i?a=ACC&v=VAULT&i=ITEM');
   });
 });
+
+describe('Operations with Operator and controls data (M6)', () => {
+  const board = {
+    state: 'ready' as const,
+    note: '',
+    asOf: '2026-11-10T04:10:00Z',
+    control: { globalPause: false, pausedAt: null, pausedBy: null, reason: null },
+    summary: { id: 's1', period: { start: '2026-11-02T00:00:00Z', end: '2026-11-09T00:00:00Z', label: 'Week of 2026-11-02' }, generatedAt: '2026-11-10T04:00:14Z', headline: ['Revenue: $0.00 gross from 0 live order(s).'], unknowns: ['Lemon Squeezy (unconnected)'] },
+    schedules: [{ id: 'OPS-SITE-HEALTH', kind: 'ops.site_health', nicheId: null, cadence: 'Every hour', enabled: true, lastSlot: '2026-11-10T04:00Z', lastJobStatus: 'succeeded', lastJobUpdatedAt: null }],
+    checks: [{ kind: 'site_health', nicheId: 'bidline', targets: 3, passing: 1, unknown: 2, lastCheckedAt: '2026-11-10T03:46:00Z', findings: [{ code: 'checker_error', severity: 'info' as const, message: 'Site state UNKNOWN', target: 'x' }] }],
+    content: [],
+    policies: [{ channelId: 'ch_qpk_pinterest', nicheId: 'quilt-plan-kit', platform: 'pinterest', channelStatus: 'verified', mode: 'draft_only', publisher: 'dry_run', dailyCap: 0, windowEnd: null }],
+  };
+  const source = () => {
+    const base = createFixtureSource();
+    return {
+      ...base,
+      getOperator: async () => board,
+      async getPortfolio() {
+        const p = await base.getPortfolio();
+        p.alerts.push({ id: 'ctl1', severity: 'critical', nicheId: 'bidline', title: 'Site price $19.00 ≠ checkout $19.99', detail: '', source: 'controls:FIN-PR-01', firstSeen: p.generatedAt, lastSeen: p.generatedAt, state: 'open', nextAction: 'Set the checkout price.', needsOwner: true });
+        return p;
+      },
+    };
+  };
+
+  it('uses the Operator weekly summary, lists schedules, unknown checks and dry-run boundaries', async () => {
+    render(<TestApp source={source()} path="/operations" />);
+    expect(await screen.findByText('Revenue: $0.00 gross from 0 live order(s).')).toBeInTheDocument();
+    expect(screen.getByText(/generated .* by the Operator/)).toBeInTheDocument();
+    expect(screen.getByText('Emergency stop is off. FORGE jobs run on their schedules.')).toBeInTheDocument();
+    expect(screen.getByText('OPS-SITE-HEALTH')).toBeInTheDocument();
+    expect(screen.getByText('2 unknown')).toBeInTheDocument();
+    expect(screen.getByText('Dry run (posts nothing)')).toBeInTheDocument();
+    expect(screen.getByText(/Nothing planned or drafted yet/)).toBeInTheDocument();
+  });
+
+  it('shows controls findings with their code and labels alert sources', async () => {
+    render(<TestApp source={source()} path="/operations" />);
+    const region = await screen.findByRole('region', { name: 'Controls findings table, scrollable' });
+    expect(within(region).getByText('FIN-PR-01')).toBeInTheDocument();
+    expect(screen.getAllByText('Controls · FIN-PR-01').length).toBeGreaterThan(0);
+    await userEvent.selectOptions(screen.getByLabelText('Raised by'), 'controls');
+    expect(screen.getByText('1 shown')).toBeInTheDocument();
+  });
+
+  it('says plainly when the snapshot has no Operator data', async () => {
+    renderAt('/operations');
+    expect(await screen.findByText('Operator data is not connected in this view')).toBeInTheDocument();
+    expect(screen.getByText(/derived in Command from current records/)).toBeInTheDocument();
+  });
+});
+
+describe('opsHeadline with heartbeat data', () => {
+  it('does not call jobs without a heartbeat "on schedule"', async () => {
+    const { opsHeadline } = await import('./Operations');
+    const job = (id: string, heartbeatOk: boolean | null) => ({ id, heartbeatOk, lastResult: 'success' }) as unknown as import('../data/types').Job;
+    const h = opsHeadline([job('a', true), job('b', null), job('c', false)], 0, true);
+    expect(h).toBe("No scheduled job reported a failure. 1 on schedule, 1 running late, 1 with no heartbeat yet, so FORGE can't confirm they run.");
+    expect(opsHeadline([job('a', true)], 0, true)).toBe('No scheduled job reported a failure. The rest are on schedule.');
+  });
+});

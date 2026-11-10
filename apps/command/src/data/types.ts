@@ -262,6 +262,17 @@ export interface OpportunityBoard {
   scoutVersion: string | null;
   note: string;
   opportunities: Opportunity[];
+  /** Market briefs stored in FORGE (GET /briefs). Undefined when the source can't say. */
+  briefs?: BriefRef[];
+}
+
+export interface BriefRef {
+  id: string;
+  nicheId: NicheId;
+  version: string;
+  status: 'draft' | 'approved' | 'superseded';
+  createdAt: string;
+  approvedBy: string | null;
 }
 
 /** Builder Workspace. */
@@ -328,4 +339,83 @@ export interface CommandDataSource {
   getBuilds(opts?: { sample?: boolean }): Promise<BuildBoard>;
   getAccounts(): Promise<Account[]>;
   setJobPaused(id: string, paused: boolean): Promise<Job>;
+  /** FORGE Operator (M3) schedules, checks, content pipeline and weekly summary, plus the emergency-stop state. */
+  getOperator(): Promise<OperatorBoard>;
+}
+
+/** FORGE Operator view models (GET /operator/*, GET /control). */
+export interface OperatorSchedule {
+  id: string;
+  kind: string;
+  nicheId: NicheId | null;
+  /** Human cadence derived from the schedule spec, e.g. "Every 60 min", "Mondays 06:00 UTC". */
+  cadence: string;
+  enabled: boolean;
+  lastSlot: string | null;
+  lastJobStatus: string | null;
+  lastJobUpdatedAt: string | null;
+}
+
+export interface CheckFinding {
+  code: string;
+  severity: Severity;
+  message: string;
+  target: string;
+}
+
+/** Latest result per target, rolled up per check kind and business. */
+export interface CheckRollup {
+  kind: string;
+  nicheId: NicheId | null;
+  targets: number;
+  passing: number;
+  /** Targets FORGE could not check (checker_error): neither passing nor failing. */
+  unknown: number;
+  lastCheckedAt: string;
+  /** Distinct findings from the latest result of each failing target (at most a handful). */
+  findings: CheckFinding[];
+}
+
+export interface ContentItem {
+  id: string;
+  nicheId: NicheId;
+  platform: string;
+  title: string;
+  status: string;
+  publishBy: string | null;
+  late: boolean;
+  evidence: string | null;
+  externalUrl: string | null;
+  verifiedAt: string | null;
+}
+
+export interface ChannelPolicy {
+  channelId: string;
+  nicheId: NicheId;
+  platform: string;
+  channelStatus: string;
+  mode: 'off' | 'draft_only' | 'approval_each' | 'standing' | string;
+  publisher: string;
+  dailyCap: number;
+  windowEnd: string | null;
+}
+
+export interface OperatorSummary {
+  id: string;
+  period: Period;
+  generatedAt: string;
+  headline: string[];
+  unknowns: string[];
+}
+
+export interface OperatorBoard {
+  state: 'ready' | 'unconnected';
+  note: string;
+  asOf: string | null;
+  control: { globalPause: boolean; pausedAt: string | null; pausedBy: string | null; reason: string | null } | null;
+  summary: OperatorSummary | null;
+  schedules: OperatorSchedule[];
+  checks: CheckRollup[];
+  content: ContentItem[];
+  policies: ChannelPolicy[];
 }

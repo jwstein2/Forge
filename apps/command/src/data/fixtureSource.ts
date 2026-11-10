@@ -41,6 +41,19 @@ export function createFixtureSource(): CommandDataSource {
     async getAccounts() {
       return clone(accounts);
     },
+    async getOperator() {
+      return {
+        state: 'unconnected',
+        note: 'The FORGE Operator runs on the staging API. This audit snapshot predates it, so schedules, site checks and the content pipeline appear only when Command reads the API.',
+        asOf: null,
+        control: null,
+        summary: null,
+        schedules: [],
+        checks: [],
+        content: [],
+        policies: [],
+      };
+    },
     async setJobPaused(id, paused) {
       const job = jobState.get(id);
       if (!job) throw new Error(`Unknown job ${id}`);

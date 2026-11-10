@@ -58,7 +58,12 @@ export async function verify(opts: {
 /** Bounded in-memory replay guard for a single receiver instance (D1-backed dedupe is preferred where available). */
 export class ReplayGuard {
   private seen = new Map<string, number>();
-  constructor(private windowSec = WINDOW_SECONDS, private max = 10000) {}
+  private readonly windowSec: number;
+  private readonly max: number;
+  constructor(windowSec = WINDOW_SECONDS, max = 10000) {
+    this.windowSec = windowSec;
+    this.max = max;
+  }
   /** Returns false if this id was already accepted inside the window. */
   accept(id: string, nowSec = Math.floor(Date.now() / 1000)): boolean {
     const cutoff = nowSec - 2 * this.windowSec;

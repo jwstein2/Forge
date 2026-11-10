@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useResource } from '../data/DataContext';
-import type { EvidenceLabel, Opportunity, OpportunityBoard } from '../data/types';
+import type { BriefRef, EvidenceLabel, Opportunity, OpportunityBoard } from '../data/types';
 import { Meter, SeasonBars } from '../components/charts';
 import { Icon } from '../components/Icon';
 import { EmptyState, ErrorNote, Loading, PageHeader, SampleBanner, StateChip } from '../components/primitives';
-import { formatValue } from '../lib/format';
+import { formatDateTime, formatValue } from '../lib/format';
 
 export function OpportunitiesScreen() {
   const [params] = useSearchParams();
@@ -40,6 +40,7 @@ export function OpportunitiesView({ board }: { board: OpportunityBoard }) {
             </Link>
           </p>
         </EmptyState>
+        <Briefs briefs={board.briefs} />
       </div>
     );
   }
@@ -87,7 +88,59 @@ export function OpportunitiesView({ board }: { board: OpportunityBoard }) {
         </nav>
         {selected && <OpportunityDetail o={selected} sample={board.state === 'sample'} />}
       </div>
+      <Briefs briefs={board.briefs} />
     </div>
+  );
+}
+
+const BRIEF_STATUS = { draft: 'Draft', approved: 'Approved', superseded: 'Superseded' } as const;
+const NICHE_NAME: Record<string, string> = { 'quilt-plan-kit': 'Quilt Plan Kit', bidline: 'Bidline', 'loaf-ledger': 'Loaf Ledger' };
+
+/** Market briefs stored in FORGE. Hidden when the source can't say (snapshot mode); an honest "none" when it says zero. */
+function Briefs({ briefs }: { briefs?: BriefRef[] }) {
+  if (!briefs) return null;
+  const current = briefs.filter((b) => b.status !== 'superseded').sort((a, b) => a.nicheId.localeCompare(b.nicheId));
+  return (
+    <section className="section" aria-labelledby="briefs-title">
+      <header className="section__head">
+        <div>
+          <p className="kicker">Inputs the Scout and Operator read</p>
+          <h2 className="section__title" id="briefs-title">
+            Market briefs
+          </h2>
+        </div>
+      </header>
+      {current.length ? (
+        <div className="table-wrap" tabIndex={0} role="region" aria-label="Market briefs table, scrollable">
+          <table className="table">
+            <caption className="sr-only">Market briefs</caption>
+            <thead>
+              <tr>
+                <th scope="col">Business</th>
+                <th scope="col">Version</th>
+                <th scope="col">Status</th>
+                <th scope="col">Stored</th>
+              </tr>
+            </thead>
+            <tbody>
+              {current.map((b) => (
+                <tr key={b.id}>
+                  <th scope="row">{NICHE_NAME[b.nicheId] ?? b.nicheId}</th>
+                  <td className="mono">{b.version}</td>
+                  <td>
+                    <span className={`tag tag--${b.status === 'approved' ? 'good' : 'outline'}`}>{BRIEF_STATUS[b.status]}</span>
+                    {b.approvedBy && <span className="muted small"> by {b.approvedBy}</span>}
+                  </td>
+                  <td className="nowrap">{formatDateTime(b.createdAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="muted small">No market briefs are stored in FORGE on this environment yet, so nothing downstream can cite one.</p>
+      )}
+    </section>
   );
 }
 

@@ -4,6 +4,7 @@ import { formatDateTime, freshness } from '../lib/format';
 import { useNow } from '../lib/clock';
 import { PLATFORMS } from '../lib/derive';
 import { Icon } from './Icon';
+import { sourceLabel } from '../data/operatorMap';
 import { ChannelBadge, ExternalLink, NicheDot, SeverityBadge } from './primitives';
 
 export function nicheName(niches: Niche[], id: string) {
@@ -33,7 +34,7 @@ export function AlertList({ alerts, niches, limit }: { alerts: Alert[]; niches: 
               <span className="alert__next-label">Next:</span> {a.nextAction}
             </span>
             <span className="alert__seen">
-              Seen {freshness(a.lastSeen, now)} · {a.source}
+              Seen {freshness(a.lastSeen, now)} · <span title={a.source}>{sourceLabel(a.source)}</span>
             </span>
           </p>
         </li>

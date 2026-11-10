@@ -42,7 +42,7 @@ test('keyboard: skip link moves focus to main content', async ({ page }) => {
 
 test('keyboard: chart exposes values with arrow keys', async ({ page }) => {
   await page.goto('/');
-  const chart = page.getByRole('img', { name: 'Verified revenue' });
+  const chart = page.getByRole('img', { name: /^Verified (revenue|gross sales)$/ });
   await chart.focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.chart__tip')).toContainText('$0');

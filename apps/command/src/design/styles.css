@@ -513,3 +513,16 @@ button, select { font: inherit; color: inherit; }
   .chip, .badge, .tag { border: 1px solid CanvasText; }
   .chart__line { stroke: CanvasText; }
 }
+
+/* ---------- Operator (M3) and controls ---------- */
+.weekly__unknowns { font-size: var(--text-sm); color: #c9ccd4; }
+.weekly__unknowns summary { cursor: pointer; color: #e2bb76; min-height: 24px; }
+.weekly__unknowns ul { margin-top: var(--s-2); font-size: var(--text-sm); }
+.operator { display: grid; gap: var(--s-3); min-width: 0; }
+.operator .subhead { margin-top: var(--s-4); font-family: var(--font-display); font-weight: 500; font-size: var(--text-lg); }
+.operator__note { display: flex; gap: var(--s-2); align-items: center; padding: var(--s-3) var(--s-4); border-radius: var(--radius-md); background: var(--warn-wash); color: var(--warn); font-size: var(--text-sm); }
+.stop-line { display: flex; gap: var(--s-2); align-items: center; padding: var(--s-3) var(--s-4); border-radius: var(--radius-md); background: var(--surface-2); font-size: var(--text-sm); }
+.stop-line.is-stopped { background: var(--critical-wash); color: var(--critical); font-weight: 600; }
+.findings { display: grid; gap: var(--s-2); max-width: 64ch; }
+.findings li { overflow-wrap: anywhere; }
+.findings .badge { margin-right: 4px; }
