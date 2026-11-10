@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useSource } from '../data/DataContext';
 import type { ChannelPolicy, Niche, OperatorBoard, PublishingProposal, Recommendation } from '../data/types';
-import { formatDateTime } from '../lib/format';
+import { formatDateTime, formatDateYear } from '../lib/format';
+import { useNow } from '../lib/clock';
 import { nicheName } from './blocks';
 import { Icon } from './Icon';
 import { EmptyState } from './primitives';
@@ -18,18 +19,27 @@ export function proposalApplied(p: PublishingProposal, policies: ChannelPolicy[]
   });
 }
 
+/** Latest window end among applied standing boundaries; null when none carries one. */
+export function appliedUntil(policies: ChannelPolicy[]): string | null {
+  const ends = policies.filter((x) => x.approvalId && x.windowEnd).map((x) => x.windowEnd as string).sort();
+  return ends.length ? ends[ends.length - 1] : null;
+}
+
 /**
  * The one publishing decision: accept every channel's proposed boundary at once. Never a per-item queue.
  * Two steps (review, then confirm) because it records an owner approval; nothing goes live from it alone.
  */
 export function ProposalBlock({ board, niches, onBoard }: { board: OperatorBoard; niches: Niche[]; onBoard: (b: OperatorBoard) => void }) {
   const source = useSource();
+  const now = useNow();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null);
   const p = board.proposal;
   if (!p) return null;
-  const applied = proposalApplied(p, board.policies);
+  const until = appliedUntil(board.policies);
+  const expired = !!until && Date.parse(until) <= now.getTime();
+  const applied = proposalApplied(p, board.policies) && !expired;
 
   async function apply() {
     if (!p) return;
@@ -37,7 +47,7 @@ export function ProposalBlock({ board, niches, onBoard }: { board: OperatorBoard
     setMsg(null);
     try {
       const r = await source.applyPublishingProposal(p.version);
-      setMsg({ tone: 'ok', text: `Applied. One approval (${r.approvalId}) covers ${p.channels.length} channels until ${formatDateTime(r.windowEnd)}. No live connection was made.` });
+      setMsg({ tone: 'ok', text: `Applied. One approval (${r.approvalId}) covers ${p.channels.length} channels until ${formatDateYear(r.windowEnd)}. No live connection was made.` });
       setConfirming(false);
       onBoard(await source.getOperator());
     } catch (e) {
@@ -53,7 +63,8 @@ export function ProposalBlock({ board, niches, onBoard }: { board: OperatorBoard
       <div className="proposal__head">
         <h3 className="subhead">Publishing proposal</h3>
         <span className="mono small muted">v{p.version}</span>
-        {applied && <span className="tag tag--good">Applied</span>}
+        {applied && <span className="tag tag--good">Applied{until ? ` until ${formatDateYear(until)}` : ''}</span>}
+        {expired && <span className="tag tag--warn">Expired {formatDateYear(until!)}</span>}
       </div>
       <p>{p.summary}</p>
       <div className="table-wrap" tabIndex={0} role="region" aria-label="Proposed publishing boundaries table, scrollable">
@@ -91,12 +102,12 @@ export function ProposalBlock({ board, niches, onBoard }: { board: OperatorBoard
         <div className="proposal__act">
           {!confirming ? (
             <button className="btn btn--primary" onClick={() => setConfirming(true)}>
-              Apply all {p.channels.length} boundaries
+              Apply all {p.channels.length} {p.channels.length === 1 ? "boundary" : "boundaries"}
             </button>
           ) : (
             <div className="confirm" role="group" aria-label="Confirm publishing proposal">
               <p>
-                This records one owner approval covering all {p.channels.length} channels until {formatDateTime(p.windowEnd)}. Every channel stays on
+                This records one owner approval covering all {p.channels.length} channels until {formatDateYear(p.windowEnd)}. Every channel stays on
                 its current publisher (dry run or manual); each live connection is a separate decision.
               </p>
               <div className="confirm__buttons">
@@ -229,6 +240,12 @@ export function LifecycleBlock({ board, niches }: { board: OperatorBoard; niches
           </p>
         </EmptyState>
       ) : (
+        <>
+        <p className="provenance">
+          <span>MailerLite, read-only</span>
+          <span aria-hidden="true">·</span>
+          <span>read {s.takenAt ? formatDateTime(s.takenAt) : 'at an unknown time'}</span>
+        </p>
         <div className="table-wrap" tabIndex={0} role="region" aria-label="Subscriber groups table, scrollable">
           <table className="table">
             <caption className="sr-only">Subscriber groups, read {s.takenAt ? formatDateTime(s.takenAt) : ''}</caption>
@@ -252,6 +269,7 @@ export function LifecycleBlock({ board, niches }: { board: OperatorBoard; niches
             </tbody>
           </table>
         </div>
+        </>
       )}
       {sequences.length > 0 && (
         <div className="table-wrap" tabIndex={0} role="region" aria-label="Email sequences table, scrollable">

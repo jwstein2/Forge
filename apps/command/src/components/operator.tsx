@@ -1,5 +1,5 @@
 import type { Alert, CheckRollup, Niche, OperatorBoard } from '../data/types';
-import { formatDateTime, freshness } from '../lib/format';
+import { formatDateTime, formatDateYear, freshness } from '../lib/format';
 import { useNow } from '../lib/clock';
 import { nicheName } from './blocks';
 import { Icon } from './Icon';
@@ -177,7 +177,7 @@ export function OperatorPanel({ board, niches, onBoard = () => {} }: { board: Op
                   <td>{name(p.nicheId)}</td>
                   <td>
                     {MODE[p.mode] ?? cap(p.mode)}
-                    {p.mode === 'standing' && p.windowEnd && <span className="muted small"> until {formatDateTime(p.windowEnd)}</span>}
+                    {p.mode === 'standing' && p.windowEnd && <span className="muted small"> until {formatDateYear(p.windowEnd)}</span>}
                   </td>
                   <td>{p.publisher === 'dry_run' ? 'Dry run (posts nothing)' : cap(p.publisher)}</td>
                   <td>{p.dailyCap}</td>

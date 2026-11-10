@@ -300,3 +300,25 @@ describe('Operator decisions (phase 2)', () => {
     expect(await screen.findByText(/1 proposal marked accepted/)).toBeInTheDocument();
   });
 });
+
+describe('QA-012 C1–C3', () => {
+  const p = { version: 'v1', windowEnd: '2027-02-08T04:00:00Z', summary: 'S', channels: [{ channelId: 'a', nicheId: 'quilt-plan-kit', platform: 'pinterest', mode: 'standing', publisher: 'dry_run', dailyCap: 1, why: 'w', liveConnectionNeeded: 'l' }] };
+  const mk = (windowEnd: string, lifecycleState = 'live') => ({
+    state: 'ready' as const, note: '', asOf: null, control: null, summary: null, schedules: [], checks: [], content: [], recommendations: null,
+    policies: [{ channelId: 'a', nicheId: 'quilt-plan-kit', platform: 'pinterest', channelStatus: 'verified', mode: 'standing', publisher: 'dry_run', dailyCap: 1, windowEnd, approvalId: 'apr_1' }],
+    proposal: p,
+    lifecycle: { snapshot: { state: lifecycleState, takenAt: '2026-11-10T09:00:00Z', note: null, groups: [{ id: 'g', name: 'QPK list', nicheId: 'quilt-plan-kit', active: 4, unconfirmed: 1 }], forms: [], automations: [] }, sequences: [] },
+  });
+  it('shows the applied window with its year, then Expired once it passes', async () => {
+    const { unmount } = render(<TestApp source={{ ...createFixtureSource(), getOperator: async () => mk('2099-02-08T04:00:00Z') }} path="/operations" />);
+    expect(await screen.findByText('Applied until Feb 8, 2099')).toBeInTheDocument();
+    unmount();
+    render(<TestApp source={{ ...createFixtureSource(), getOperator: async () => mk('2020-02-08T04:00:00Z') }} path="/operations" />);
+    expect(await screen.findByText('Expired Feb 8, 2020')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Apply all 1 boundary' })).toBeInTheDocument();
+  });
+  it('shows when MailerLite was read', async () => {
+    render(<TestApp source={{ ...createFixtureSource(), getOperator: async () => mk('2099-02-08T04:00:00Z') }} path="/operations" />);
+    expect(await screen.findByText(/^read Nov 10/)).toBeInTheDocument();
+  });
+});

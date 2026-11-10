@@ -10,7 +10,7 @@ Status: **BUILT, TESTED locally** (unit, browser, accessibility, responsive). No
 npm install
 npm run dev            # http://localhost:5173, audit snapshot data
 VITE_FORGE_API=http://localhost:8787/api/v1 VITE_FORGE_DEV_TOKEN=<token printed by the API dev server> npm run dev   # read the platform API
-npm test               # 87 unit, component and API-mapping tests (Vitest)
+npm test               # 89 unit, component and API-mapping tests (Vitest)
 npm run test:e2e       # axe (light, dark, 320px), responsive at 320/375/820/1440, keyboard (Playwright)
 npm run screenshots    # evidence screenshots → test-results/screens/
 ```
