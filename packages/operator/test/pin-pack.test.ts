@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PINS, binding, backing, hst, borders, charms, eighths, yd, rssItem, pinLink } from "../src/content/qpk-pin-pack.ts";
+import { PINS, binding, backing, hst, borders, charms, eighths, yd, rssItem, pinLink, queueEntry } from "../src/content/qpk-pin-pack.ts";
 import { claimsLint } from "../src/handlers/content.ts";
 
 // Numbers as stated on the live pages (read 2026-11-10). The pack must reproduce them from the pages' own formulas.
@@ -30,11 +30,10 @@ describe("QPK pin pack matches the site's pages", () => {
 });
 
 describe("QPK pin pack is publishable copy", () => {
-  it("has 14 pins, one a day from 2026-11-13, unique slugs and pages", () => {
-    expect(PINS).toHaveLength(14);
-    PINS.forEach((p, i) => expect(p.date).toBe(`2026-11-${String(13 + i).padStart(2, "0")}`));
-    expect(new Set(PINS.map((p) => p.slug)).size).toBe(14);
-    expect(new Set(PINS.map((p) => p.path)).size).toBe(14);
+  it("has 4 pins for pages the queue lacks, one a day from 2026-12-14", () => {
+    expect(PINS.map((p) => p.slug)).toEqual(["borders-throw", "precuts-throw", "borders-calculator", "precuts-calculator"]);
+    PINS.forEach((p, i) => expect(p.date).toBe(`2026-12-${14 + i}`));
+    expect(queueEntry(PINS[0]!)).toMatchObject({ slug: "borders-throw", path: "/guides/how-much-fabric-for-borders", publish: "2026-12-14T19:00:00.000Z" });
   });
   it("passes the claims check, with no prices at all", () => {
     for (const p of PINS) expect(claimsLint(`${p.title}\n${p.description}\n${p.facts.join("\n")}`, [])).toEqual([]);
@@ -51,13 +50,11 @@ describe("QPK pin pack is publishable copy", () => {
       for (const f of [...p.facts, ...p.headline]) expect(f.length).toBeLessThanOrEqual(30);
     }
   });
-  it("skips pages with known copy problems and builds valid RSS items", () => {
-    expect(PINS.map((p) => p.path)).not.toContain("/answers/binding-baby-quilt");
-    expect(PINS.map((p) => p.path)).not.toContain("/answers/backing-king-quilt");
+  it("builds valid RSS items", () => {
     const x = rssItem(PINS[0]!);
-    expect(x).toContain("<pubDate>Fri, 13 Nov 2026 19:00:00 GMT</pubDate>");
+    expect(x).toContain("<pubDate>Mon, 14 Dec 2026 19:00:00 GMT</pubDate>");
     expect(x).toContain("utm_content=borders-throw");
     expect(x).not.toMatch(/&(?!amp;|lt;|gt;)/);
-    expect(pinLink(PINS[2]!)).toBe("https://quiltplankit.pages.dev/answers/binding-queen-quilt?utm_source=pinterest&utm_medium=organic&utm_campaign=rss&utm_content=binding-queen");
+    expect(pinLink(PINS[3]!)).toBe("https://quiltplankit.pages.dev/calculators/precuts?utm_source=pinterest&utm_medium=organic&utm_campaign=rss&utm_content=precuts-calculator");
   });
 });
