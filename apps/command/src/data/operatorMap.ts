@@ -2,7 +2,8 @@
  * Pure mappers for the FORGE Operator API (packages/operator/src/routes.ts, mounted at /api/v1/operator).
  * These shapes are not in @forge/contracts yet, so the raw types are declared here from the route handlers.
  */
-import type { ChannelPolicy, CheckFinding, CheckRollup, ContentItem, OperatorSchedule, OperatorSummary, Severity } from './types';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ChannelPolicy, CheckFinding, CheckRollup, ContentItem, LifecycleSequence, LifecycleSnapshot, OperatorSchedule, OperatorSummary, Recommendation, Severity } from './types';
 
 export interface RawSchedule {
   id: string; kind: string; nicheId: string | null; spec: unknown; enabled: boolean;
@@ -19,7 +20,15 @@ export interface RawContent {
 }
 export interface RawPolicy {
   channelId: string; nicheId: string; platform: string; channelStatus: string; mode: string;
-  publisher: string; dailyCap: number; windowEnd: string | null;
+  publisher: string; dailyCap: number; windowEnd: string | null; approvalId?: string | null;
+}
+export interface RawRecommendation {
+  id: string; nicheId: string | null; rule: string; title: string; detail: string; action: string; impact: string;
+  evidence: unknown; evidenceLabel: string | null; status: string; needsOwner: boolean; createdAt?: string | null;
+}
+export interface RawLifecycle {
+  snapshot: { state: string; takenAt?: string; note?: string; error?: string | null; groups?: any[]; forms?: any[]; automations?: any[] };
+  sequences: { id: string; nicheId: string; kind: string; name: string; status: string; emails?: unknown[]; lint?: string[]; mailerliteAutomationId?: string | null }[];
 }
 export interface RawSummary {
   id: string; periodStart: string; periodEnd: string; generatedAt: string;
@@ -79,7 +88,36 @@ export function mapContent(x: RawContent): ContentItem {
 }
 
 export function mapPolicy(x: RawPolicy): ChannelPolicy {
-  return { ...x, dailyCap: Number(x.dailyCap) || 0 };
+  return { ...x, dailyCap: Number(x.dailyCap) || 0, approvalId: x.approvalId ?? null };
+}
+
+export function mapRecommendation(x: RawRecommendation): Recommendation {
+  return {
+    id: x.id, nicheId: x.nicheId, rule: x.rule, title: x.title, detail: x.detail, action: x.action, impact: x.impact,
+    evidenceLabel: x.evidenceLabel, status: x.status, needsOwner: !!x.needsOwner, createdAt: x.createdAt ?? null,
+  };
+}
+
+const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+
+/** Subscriber numbers exist only in a 'live' snapshot; any other state keeps them null (UNKNOWN), never 0. */
+export function mapLifecycle(x: RawLifecycle): { snapshot: LifecycleSnapshot; sequences: LifecycleSequence[] } {
+  const s = x.snapshot ?? { state: 'unconnected' };
+  const live = s.state === 'live';
+  return {
+    snapshot: {
+      state: s.state,
+      takenAt: s.takenAt ?? null,
+      note: s.error ?? s.note ?? null,
+      groups: live ? (s.groups ?? []).map((g) => ({ id: String(g.id), name: String(g.name), nicheId: g.nicheId ?? null, active: num(g.active), unconfirmed: num(g.unconfirmed) })) : [],
+      forms: live ? (s.forms ?? []).map((f) => ({ id: String(f.id), name: String(f.name), active: !!f.active, opens: num(f.opens), conversions: num(f.conversions) })) : [],
+      automations: live ? (s.automations ?? []).map((a) => ({ name: String(a.name), nicheId: a.nicheId ?? null, status: String(a.status ?? 'unknown'), sent: num(a.sent) })) : [],
+    },
+    sequences: (x.sequences ?? []).map((q) => ({
+      id: q.id, nicheId: q.nicheId, kind: q.kind, name: q.name, status: q.status,
+      emails: Array.isArray(q.emails) ? q.emails.length : 0, lint: Array.isArray(q.lint) ? q.lint : [], mailerliteAutomationId: q.mailerliteAutomationId ?? null,
+    })),
+  };
 }
 
 export function mapSummary(x: RawSummary | null): OperatorSummary | null {

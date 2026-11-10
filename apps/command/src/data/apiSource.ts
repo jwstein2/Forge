@@ -11,8 +11,8 @@ import {
   mapOpportunityBoard,
   mapSeries,
 } from './apiMap';
-import { mapContent, mapPolicy, mapSchedule, mapSummary, rollupChecks, type RawCheck, type RawContent, type RawPolicy, type RawSchedule, type RawSummary } from './operatorMap';
-import type { BriefRef, CommandDataSource, Job, Niche, NicheId, OperatorBoard, PortfolioSummary } from './types';
+import { mapContent, mapLifecycle, mapPolicy, mapRecommendation, mapSchedule, mapSummary, rollupChecks, type RawCheck, type RawContent, type RawLifecycle, type RawPolicy, type RawRecommendation, type RawSchedule, type RawSummary } from './operatorMap';
+import type { BriefRef, CommandDataSource, Job, Niche, NicheId, OperatorBoard, PortfolioSummary, PublishingProposal } from './types';
 
 /** Shown when a request never got an answer: offline, or (behind Cloudflare Access) a sign-in that expired and redirected. */
 export const UNREACHABLE =
@@ -157,7 +157,21 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
         soft<RawContent[]>('content pipeline', '/operator/content', []),
         soft<RawPolicy[]>('channel policies', '/operator/policies', []),
       ]);
-      if (failed.length === 6) throw new ApiError(0, 'unreachable', 'The Operator endpoints did not answer.');
+      // Phase 2 endpoints: a 404 means this API version doesn't have them yet, which is not a failure to report.
+      const optional = async <T,>(label: string, path: string): Promise<T | null> => {
+        try {
+          return (await call<T>(path)).data;
+        } catch (e) {
+          if (!(e instanceof ApiError && e.status === 404)) failed.push(label);
+          return null;
+        }
+      };
+      const [proposal, recos, lifecycle] = await Promise.all([
+        optional<PublishingProposal>('publishing proposal', '/operator/policies/proposal'),
+        optional<RawRecommendation[]>('recommendations', '/operator/recommendations?status=proposed'),
+        optional<RawLifecycle>('email lifecycle', '/operator/lifecycle'),
+      ]);
+      if (failed.length >= 6 && !proposal && !recos && !lifecycle) throw new ApiError(0, 'unreachable', 'The Operator endpoints did not answer.');
       return {
         state: 'ready',
         note: failed.length ? `Could not load: ${failed.join(', ')}. Those parts are left empty rather than guessed.` : '',
@@ -168,7 +182,32 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
         checks: rollupChecks(checks.v),
         content: content.v.map(mapContent),
         policies: policies.v.map(mapPolicy),
+        proposal,
+        recommendations: recos ? recos.map(mapRecommendation) : null,
+        lifecycle: lifecycle ? mapLifecycle(lifecycle) : null,
       };
+    },
+    async applyPublishingProposal(version: string) {
+      try {
+        const r = await call<{ approvalId: string; windowEnd: string }>('/operator/policies/proposal/apply', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ version, sourceRef: 'command:operations' }),
+        });
+        return { approvalId: r.data.approvalId, windowEnd: r.data.windowEnd };
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 409) throw new ApiError(409, 'conflict', 'The proposal changed since this page loaded. It has been reloaded; review it and apply again.');
+        if (e instanceof ApiError && e.status === 403) throw new ApiError(403, 'forbidden', 'Only the owner can apply the publishing proposal.');
+        throw e;
+      }
+    },
+    async decideRecommendations(ids: string[], status: 'accepted' | 'dismissed' | 'done') {
+      const r = await call<{ updated: number }>('/operator/recommendations/decide', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ids, status }),
+      });
+      return r.data.updated;
     },
     async getBuilds() {
       const { data, meta } = await call<C.BuildBoard>('/builds');

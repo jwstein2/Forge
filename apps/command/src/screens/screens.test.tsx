@@ -192,7 +192,10 @@ describe('Operations with Operator and controls data (M6)', () => {
     schedules: [{ id: 'OPS-SITE-HEALTH', kind: 'ops.site_health', nicheId: null, cadence: 'Every hour', enabled: true, lastSlot: '2026-11-10T04:00Z', lastJobStatus: 'succeeded', lastJobUpdatedAt: null }],
     checks: [{ kind: 'site_health', nicheId: 'bidline', targets: 3, passing: 1, unknown: 2, lastCheckedAt: '2026-11-10T03:46:00Z', findings: [{ code: 'checker_error', severity: 'info' as const, message: 'Site state UNKNOWN', target: 'x' }] }],
     content: [],
-    policies: [{ channelId: 'ch_qpk_pinterest', nicheId: 'quilt-plan-kit', platform: 'pinterest', channelStatus: 'verified', mode: 'draft_only', publisher: 'dry_run', dailyCap: 0, windowEnd: null }],
+    policies: [{ channelId: 'ch_qpk_pinterest', nicheId: 'quilt-plan-kit', platform: 'pinterest', channelStatus: 'verified', mode: 'draft_only', publisher: 'dry_run', dailyCap: 0, windowEnd: null, approvalId: null }],
+    proposal: null,
+    recommendations: null,
+    lifecycle: null,
   };
   const source = () => {
     const base = createFixtureSource();
@@ -241,5 +244,59 @@ describe('opsHeadline with heartbeat data', () => {
     const h = opsHeadline([job('a', true), job('b', null), job('c', false)], 0, true);
     expect(h).toBe("No scheduled job reported a failure. 1 on schedule, 1 running late, 1 with no heartbeat yet, so FORGE can't confirm they run.");
     expect(opsHeadline([job('a', true)], 0, true)).toBe('No scheduled job reported a failure. The rest are on schedule.');
+  });
+});
+
+describe('Operator decisions (phase 2)', () => {
+  const proposal = {
+    version: '2026-11-10.1', windowEnd: '2027-02-08T04:00:00Z', summary: 'One decision covers every channel below for 90 days.',
+    channels: [
+      { channelId: 'ch_qpk_pinterest', nicheId: 'quilt-plan-kit', platform: 'pinterest', mode: 'standing', publisher: 'dry_run', dailyCap: 1, why: 'Pins are low-risk.', liveConnectionNeeded: 'Pinterest API access.' },
+      { channelId: 'ch_qpk_email', nicheId: 'quilt-plan-kit', platform: 'email', mode: 'approval_each', publisher: 'dry_run', dailyCap: 1, why: "Emails can't be taken back.", liveConnectionNeeded: 'MailerLite sending.' },
+    ],
+  };
+  const board = (applied: boolean) => ({
+    state: 'ready' as const, note: '', asOf: null, control: { globalPause: false, pausedAt: null, pausedBy: null, reason: null }, summary: null,
+    schedules: [], checks: [], content: [],
+    policies: proposal.channels.map((c) => ({ ...c, channelStatus: 'configured', windowEnd: null, approvalId: applied ? 'apr_1' : null, mode: applied ? c.mode : 'draft_only' })),
+    proposal,
+    recommendations: [{ id: 'r1', nicheId: 'bidline', rule: 'calc_no_checkout', title: 'Calculator use with no checkout clicks', detail: '41 uses, 0 clicks in 28 days.', action: 'Add a kit link under the result.', impact: 'high', evidenceLabel: 'VERIFIED', status: 'proposed', needsOwner: false, createdAt: null }],
+    lifecycle: { snapshot: { state: 'unconnected', takenAt: null, note: null, groups: [], forms: [], automations: [] }, sequences: [{ id: 'LC-QPK-WELCOME', nicheId: 'quilt-plan-kit', kind: 'welcome', name: 'FORGE · Quilt Plan Kit · Welcome', status: 'draft', emails: 3, lint: [], mailerliteAutomationId: '2037' }] },
+  });
+
+  it('applies the whole proposal in one confirmed decision', async () => {
+    let applied = false;
+    const calls: string[] = [];
+    const src = {
+      ...createFixtureSource(),
+      getOperator: async () => board(applied),
+      applyPublishingProposal: async (v: string) => {
+        calls.push(v);
+        applied = true;
+        return { approvalId: 'apr_1', windowEnd: proposal.windowEnd };
+      },
+    };
+    render(<TestApp source={src} path="/operations" />);
+    await userEvent.click(await screen.findByRole('button', { name: 'Apply all 2 boundaries' }));
+    expect(screen.getByText(/records one owner approval covering all 2 channels/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm: apply all' }));
+    expect(await screen.findByText(/Applied\. One approval \(apr_1\)/)).toBeInTheDocument();
+    expect(calls).toEqual(['2026-11-10.1']);
+    expect(within(screen.getByTestId('publishing-proposal')).getByText('Applied')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Apply all/ })).not.toBeInTheDocument();
+  });
+
+  it('decides recommendations as a batch and shows lifecycle numbers as unknown', async () => {
+    const decided: [string[], string][] = [];
+    const src = { ...createFixtureSource(), getOperator: async () => board(true), decideRecommendations: async (ids: string[], st: string) => (decided.push([ids, st]), ids.length) };
+    render(<TestApp source={src} path="/operations" />);
+    expect(await screen.findByText('Subscriber numbers are unknown')).toBeInTheDocument();
+    expect(screen.getByText(/UNKNOWN, not zero/)).toBeInTheDocument();
+    const accept = screen.getByRole('button', { name: 'Accept selected' });
+    expect(accept).toBeDisabled();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Select: Calculator use with no checkout clicks' }));
+    await userEvent.click(accept);
+    expect(decided).toEqual([[['r1'], 'accepted']]);
+    expect(await screen.findByText(/1 proposal marked accepted/)).toBeInTheDocument();
   });
 });

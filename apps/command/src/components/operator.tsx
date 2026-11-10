@@ -4,6 +4,7 @@ import { useNow } from '../lib/clock';
 import { nicheName } from './blocks';
 import { Icon } from './Icon';
 import { EmptyState, ExternalLink, SeverityBadge } from './primitives';
+import { LifecycleBlock, ProposalBlock, RecommendationsBlock } from './operatorDecisions';
 
 const KIND: Record<string, string> = {
   'ops.site_health': 'Site health checks',
@@ -34,11 +35,17 @@ const MODE: Record<string, string> = {
 };
 
 function cap(s: string) {
+  if (s === 'seo') return 'SEO';
   return s ? s[0].toUpperCase() + s.slice(1).replace(/_/g, ' ') : s;
 }
 
+/** Schedule slots are stored to the minute ("2026-11-09T08:00Z"); add seconds so every engine parses them. */
+export function slotIso(slot: string): string {
+  return /^\d{4}-\d\d-\d\dT\d\d:\d\dZ$/.test(slot) ? slot.replace(/Z$/, ':00Z') : slot;
+}
+
 /** FORGE Operator: what runs on its own, what it found, and what it may publish. */
-export function OperatorPanel({ board, niches }: { board: OperatorBoard; niches: Niche[] }) {
+export function OperatorPanel({ board, niches, onBoard = () => {} }: { board: OperatorBoard; niches: Niche[]; onBoard?: (b: OperatorBoard) => void }) {
   const now = useNow();
   if (board.state === 'unconnected') {
     return (
@@ -64,6 +71,8 @@ export function OperatorPanel({ board, niches }: { board: OperatorBoard; niches:
             : 'Emergency stop is off. FORGE jobs run on their schedules.'}
       </p>
 
+      <RecommendationsBlock board={board} niches={niches} onBoard={onBoard} />
+
       <h3 className="subhead">Schedules</h3>
       {board.schedules.length ? (
         <div className="table-wrap" tabIndex={0} role="region" aria-label="Operator schedules table, scrollable">
@@ -87,7 +96,7 @@ export function OperatorPanel({ board, niches }: { board: OperatorBoard; niches:
                   </th>
                   <td>{name(s.nicheId)}</td>
                   <td className="nowrap">{s.enabled ? s.cadence : <span className="tag tag--outline">Disabled</span>}</td>
-                  <td className="nowrap">{s.lastSlot ? <span title={s.lastSlot}>{freshness(s.lastSlot.length === 17 ? `${s.lastSlot}:00Z` : s.lastSlot, now)}</span> : <span className="muted">Never</span>}</td>
+                  <td className="nowrap">{s.lastSlot ? <span title={s.lastSlot}>{freshness(slotIso(s.lastSlot), now)}</span> : <span className="muted">Never</span>}</td>
                   <td>
                     {s.lastJobStatus ? <span className={`tag tag--${JOB_TONE[s.lastJobStatus] ?? 'outline'}`}>{cap(s.lastJobStatus)}</span> : <span className="muted">No run yet</span>}
                   </td>
@@ -142,7 +151,11 @@ export function OperatorPanel({ board, niches }: { board: OperatorBoard; niches:
         <p className="muted small">Nothing planned or drafted yet. Items appear here after the weekly content plan runs against an approved brief.</p>
       )}
 
-      <h3 className="subhead">Publishing boundaries</h3>
+      <LifecycleBlock board={board} niches={niches} />
+
+      <ProposalBlock board={board} niches={niches} onBoard={onBoard} />
+
+      <h3 className="subhead">Publishing boundaries in force</h3>
       <p className="muted small">What the Operator may do on each channel. Nothing posts publicly outside these boundaries.</p>
       {board.policies.length ? (
         <div className="table-wrap" tabIndex={0} role="region" aria-label="Publishing boundaries table, scrollable">

@@ -341,6 +341,63 @@ export interface CommandDataSource {
   setJobPaused(id: string, paused: boolean): Promise<Job>;
   /** FORGE Operator (M3) schedules, checks, content pipeline and weekly summary, plus the emergency-stop state. */
   getOperator(): Promise<OperatorBoard>;
+  /** Owner's single decision: accept every channel's proposed publishing boundary. Snapshot mode refuses. */
+  applyPublishingProposal(version: string): Promise<{ approvalId: string; windowEnd: string }>;
+  /** Owner decides several optimization proposals at once. Recording a decision changes nothing by itself. */
+  decideRecommendations(ids: string[], status: 'accepted' | 'dismissed' | 'done'): Promise<number>;
+}
+
+export interface ProposedPolicy {
+  channelId: string;
+  nicheId: NicheId;
+  platform: string;
+  mode: string;
+  publisher: string;
+  dailyCap: number;
+  why: string;
+  liveConnectionNeeded: string;
+}
+
+export interface PublishingProposal {
+  version: string;
+  windowEnd: string;
+  summary: string;
+  channels: ProposedPolicy[];
+}
+
+export interface Recommendation {
+  id: string;
+  nicheId: NicheId | null;
+  rule: string;
+  title: string;
+  detail: string;
+  action: string;
+  impact: 'high' | 'medium' | 'low' | string;
+  evidenceLabel: string | null;
+  status: string;
+  needsOwner: boolean;
+  createdAt: string | null;
+}
+
+export interface LifecycleSnapshot {
+  /** 'unconnected' and 'error' mean subscriber numbers are UNKNOWN, never zero. */
+  state: 'live' | 'unconnected' | 'error' | string;
+  takenAt: string | null;
+  note: string | null;
+  groups: { id: string; name: string; nicheId: NicheId | null; active: number | null; unconfirmed: number | null }[];
+  forms: { id: string; name: string; active: boolean; opens: number | null; conversions: number | null }[];
+  automations: { name: string; nicheId: NicheId | null; status: string; sent: number | null }[];
+}
+
+export interface LifecycleSequence {
+  id: string;
+  nicheId: NicheId;
+  kind: string;
+  name: string;
+  status: string;
+  emails: number;
+  lint: string[];
+  mailerliteAutomationId: string | null;
 }
 
 /** FORGE Operator view models (GET /operator/*, GET /control). */
@@ -398,6 +455,7 @@ export interface ChannelPolicy {
   publisher: string;
   dailyCap: number;
   windowEnd: string | null;
+  approvalId: string | null;
 }
 
 export interface OperatorSummary {
@@ -418,4 +476,8 @@ export interface OperatorBoard {
   checks: CheckRollup[];
   content: ContentItem[];
   policies: ChannelPolicy[];
+  /** Null when this API version doesn't offer it yet (404) or the call failed (named in note). */
+  proposal: PublishingProposal | null;
+  recommendations: Recommendation[] | null;
+  lifecycle: { snapshot: LifecycleSnapshot; sequences: LifecycleSequence[] } | null;
 }

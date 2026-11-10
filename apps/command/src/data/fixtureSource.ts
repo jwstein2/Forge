@@ -52,7 +52,16 @@ export function createFixtureSource(): CommandDataSource {
         checks: [],
         content: [],
         policies: [],
+        proposal: null,
+        recommendations: null,
+        lifecycle: null,
       };
+    },
+    async applyPublishingProposal() {
+      throw new Error('Snapshot mode: nothing to apply. Open Command on the staging API to decide the publishing proposal.');
+    },
+    async decideRecommendations() {
+      throw new Error('Snapshot mode: recommendations come from the Operator on the staging API.');
     },
     async setJobPaused(id, paused) {
       const job = jobState.get(id);

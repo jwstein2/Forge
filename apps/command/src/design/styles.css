@@ -526,3 +526,14 @@ button, select { font: inherit; color: inherit; }
 .findings { display: grid; gap: var(--s-2); max-width: 64ch; }
 .findings li { overflow-wrap: anywhere; }
 .findings .badge { margin-right: 4px; }
+.proposal, .recos, .lifecycle { display: grid; gap: var(--s-3); min-width: 0; }
+.proposal__head { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); align-items: baseline; }
+.proposal__head .subhead { margin-top: var(--s-4); }
+.confirm { display: grid; gap: var(--s-3); padding: var(--s-4); border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: var(--surface-2); max-width: 72ch; }
+.confirm__buttons { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-3); align-items: center; }
+.reco-list { display: grid; gap: var(--s-3); }
+.reco { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-3); padding: var(--s-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-1); }
+.reco__pick { display: flex; align-items: flex-start; padding-top: 2px; }
+.reco__pick input { width: 20px; height: 20px; accent-color: var(--ink-1); }
+.reco__head { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; margin-bottom: var(--s-1); }
+.reco__title { font-weight: 600; margin-bottom: var(--s-1); }

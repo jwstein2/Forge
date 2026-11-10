@@ -29,7 +29,7 @@ const RUNNER: Record<Job['runner'], string> = {
 
 export function OperationsScreen() {
   const [res, setRes] = useResource((s) => s.getPortfolio(), []);
-  const [ops] = useResource((s) => s.getOperator(), []);
+  const [ops, setOps] = useResource((s) => s.getOperator(), []);
   if (res.status === 'loading') return <Loading />;
   if (res.status === 'error') return <ErrorNote error={res.error} />;
   const operator: OperatorBoard | 'loading' | Error = ops.status === 'ready' ? ops.data : ops.status === 'error' ? ops.error : 'loading';
@@ -37,6 +37,7 @@ export function OperationsScreen() {
     <OperationsView
       p={res.data}
       operator={operator}
+      onOperator={setOps}
       onJobChange={(j) => setRes({ ...res.data, jobs: res.data.jobs.map((x) => (x.id === j.id ? j : x)) })}
     />
   );
@@ -50,10 +51,12 @@ const sourceKind = (src: string): Exclude<SourceFilter, 'all'> =>
 export function OperationsView({
   p,
   operator,
+  onOperator,
   onJobChange,
 }: {
   p: PortfolioSummary;
   operator?: OperatorBoard | 'loading' | Error;
+  onOperator?: (b: OperatorBoard) => void;
   onJobChange: (j: Job) => void;
 }) {
   const [sev, setSev] = useState<Severity | 'all'>('all');
@@ -163,7 +166,7 @@ export function OperationsView({
         ) : operator instanceof Error ? (
           <ErrorNote error={operator} />
         ) : (
-          <OperatorPanel board={operator} niches={p.niches} />
+          <OperatorPanel board={operator} niches={p.niches} onBoard={onOperator} />
         )}
       </Section>
 

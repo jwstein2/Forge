@@ -123,3 +123,62 @@ describe('api source: operator and access', () => {
     expect((await createApiSource('/api/v1', { fetcher: f(false) }).getOpportunities()).briefs).toBeUndefined();
   });
 });
+
+import { mapLifecycle } from './operatorMap';
+import { proposalApplied } from '../components/operatorDecisions';
+
+describe('operator phase 2 (proposal, recommendations, lifecycle)', () => {
+  it('never turns an unconnected or failed MailerLite read into zero subscribers', () => {
+    const groups = [{ id: 1, name: 'QPK', active: 0, unconfirmed: 0 }];
+    for (const state of ['unconnected', 'error']) {
+      const l = mapLifecycle({ snapshot: { state, groups }, sequences: [] });
+      expect(l.snapshot.groups).toEqual([]);
+    }
+    const live = mapLifecycle({ snapshot: { state: 'live', takenAt: 't', groups: [{ id: 1, name: 'QPK', nicheId: 'quilt-plan-kit', active: 12, unconfirmed: 'x' }] }, sequences: [{ id: 'LC', nicheId: 'bidline', kind: 'welcome', name: 'W', status: 'draft', emails: [{}, {}], lint: [] }] });
+    expect(live.snapshot.groups[0]).toEqual({ id: '1', name: 'QPK', nicheId: 'quilt-plan-kit', active: 12, unconfirmed: null });
+    expect(live.sequences[0]).toMatchObject({ emails: 2, lint: [], mailerliteAutomationId: null });
+  });
+
+  it('knows when the proposal is already in force', () => {
+    const p = { version: 'v', windowEnd: 'w', summary: '', channels: [{ channelId: 'a', nicheId: 'n', platform: 'pinterest', mode: 'standing', publisher: 'dry_run', dailyCap: 1, why: '', liveConnectionNeeded: '' }] };
+    const pol = (approvalId: string | null, mode = 'standing') => [{ channelId: 'a', nicheId: 'n', platform: 'pinterest', channelStatus: 'verified', mode, publisher: 'dry_run', dailyCap: 1, windowEnd: null, approvalId }];
+    expect(proposalApplied(p, pol('apr_1'))).toBe(true);
+    expect(proposalApplied(p, pol(null))).toBe(false);
+    expect(proposalApplied(p, pol('apr_1', 'draft_only'))).toBe(false);
+  });
+
+  it('treats missing phase 2 endpoints (404) as not offered, without a failure note', async () => {
+    const base: Record<string, unknown> = { '/control': null, '/operator/summaries/latest': null, '/operator/schedules': [], '/operator/checks?limit=500': [], '/operator/content': [], '/operator/policies': [] };
+    const f = (async (url: string) => {
+      const p = String(url).replace('/api/v1', '');
+      return p in base ? okJson(base[p]) : new Response(JSON.stringify({ ok: false, error: { code: 'not_found', message: 'no such route' } }), { status: 404 });
+    }) as unknown as typeof fetch;
+    const b = await createApiSource('/api/v1', { fetcher: f }).getOperator();
+    expect(b.proposal).toBeNull();
+    expect(b.recommendations).toBeNull();
+    expect(b.lifecycle).toBeNull();
+    expect(b.note).toBe('');
+  });
+
+  it('posts the proposal version once and explains a 409', async () => {
+    const calls: { url: string; body: string }[] = [];
+    const f = (status: number) =>
+      (async (url: string, init: RequestInit) => {
+        calls.push({ url: String(url), body: String(init.body) });
+        return status === 200 ? okJson({ approvalId: 'apr_1', windowEnd: '2027-02-08T00:00:00Z' }) : new Response(JSON.stringify({ ok: false, error: { code: 'conflict', message: 'changed' } }), { status });
+      }) as unknown as typeof fetch;
+    expect(await createApiSource('/api/v1', { fetcher: f(200) }).applyPublishingProposal('2026-11-10.1')).toEqual({ approvalId: 'apr_1', windowEnd: '2027-02-08T00:00:00Z' });
+    expect(calls[0].url).toBe('/api/v1/operator/policies/proposal/apply');
+    expect(JSON.parse(calls[0].body)).toEqual({ version: '2026-11-10.1', sourceRef: 'command:operations' });
+    await expect(createApiSource('/api/v1', { fetcher: f(409) }).applyPublishingProposal('old')).rejects.toThrow(/proposal changed/);
+  });
+});
+
+import { slotIso } from '../components/operator';
+describe('schedule slots', () => {
+  it('parses minute-precision slots', () => {
+    expect(Number.isNaN(Date.parse(slotIso('2026-11-09T08:00Z')))).toBe(false);
+    expect(slotIso('2026-11-09T08:00Z')).toBe('2026-11-09T08:00:00Z');
+    expect(slotIso('2026-11-09T08:00:00.000Z')).toBe('2026-11-09T08:00:00.000Z');
+  });
+});
