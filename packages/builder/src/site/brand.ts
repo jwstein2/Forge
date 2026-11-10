@@ -8,7 +8,7 @@ export interface Brand {
   note: string; basis_claim_ids: string[]; direction: string;
   fonts: { heading: string; body: string; numeric: string };
   base_size_px: number; radius_px: number;
-  motif: "pieced-squares" | "graph-paper" | "flour-dust" | "none";
+  motif: "pieced-squares" | "graph-paper" | "flour-dust" | "seed-rows" | "none";
   colors: { bg: string; surface: string; ink: string; muted: string; line: string; accent: string; accent_ink: string; secondary: string; highlight: string };
 }
 
@@ -47,6 +47,8 @@ const MOTIF: Record<Brand["motif"], (c: Brand["colors"]) => string> = {
 .motif{height:6px;background:repeating-linear-gradient(90deg,${c.accent} 0 24px,${c.highlight} 24px 48px)}`,
   "flour-dust": (c) => `body{background-image:radial-gradient(${c.line} 1px,transparent 1.5px);background-size:22px 22px}
 .motif{height:10px;background:radial-gradient(circle at 10px 5px,${c.accent} 3px,transparent 3.5px) 0 0/40px 10px}`,
+  "seed-rows": (c) => `body{background-image:repeating-linear-gradient(0deg,transparent 0 31px,${c.line}55 31px 32px)}
+.motif{height:12px;background:radial-gradient(ellipse 5px 3px at 9px 6px,${c.accent} 98%,transparent) 0 0/26px 12px,linear-gradient(${c.secondary}33,${c.secondary}33) 0 11px/100% 1px no-repeat}`,
   none: () => `.motif{display:none}`,
 };
 

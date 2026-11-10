@@ -2,7 +2,7 @@
 
 Turns an approved opportunity's **Audience & Market Brief** into a versioned **Launch Blueprint**, then tracks a build through nine stages until the owner decides whether to launch. **FORGE never launches anything on its own.**
 
-Status: **BUILT and TESTED locally** (90 tests; blueprint engine QA-004 PASS; site scaffold awaiting QA). Not registered in the API yet, not deployed, not independently reviewed.
+Status: **BUILT and TESTED locally** (94 tests; blueprint engine QA-004 PASS; site scaffold awaiting QA). Not registered in the API yet, not deployed, not independently reviewed.
 
 ## What is here
 
@@ -32,7 +32,7 @@ Status: **BUILT and TESTED locally** (90 tests; blueprint engine QA-004 PASS; si
 
 ```bash
 npm install                                  # at repo root
-npm test -w @forge/builder                   # 90 tests, incl. integration with the real migrations + engine
+npm test -w @forge/builder                   # 94 tests, incl. integration with the real migrations + engine
 npm run typecheck -w @forge/builder
 npm run blueprints -w @forge/builder         # regenerate the three committed blueprints
 npm run blueprint -w @forge/builder -- path/to/brief.json --out /tmp/bp [--new-business] [--budget-cents 50000]
@@ -51,7 +51,7 @@ and add `"@forge/builder": "0.1.0"` to `services/api/package.json` dependencies.
 ## Not done yet (next)
 
 * **Site scaffold generator** (page map + brand tokens → staging site skeleton using shared components). Waits on the shared component library and a brand stage; must not produce a generic layout.
-* **Fourth-business blueprint** (directive M7). Needs a real Scout brief for a new opportunity; the generator and the new-business approval path are ready for it. No synthetic research is ever published as a blueprint.
+* **Fourth-business blueprint**: `blueprints/garden-planner/` v1.0.0 (new business, from the Scout brief; blueprint and staging preview only, never launched).
 * Product generators reuse the existing reproducible builders (e.g. `forge-m1/bidline-kit/build_kit.py`) rather than replacing them.
 
 ## Site scaffold (blueprint → reviewable staging site)

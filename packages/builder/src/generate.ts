@@ -101,7 +101,7 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
       if (playbook === "unsupported") unknowns.push({ field: `products.${productId}.playbook`, statement: `"${t.item}" does not match a FORGE playbook.`, resolve_by: "New playbook or owner decision before the products stage" });
       if (pb.needsOwnerAccount) unknowns.push({ field: `products.${productId}.account`, statement: `Needs ${pb.needsOwnerAccount}.`, resolve_by: "Owner" });
     }
-    if (p.evidence === "INFERRED" || p.evidence === "ESTIMATED") unknowns.push({ field: `offer_ladder.${t.tier}.price`, statement: `$${p.value} for "${t.item}" is a hypothesis (${p.evidence}), not a tested price.`, resolve_by: "Owner sets launch price; falsifying test decides changes" });
+    if ((p.evidence === "INFERRED" || p.evidence === "ESTIMATED") && (p.value ?? 0) > 0) unknowns.push({ field: `offer_ladder.${t.tier}.price`, statement: `$${p.value} for "${t.item}" is a hypothesis (${p.evidence}), not a tested price.`, resolve_by: "Owner sets launch price; falsifying test decides changes" });
     if (p.note) unknowns.push({ field: `offer_ladder.${t.tier}.price`, statement: p.note, resolve_by: "Owner" });
     return { tier: t.tier, item: t.item, price: p, product_id: productId, playbook };
   });
@@ -135,12 +135,14 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
   // ---------- channels ----------
   const channels: ChannelPlan[] = (brief.channel_fit ?? []).map((c) => {
     const integ = /pinterest/i.test(c.channel) ? "Pinterest" : /email/i.test(c.channel) ? "MailerLite" : /search|seo/i.test(c.channel) ? "Google Search Console"
-      : /youtube/i.test(c.channel) ? "YouTube" : /instagram/i.test(c.channel) ? "Instagram" : null;
+      : /youtube/i.test(c.channel) ? "YouTube" : /instagram/i.test(c.channel) ? "Instagram" : /etsy/i.test(c.channel) ? "Etsy"
+      : /amazon|kdp/i.test(c.channel) ? "Amazon" : /facebook/i.test(c.channel) && !/group/i.test(c.channel) ? "Facebook" : null;
     const community = /group|reddit|forum|communit/i.test(c.channel);
     const priority: ChannelPlan["priority"] = c.fit === "strong" ? "launch" : c.fit === "moderate" ? (community ? "after_launch" : "launch") : c.fit === "weak" ? "hold" : "after_launch";
     return {
       channel: c.channel, fit: c.fit, priority, owner_role: community ? "Owner (personal participation only; no automated posting)" : "Marketing & Distribution",
-      integration_required: integ, owner_approval_required: community || integ !== null, cadence: null, basis: ref(c.rationale),
+      // Every public channel needs an owner-approved account or boundary; no channel is approval-free.
+      integration_required: integ, owner_approval_required: true, cadence: null, basis: ref(c.rationale),
     };
   });
   if (!channels.length) unknowns.push({ field: "channel_plan", statement: "The brief has no channel_fit entries.", resolve_by: "Intelligence" });
