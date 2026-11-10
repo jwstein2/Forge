@@ -10,7 +10,7 @@
  *  - Timestamps are ISO 8601 UTC strings. Storage money is integer cents; Metric.value
  *    for unit 'usd' is dollars (cents / 100).
  */
-export const API_VERSION = "1.2.0" as const;
+export const API_VERSION = "1.3.0" as const;
 
 export type NicheId = string; // 'bidline' | 'quilt-plan-kit' | 'loaf-ledger' | future kebab-case slugs
 export type IsoTimestamp = string;

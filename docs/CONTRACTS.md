@@ -1,4 +1,4 @@
-# FORGE Platform Contracts (API v1.2.0)
+# FORGE Platform Contracts (API v1.3.0)
 
 **Date:** 2026-11-10 · **Owner:** Platform Architecture & Backend · Types: `packages/contracts/src/index.ts` (`@forge/contracts`) is authoritative; this page summarizes it.
 
@@ -96,6 +96,7 @@ FORGE reads the existing ledger D1 `quiltplankit-sales` and never writes to it. 
 
 ## 8. Changelog
 
+* 1.3.0 (2026-11-10): additive only. `/intelligence/*` routes (connectors, scout-runs, runs) and `intel.*` job kinds from @forge/intelligence (migration 0200); brief method enum adds `public_dataset` and `keyword_volume`. Operator phase 2 routes `/operator/policies/proposal[/apply]`, `/operator/lifecycle`, `/operator/recommendations[/decide]`; weekly summary adds `recommendations`. Optional `MAILERLITE_API_KEY` (unset = lifecycle `unconnected`). Clients on 1.2.0 keep working.
 * 1.2.0 (2026-11-10): `RegistryEntry.heartbeat` adds `stale` (judged from a snapshot older than 2x the interval; current health unknown, render like unknown, never as ok). Loaf Ledger page views are `unconnected` (no beacon). Security headers on all responses. Ledger import now reads the live `sales.owner_test` flag; owner verification purchases never count as revenue. Account vault links must be 1Password links.
 * 1.1.0 (2026-11-10): `Alert.needsOwner`; `GET /series` daily trend series; dev-server CORS allows credentials. Severity stays three levels (critical, warning, info).
 * 1.0.0 (2026-11-10): initial contract.
