@@ -6,6 +6,7 @@ import { composeWeekly, shouldInterrupt } from "../src/reliability/weekly-summar
 import { runProbe, type ProbeConfig } from "../src/reliability/pipeline-probe.ts";
 import { plan, prunable } from "../scripts/backup-d1.ts";
 import { verify } from "../src/security/signing.ts";
+import { join } from "node:path"; // separator-neutral: the backup script uses the platform path separator (Windows PCs)
 
 const load = (f: string): N8nWorkflow => JSON.parse(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"));
 
@@ -108,7 +109,7 @@ describe("pipeline probe", () => {
 describe("backup plan", () => {
   it("plans read-only remote exports and never deletes, only lists prunable", () => {
     const p = plan("/b", "2026-11-10T03-00-00Z");
-    expect(p[0]?.args).toEqual(["wrangler", "d1", "export", "quiltplankit-sales", "--remote", "--output", "/b/quiltplankit-sales-2026-11-10T03-00-00Z.sql"]);
+    expect(p[0]?.args).toEqual(["wrangler", "d1", "export", "quiltplankit-sales", "--remote", "--output", join("/b", "quiltplankit-sales-2026-11-10T03-00-00Z.sql")]);
     const files = Array.from({ length: 14 }, (_, i) => `quiltplankit-sales-2026-11-${String(i + 1).padStart(2, "0")}.sql`);
     expect(prunable(files, "quiltplankit-sales", 12)).toEqual(files.slice(0, 2));
   });
