@@ -57,7 +57,7 @@ export const SEQUENCES: Sequence[] = [
     notes: "Email 1 delivers the free template. Email 4 offers the Bidline Estimating Kit at $19 and must stay off until live checkout is on. Kit facts checked against build_kit.py (QA-011 P2-1).",
     emails: [
       { ref: "welcome", delayDays: 0, subject: "Your free estimate template", preheader: "Download link inside, plus one tip before your next bid.",
-        blocks: [h("Here's your template"), p("Thanks for signing up. Here is the free Bidline estimate template. It opens in Excel and in Google Sheets."),
+        blocks: [h("Here's your template"), p("Thanks for signing up. Here is the free Bidline estimate template. It is an .xlsx spreadsheet, tested in LibreOffice Calc. We have not tested it in Google Sheets yet."),
           b("Download the template", `${BID}/downloads/Bidline-Free-Estimate-Template.xlsx`),
           p("Before your next bid, try the free calculator on the site. It converts between markup and margin, so you can check a price before it goes on the quote.")] },
       { ref: "margin", delayDays: 2, subject: "Markup and margin are not the same number", preheader: "The mix-up that quietly shrinks a job's profit.",
@@ -69,7 +69,7 @@ export const SEQUENCES: Sequence[] = [
           p("Skip it, and part of every hour you bill pays for overhead instead of you."),
           p("Reply and tell me your trade. It helps us decide what to write about next.")] },
       { ref: "kit", delayDays: 3, requiresCheckoutLive: true, subject: "The Bidline Estimating Kit", preheader: "Overhead, price book, quote and job costing in one workbook.",
-        blocks: [h("The Bidline Estimating Kit"), p("The free template gets an estimate onto paper. The kit adds an overhead calculator, a price book of your own unit costs, a markup and margin converter with a target-margin check, a one-page client quote, a job cost tracker for budget versus actual, and a change order log. It opens in Excel and imports into Google Sheets. It is $19."),
+        blocks: [h("The Bidline Estimating Kit"), p("The free template gets an estimate onto paper. The kit adds an overhead calculator, a price book of your own unit costs, a markup and margin converter with a target-margin check, a one-page client quote, a job cost tracker for budget versus actual, and a change order log. The kit is an .xlsx spreadsheet, tested in LibreOffice Calc. We have not tested it in Google Sheets yet. It is $19."),
           b("See the kit", `${BID}/#kit`)] },
     ],
   },
@@ -110,7 +110,7 @@ export const SEQUENCES: Sequence[] = [
     notes: "For Lemon Squeezy receipt text and an optional follow-up. Buyers are not added to MailerLite.",
     emails: [
       { ref: "receipt", delayDays: 0, subject: "Your Bidline kit: where to start", preheader: "Three tabs to fill in first.",
-        blocks: [h("Thanks for your order"), p("Your download link is above. The workbook opens in Excel and imports into Google Sheets (File, Import, Upload)."),
+        blocks: [h("Thanks for your order"), p("Your download link is above. The workbook is an .xlsx spreadsheet, tested in LibreOffice Calc. We have not tested it in Google Sheets yet."),
           p("Start in this order: Settings (your business details for the quote), then the Overhead Calculator (a year of overhead gives you the percentage to use), then the Price Book (your usual unit costs), then a first Estimate. The Worked Sample tab shows a finished job if you want to see where you're heading."),
           p("Reply to this email if anything doesn't open or doesn't add up.")] },
       { ref: "followup", delayDays: 10, subject: "After your first job: budget versus actual", preheader: "The tab that makes the next bid better.",
