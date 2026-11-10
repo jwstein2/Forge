@@ -2333,7 +2333,7 @@
         },
         {
           "id": "c_m_churn",
-          "statement": "Two of the seller and pricing spreadsheet listings found by search on 2026-11-10 were already removed, consistent with many short-lived AI-built listings.",
+          "statement": "Two of the seller and pricing spreadsheet listings found by search on 2026-11-10 were already removed.",
           "evidence": "VERIFIED",
           "confidence": "medium",
           "method": "listing_absence_observation",
