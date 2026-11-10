@@ -110,6 +110,7 @@ describe("spend guard: default deny, ceiling is not authorization", () => {
     ["expired", appr({ expiresAt: "2026-11-01T00:00:00Z" }), "approval_expired"],
     ["without expiry (QA-006 S4)", appr({ expiresAt: null }), "approval_no_expiry"],
     ["without a decision time (QA-006 R1 S6)", appr({ decidedAt: null, expiresAt: "2099-01-01T00:00:00Z" }), "approval_undated"],
+    ["decided in the future (QA-006 R2)", appr({ decidedAt: "2026-12-01T00:00:00Z" }), "approval_undated"],
     ["longer than 90 days", appr({ expiresAt: "2027-03-01T00:00:00Z" }), "approval_too_long"],
     ["for another vendor", appr({ boundary: { budgetId: "bud_forge", vendor: "Namecheap", maxCents: 1100 } }), "approval_scope"],
     ["missing vendor (QA-006 S3)", appr({ boundary: { budgetId: "bud_forge", maxCents: 5000 } }), "approval_unbounded"],

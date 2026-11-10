@@ -69,6 +69,7 @@ export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: 
   if (Date.parse(a.expiresAt) <= now.getTime()) return deny("approval_expired", `Approval ${a.id} expired ${a.expiresAt}.`, remaining);
   // QA-006 R1 S6: without a decision time the 90-day limit cannot be checked, so the approval does not count.
   if (!a.decidedAt || !Number.isFinite(Date.parse(a.decidedAt))) return deny("approval_undated", `Approval ${a.id} has no decision time, so its ${MAX_APPROVAL_DAYS}-day limit cannot be checked.`, remaining);
+  if (Date.parse(a.decidedAt) > now.getTime() + 5 * 60_000) return deny("approval_undated", `Approval ${a.id} is dated in the future (${a.decidedAt}).`, remaining);
   if (Date.parse(a.expiresAt) - Date.parse(a.decidedAt) > MAX_APPROVAL_DAYS * 864e5) return deny("approval_too_long", `Approval ${a.id} lasts more than ${MAX_APPROVAL_DAYS} days.`, remaining);
   const bd = a.boundary ?? {};
   if (!bd.budgetId || !bd.vendor || bd.maxCents == null) return deny("approval_unbounded", `Approval ${a.id} must name a budget, a vendor and a maximum amount.`, remaining);

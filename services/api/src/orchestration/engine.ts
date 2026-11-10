@@ -242,8 +242,17 @@ async function modelSpendCheck(db: D1Database, job: JobRow, now: Date): Promise<
     const retryAt = new Date(now.getTime() + 5 * 60_000).toISOString(); const msg = `spend guard: model usage unreadable (${String((e as Error)?.message ?? e).slice(0, 120)})`;
     await db.prepare(`UPDATE jobs SET status='queued', next_run_at=?, attempts=attempts-1, lease_owner=NULL, lease_expires_at=NULL, error=?, updated_at=? WHERE id=?`).bind(retryAt, msg, nowIso(), job.id).run();
     await event(db, job.id, "spend_unverified", { until: retryAt, error: msg });
+    // After 3 failed reads (about 15 minutes) say so, once, instead of retrying silently (QA-006 R2 note).
+    const n = Number((await db.prepare(`SELECT COUNT(*) AS n FROM job_events WHERE job_id = ? AND type = 'spend_unverified'`).bind(job.id).first<{ n: number }>())?.n ?? 0);
+    if (n >= 3) {
+      const at = nowIso();
+      await db.prepare(`INSERT INTO alerts (id,severity,niche_id,source,title,detail,state,dedupe_key,first_seen,last_seen,next_action,needs_owner)
+        VALUES (?,?,?,?,?,?,'open',?,?,?,?,0) ON CONFLICT(dedupe_key) DO UPDATE SET last_seen=excluded.last_seen, detail=excluded.detail, state=CASE WHEN alerts.state='acknowledged' THEN 'acknowledged' ELSE 'open' END`)
+        .bind(newId("al"), "warning", job.niche_id, "controls:FIN-SPEND", "Model jobs are paused: model usage cannot be read", msg, "fin:spend:unverified", at, at, "Check the op_llm_calls table in the platform database; jobs resume once it reads.").run();
+    }
     return "spend_unverified";
   }
+  await db.prepare(`UPDATE alerts SET state='resolved', last_seen=? WHERE dedupe_key='fin:spend:unverified' AND state<>'resolved'`).bind(nowIso()).run();
   const d = authorizeSpend({ kind: "model_usage", budgetId: API_ENVELOPE_BUDGET_ID, vendor: "model", amountCents: job.cost_cap_cents, jobId: job.id }, budgets, [], now, mtd);
   if (d.allowed) { await event(db, job.id, "spend_authorized", { code: d.code, remainingCents: d.remainingCents }); return "ok"; }
   const at = nowIso();

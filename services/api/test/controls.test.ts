@@ -63,8 +63,13 @@ describe("model spend guard", () => {
     await env.DB.prepare(`ALTER TABLE op_llm_calls RENAME COLUMN cost_cents TO cost_cents_x`).run(); // table present, read fails
     expect(await tick(env.DB, env, hs, { now })).toEqual([{ jobId: id, outcome: "spend_unverified" }]);
     expect(await getJob(env.DB, id)).toMatchObject({ status: "queued", attempts: 0 });
+    const alertState = async () => (await env.DB.prepare(`SELECT state FROM alerts WHERE dedupe_key='fin:spend:unverified'`).first<any>())?.state;
+    expect(await alertState()).toBeUndefined(); // one failed read: no alert yet
+    for (const m of [6, 12]) await tick(env.DB, env, hs, { now: new Date(now.getTime() + m * 60_000) });
+    expect(await alertState()).toBe("open"); // third failed read raises it
     await env.DB.prepare(`DROP TABLE op_llm_calls`).run(); // table absent: no recorded usage yet, job may run
-    expect((await tick(env.DB, env, hs, { now: new Date(now.getTime() + 6 * 60_000) }))[0]!.outcome).toBe("succeeded");
+    expect((await tick(env.DB, env, hs, { now: new Date(now.getTime() + 18 * 60_000) }))[0]!.outcome).toBe("succeeded");
+    expect(await alertState()).toBe("resolved");
   });
   it("fails a model job with no cost cap: unknown spend cannot be shown to fit", async () => {
     const { env } = await makeEnv(); const hs = new Map([["test.model_job", modelJob()]]);

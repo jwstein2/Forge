@@ -56,6 +56,8 @@ L1 owner_test NULL/absent now excluded (matches platform 63cf3d6) with FIN-LI-06
 
 **QA-006 retest R1 fixes (patch 0004).** S5 cash spend is denied (`usage_unknown`) unless prior charges under the approval are supplied, so a one-off approval cannot be reused by omitting them. S6 cash approvals without a decision time are denied (`approval_undated`). Model usage that cannot be read fails closed: the job waits 5 minutes (`spend_unverified`) without using an attempt; only a missing `op_llm_calls` table counts as $0, and the ledger.sync controls step retries instead of reporting $0. The envelope check now adds the unspent caps of other authorised, unfinished model jobs. A data-table node with no operation counts as a write. An empty ledger read no longer resolves `fin:ledger` alerts.
 
+**QA-006 R2 notes (patch 0005).** Three failed usage reads for a job raise one `fin:spend:unverified` warning, resolved by the next successful read. A cash approval dated more than 5 minutes in the future is denied (`approval_undated`).
+
 ## Weekly summary ownership
 One weekly summary only: the operations engine's `ops.weekly_summary` (stored in `op_summaries`, never emailed) is the owner. Controls findings reach it as alerts. `composeWeekly()` here stays a library function and is not scheduled.
 
