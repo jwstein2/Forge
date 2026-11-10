@@ -3,12 +3,19 @@
   "private": true,
   "version": "0.1.0",
   "description": "Project FORGE: the machine that builds businesses. Monorepo for FORGE Command, API, orchestration and registries.",
-  "workspaces": ["packages/*", "services/*"],
-  "engines": { "node": ">=22.13" },
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "engines": {
+    "node": ">=22.13"
+  },
   "scripts": {
     "dev:api": "npm run dev -w @forge/api",
     "test": "npm test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "check": "npm run typecheck && npm test && node scripts/check-secrets.mjs"
+    "check": "npm run typecheck && npm test && node scripts/check-secrets.mjs",
+    "build:command": "cd apps/command && npm ci && VITE_FORGE_API=/api/v1 npm run build",
+    "deploy:staging": "npm run check && npm run build:command && cd services/api && npx wrangler deploy --env staging"
   }
 }

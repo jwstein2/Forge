@@ -15,3 +15,15 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: node scripts/check-secrets.mjs --history
+  command:
+    # FORGE Command dashboard (own lockfile, outside the root workspaces): typecheck, unit tests, production build.
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/command } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: apps/command/package-lock.json }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: VITE_FORGE_API=/api/v1 npm run build

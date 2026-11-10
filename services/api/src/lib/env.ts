@@ -5,6 +5,7 @@ export interface Env {
   LEDGER_ACCOUNT_ID?: string;           // with LEDGER_API_TOKEN: read the ledger over the D1 REST API
   LEDGER_DATABASE_ID?: string;
   LEDGER_API_TOKEN?: string;            // Cloudflare API token limited to "Account · D1 · Read". Preferred over LEDGER_DB.
+  SELF?: Fetcher;                       // service binding to this same Worker: each cron job runs in its own invocation (free-plan limits are per invocation)
   ENVIRONMENT: "development" | "staging" | "production" | "test";
   OWNER_EMAILS: string;                 // comma-separated allowlist
   ACCESS_TEAM_DOMAIN?: string;          // e.g. https://<team>.cloudflareaccess.com

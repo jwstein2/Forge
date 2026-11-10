@@ -3,6 +3,7 @@ import { createApp } from "./app.ts";
 import type { Env } from "./lib/env.ts";
 import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
+import { hmacSha256Hex, timingSafeEqualHex } from "./lib/util.ts";
 import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
@@ -39,12 +40,43 @@ export async function scheduledTick(env: Env, now = new Date()): Promise<void> {
   await enqueue(env.DB, handlers, { kind: "heartbeat.watchdog", idempotencyKey: `heartbeat.watchdog:${quarter}`, createdBy: "cron", runAt: now.toISOString() });
   // One job per due schedule slot. Not in the unit-test environment: Operator jobs make real read-only GETs to the live sites.
   if (env.ENVIRONMENT !== "test") await enqueueDue(env.DB, handlers, now);
-  // Free-plan CPU budget: the first staging cron measured 203 ms CPU running every due job in one invocation.
-  // Run at most CRON_MAX_JOBS per tick; the rest wait for the next 15-minute tick (jobs are durable and idempotent).
-  await tick(env.DB, env, handlers, { workerId: "cron", now, maxJobs: CRON_MAX_JOBS });
+  // Free-plan limits are per invocation (10 ms CPU, 50 subrequests incl. D1 queries). The first staging cron ran ten jobs in
+  // one invocation and hit "Too many subrequests". So each job runs in its OWN invocation via the SELF service binding;
+  // without the binding (dev, tests) jobs run inline. At most CRON_MAX_JOBS per tick; the rest wait (jobs are durable).
+  const token = await internalToken(env);
+  for (let i = 0; i < CRON_MAX_JOBS; i++) {
+    if (env.SELF && token) {
+      const res = await env.SELF.fetch(INTERNAL_TICK_URL, { method: "POST", headers: { [INTERNAL_HEADER]: token } });
+      const body = (await res.json().catch(() => null)) as { ran?: number } | null;
+      if (!res.ok || !body?.ran) break; // nothing runnable (or the child failed): stop for this tick
+    } else {
+      const ran = await tick(env.DB, env, handlers, { workerId: "cron", now, maxJobs: 1 });
+      if (!ran.length) break;
+    }
+  }
+}
+
+const INTERNAL_TICK_URL = "https://forge.internal/api/internal/tick"; // under /api/* so static assets never answer it
+const INTERNAL_HEADER = "x-forge-internal";
+/** Token for the internal tick route, derived from HEARTBEAT_SECRET (first value if rotating). No secret, no route. */
+async function internalToken(env: Env): Promise<string | null> {
+  const secret = env.HEARTBEAT_SECRET?.split(",")[0]?.trim();
+  return secret && secret.length >= 32 ? hmacSha256Hex(secret, "forge-internal-tick-v1") : null;
+}
+
+/** Runs exactly one job in this invocation. Reachable only with the derived token; external requests also pass Cloudflare Access first. */
+export async function internalTick(req: Request, env: Env): Promise<Response> {
+  const token = await internalToken(env);
+  const got = req.headers.get(INTERNAL_HEADER) ?? "";
+  if (req.method !== "POST" || !token || got.length !== token.length || !timingSafeEqualHex(got, token)) {
+    return new Response(JSON.stringify({ ok: false }), { status: 404, headers: { "content-type": "application/json" } });
+  }
+  const ran = await tick(env.DB, env, handlers, { workerId: "cron-child", maxJobs: 1 });
+  return new Response(JSON.stringify({ ok: true, ran: ran.length, outcomes: ran.map((r) => r.outcome) }), { headers: { "content-type": "application/json", "cache-control": "no-store" } });
 }
 
 export default {
-  fetch: (req: Request, env: Env, ctx: ExecutionContext) => app.fetch(req, env, ctx),
+  fetch: (req: Request, env: Env, ctx: ExecutionContext) =>
+    new URL(req.url).pathname === "/api/internal/tick" ? internalTick(req, env) : app.fetch(req, env, ctx),
   scheduled: (_e: ScheduledController, env: Env, ctx: ExecutionContext) => { ctx.waitUntil(scheduledTick(env)); },
 } satisfies ExportedHandler<Env>;

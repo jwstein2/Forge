@@ -15,9 +15,20 @@ database_name = "forge"
 database_id = "00000000-0000-0000-0000-000000000000"   # local only
 migrations_dir = "migrations"
 
+[env.staging.assets]
+# FORGE Command dashboard (apps/command), built with `npm run build:command` (VITE_FORGE_API=/api/v1, same origin).
+# Served by the same Worker, so it sits behind the same Cloudflare Access login. API routes always reach the Worker.
+directory = "../../apps/command/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
 [env.staging]
 name = "forge-api-staging"
 vars = { ENVIRONMENT = "staging", ACCESS_TEAM_DOMAIN = "https://autumn-flower-c26e.cloudflareaccess.com", ACCESS_AUD = "58d6d66f8938d87d5cff37809963d7fec43f1e1ea958956eafd6a75458f79268" }   # OWNER_EMAILS and HEARTBEAT_SECRET are Worker secrets
+[[env.staging.services]]               # self binding: each cron job runs in its own invocation (free-plan limits are per invocation)
+binding = "SELF"
+service = "forge-api-staging"
 [env.staging.triggers]
 crons = ["*/15 * * * *"]
 [[env.staging.d1_databases]]          # created 2026-11-10 after owner approval (free tier); migrations 0001-0006, 0100, 0101 applied

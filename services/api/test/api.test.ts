@@ -4,7 +4,7 @@ import { tick } from "../src/orchestration/engine.ts";
 import { defaultHandlers } from "../src/orchestration/handlers.ts";
 import { hmacSha256Hex } from "../src/lib/util.ts";
 import { sign } from "@forge/controls/signing";
-import { scheduledTick } from "../src/worker.ts";
+import worker, { scheduledTick, internalTick } from "../src/worker.ts";
 
 async function synced() {
   const ctx = await makeEnv(); const api = makeApp();
@@ -244,6 +244,33 @@ describe("scheduler entry (cron)", () => {
     await scheduledTick(env, now); await scheduledTick(env, now);
     const jobs = (await env.DB.prepare("SELECT kind, status FROM jobs ORDER BY kind").all<any>()).results;
     expect(jobs).toEqual([{ kind: "heartbeat.watchdog", status: "succeeded" }, { kind: "ledger.sync", status: "succeeded" }, { kind: "n8n.sync", status: "succeeded" }]);
+  });
+});
+
+describe("cron fan-out: one job per invocation (free-plan per-invocation limits)", () => {
+  it("runs each job through the SELF service binding, one per child invocation", async () => {
+    const { env } = await makeEnv({ seed: false });
+    const children: number[] = [];
+    env.SELF = { fetch: async (url: string, init: RequestInit) => {
+      const res = await worker.fetch!(new Request(url, init) as any, env, {} as any);
+      const body = await res.clone().json() as { ran: number };
+      children.push(body.ran);
+      return res;
+    } } as unknown as Fetcher;
+    await scheduledTick(env, new Date());
+    expect(children).toEqual([1, 1, 1]); // three recurring jobs, each in its own invocation
+    const done = (await env.DB.prepare("SELECT COUNT(*) AS n FROM jobs WHERE status='succeeded'").first<{ n: number }>())!.n;
+    expect(done).toBe(3);
+  });
+
+  it("refuses the internal tick route without the derived token", async () => {
+    const { env } = await makeEnv();
+    for (const headers of [{}, { "x-forge-internal": "0".repeat(64) }] as Record<string, string>[]) {
+      const res = await internalTick(new Request("https://x/api/internal/tick", { method: "POST", headers }), env);
+      expect(res.status).toBe(404);
+    }
+    const noSecret = await internalTick(new Request("https://x/api/internal/tick", { method: "POST" }), { ...env, HEARTBEAT_SECRET: undefined });
+    expect(noSecret.status).toBe(404);
   });
 });
 
