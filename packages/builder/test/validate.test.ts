@@ -66,5 +66,8 @@ describe("blueprint validation rejects unsafe or untraceable content", () => {
     expect(r.ok).toBe(false);
     expect(r.errors[0]).toMatch(/source brief is required/);
   });
+  it("QA-004 B7: page sections are template names only, not copy", () => {
+    expect(tamper((b) => { b.page_map[0].sections.push("Testimonials from 500 happy customers"); }).ok).toBe(false);
+  });
   it("rejects unknown fields (schema is closed)", () => expect(tamper((b) => { b.testimonials = ["great"]; }).ok).toBe(false));
 });

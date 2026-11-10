@@ -627,7 +627,7 @@
           "sections": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/$defs/pageSection"
             }
           },
           "required_for_launch": {
@@ -1177,6 +1177,37 @@
           "$ref": "#/$defs/evidence"
         }
       }
+    },
+    "pageSection": {
+      "enum": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "free-tools",
+        "paid-offer",
+        "email-capture",
+        "tool",
+        "how-to-use",
+        "worked-example",
+        "related-resources",
+        "paid-upgrade-cta",
+        "whats-inside-previews",
+        "price-and-cta",
+        "faq-objections",
+        "refund-policy-link",
+        "amazon-link",
+        "disclosure",
+        "recommendations",
+        "download-steps",
+        "support-contact",
+        "operator",
+        "mission",
+        "contact",
+        "legal"
+      ],
+      "description": "Template sections only. Page copy is written and reviewed at the website stage (G2), never in the blueprint."
     }
   }
 }
