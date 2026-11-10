@@ -923,6 +923,8 @@
         "search_result_observation",
         "autocomplete_observation",
         "third_party_estimate",
+        "public_dataset",
+        "keyword_volume",
         "analyst_inference",
         "owner_statement",
         "not_collected"

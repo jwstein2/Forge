@@ -1,0 +1,1757 @@
+{
+  "schema_version": "1.0.0",
+  "brief_id": "brief_quilt-plan-kit_v1-0-1",
+  "niche": "quilt-plan-kit",
+  "display_name": "Quilt Plan Kit",
+  "version": "1.0.1",
+  "supersedes": "brief_quilt-plan-kit_v1-0-0",
+  "status": "draft",
+  "created_at": "2026-11-10T03:00:00Z",
+  "updated_at": "2026-11-10T02:50:00Z",
+  "refresh_by": "2027-02-10",
+  "authors": [
+    "forge-intelligence"
+  ],
+  "approved_by": null,
+  "summary": {
+    "one_line": "Quilting is a large, stable, older and well-off hobby audience that pays for patterns, planners and design tools; quilt calculators are free everywhere, so QPK's calculators are a traffic engine and the money is in planners, patterns and the KDP book.",
+    "go_hold": {
+      "date": "2026-11-10",
+      "call": "go",
+      "subject": "Quilt Plan Kit $8 planner and offer ladder",
+      "rationale": "Strongest evidence of the three: a measured audience (9-11 million active consumers, 2025 survey), a $4.5B industry estimate, and many paid planners at $5-$19 plus patterns at about $5-$20. QPK also has the only live channel (Pinterest).",
+      "falsifying_test": "If checkout is live and QPK gets 300+ sessions to the planner page in 60 days with zero sales, revisit price and offer. Owner-adjustable rule, not a forecast.",
+      "decided_by": "intelligence (recommendation)"
+    },
+    "key_findings": [
+      {
+        "id": "c_q_kf_size",
+        "statement": "The 2025 Quilter's Survey (30,000+ responses) reports 9-11 million active quilting consumers, stable for ten years, with 18% of respondents new to quilting.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Self-selected brand-list sample."
+      },
+      {
+        "id": "c_q_kf_profile",
+        "statement": "The typical respondent is a woman in her 60s, retired, household income $75K+, about 10 years quilting, starting 11 and finishing 9 projects a year.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_q_kf_industry",
+        "statement": "Industry revenue is estimated at $4.50B (2025) rising to $4.58B (2027 estimate).",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 4.5,
+        "unit": "USD billions"
+      },
+      {
+        "id": "c_q_kf_dedicated",
+        "statement": "In 2014, 'dedicated' quilters (12.2% of quilting households) spent an average $3,296 a year and made up 60.4% of industry spending.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qia2014"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Dated 2014."
+      },
+      {
+        "id": "c_q_kf_planners",
+        "statement": "Paid quilt planners sell at $5, $6, $15 and $19; the $19 one bundles a pattern and videos.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_sewingbysarah",
+          "src_qwip",
+          "src_fqs_planner",
+          "src_patchworkposse"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_q_kf_calcs_free",
+        "statement": "Quilt calculators are free from apps (QuiltingCalc, 4.3 stars from 147 ratings), retailers (about 30 tools at My Favorite Quilt Store) and indie sites.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_quiltingcalc",
+          "src_mfqs_toolbox",
+          "src_fabricmath"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_q_kf_local",
+        "statement": "64% of supply purchases happen in local quilt shops, and online buying is declining after the pandemic.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "audience": {
+    "segments": [
+      {
+        "id": "dedicated-hobby-quilter",
+        "name": "Dedicated hobby quilter",
+        "description": "Experienced quilter, typically 60s and retired, running several projects a year, buying patterns and fabric, planning gift quilts.",
+        "priority": "primary",
+        "skill_level": "Intermediate to advanced; about 10 years' experience.",
+        "context": "Retired or semi-retired; quilting 6+ hours a week; often makes quilts as gifts.",
+        "devices_and_formats": [
+          "Printed PDFs",
+          "Tablet",
+          "Desktop"
+        ],
+        "platforms": [
+          "Pinterest",
+          "Facebook groups",
+          "YouTube",
+          "Local quilt shops",
+          "Email newsletters"
+        ],
+        "evidence": [
+          {
+            "id": "c_q_seg1_profile",
+            "statement": "Median profile: 60s, retired, $75K+ income, 10 years quilting, 6+ hours a week.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "published_survey",
+            "source_ids": [
+              "src_qtrends2025"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "dedicated-hobby-quilter"
+          },
+          {
+            "id": "c_q_seg1_projects",
+            "statement": "Starts 11 and finishes 9 projects a year, mostly smaller traditional projects such as lap quilts.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "published_survey",
+            "source_ids": [
+              "src_qtrends2025"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "dedicated-hobby-quilter"
+          }
+        ]
+      },
+      {
+        "id": "new-quilter",
+        "name": "New quilter",
+        "description": "Beginner in the first year or two, needs the maths (yardage, binding, backing) and confidence.",
+        "priority": "secondary",
+        "skill_level": "Beginner",
+        "platforms": [
+          "Google search",
+          "YouTube",
+          "Pinterest"
+        ],
+        "evidence": [
+          {
+            "id": "c_q_seg2_share",
+            "statement": "18% of 2025 survey respondents are new to quilting.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "published_survey",
+            "source_ids": [
+              "src_qtrends2025"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "new-quilter"
+          }
+        ]
+      },
+      {
+        "id": "gift-quilter",
+        "name": "Gift and holiday quilter",
+        "description": "Plans quilts for births, weddings and Christmas against a deadline.",
+        "priority": "exploratory",
+        "platforms": [
+          "Pinterest",
+          "Google search"
+        ],
+        "evidence": [
+          {
+            "id": "c_q_seg3_gift",
+            "statement": "Planners include gift-tracking pages, which shows sellers see gift planning as a job.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "product_page_observation",
+            "source_ids": [
+              "src_patchworkposse"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "gift-quilter"
+          }
+        ]
+      }
+    ],
+    "demographics": [
+      {
+        "id": "c_q_demo_age",
+        "statement": "Typical quilter is in her 60s; no significant age shift since 2017.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_q_demo_income",
+        "statement": "Typical household income $75K+ (2025); dedicated quilters averaged $101,080 in 2014.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025",
+          "src_qia2014"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_q_demo_geo",
+        "statement": "97% of 2025 survey responses came from the US and Canada.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Reflects the survey's email lists, not global distribution."
+      },
+      {
+        "id": "c_q_demo_count_2014",
+        "statement": "16.4 million US quilters in 2014 (10.3% of households).",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qia2014"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ],
+    "customer_language": [],
+    "visual_and_trust_preferences": [
+      {
+        "id": "c_q_vis_print",
+        "statement": "Older, print-oriented audience: large type, printable pages and clear diagrams matter.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_q_vis_warm",
+        "statement": "Warm, craft-oriented, human imagery fits better than the current plain live design.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_forge_ws4"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "jobs_to_be_done": [
+    {
+      "id": "c_q_jtbd_math",
+      "statement": "Work out yardage, backing, binding and borders without mistakes or wasted fabric.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_quiltingcalc",
+        "src_mfqs_toolbox"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "new-quilter"
+    },
+    {
+      "id": "c_q_jtbd_plan",
+      "statement": "Keep many projects, UFOs and supply lists organised.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_patchworkposse",
+        "src_sewingbysarah"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "dedicated-hobby-quilter"
+    },
+    {
+      "id": "c_q_jtbd_gift",
+      "statement": "Finish gift quilts on time.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_patchworkposse"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "gift-quilter"
+    }
+  ],
+  "pains": [
+    {
+      "id": "c_q_pain_ufo",
+      "statement": "Unfinished projects pile up (planners sell UFO trackers).",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_patchworkposse"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "dedicated-hobby-quilter"
+    },
+    {
+      "id": "c_q_pain_math",
+      "statement": "Fabric maths errors waste costly fabric.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "segment_id": "new-quilter"
+    }
+  ],
+  "desired_outcomes": [
+    {
+      "id": "c_q_out_finish",
+      "statement": "Finish more quilts with less waste and stress.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_patchworkposse"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "dedicated-hobby-quilter"
+    }
+  ],
+  "buying_triggers": [
+    {
+      "id": "c_q_trig_newyear",
+      "statement": "New Year project planning.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "notes": "Patchwork Posse's planner includes monthly calendars, consistent with a calendar-year purchase."
+    },
+    {
+      "id": "c_q_trig_gift",
+      "statement": "Upcoming gift deadline (holidays, births, weddings).",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "segment_id": "gift-quilter"
+    },
+    {
+      "id": "c_q_trig_new_pattern",
+      "statement": "Starting a new pattern or fabric line.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "objections": [
+    {
+      "id": "c_q_obj_free",
+      "statement": "Free printable quilt planners and free calculators exist widely.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "search_result_observation",
+      "source_ids": [
+        "src_fabricmath",
+        "src_mfqs_toolbox"
+      ],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_q_obj_shop",
+      "statement": "Buys supplies in person at local shops, so less online buying habit.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "published_survey",
+      "source_ids": [
+        "src_qtrends2025"
+      ],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "demand": {
+    "keywords": [
+      {
+        "term": "quilt backing calculator",
+        "intent": "transactional",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_q_kw1",
+          "statement": "Multiple free calculators and apps target it.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_fabricmath",
+            "src_quiltingcalc"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "quilt binding calculator",
+        "intent": "transactional",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_q_kw2",
+          "statement": "Present in every calculator suite observed.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_quiltingcalc",
+            "src_mfqs_toolbox"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "quilt planner printable",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_q_kw3",
+          "statement": "Paid and free planners use this phrasing.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_qwip",
+            "src_sewingbysarah"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "how much fabric for a quilt",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_q_kw4",
+          "statement": "Core yardage question answered by calculator sites.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_fabricmath"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "quilt size chart",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_q_kw5",
+          "statement": "Included as a cheat sheet in paid planners.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_sewingbysarah"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "beginner quilt pattern pdf",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_q_kw6",
+          "statement": "PDF patterns are the dominant paid digital product.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_fqs_patterns"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      }
+    ],
+    "trends": {
+      "status": "blocked",
+      "series": [],
+      "note": "Not collected; relative interest only when collected."
+    },
+    "seasonality": [
+      {
+        "event": "Christmas gift quilts",
+        "demand_window": "09-01/12-15",
+        "publish_by": "08-15",
+        "assets": [
+          "Gift-quilt deadline planner",
+          "Pins for quick gift projects"
+        ],
+        "evidence": {
+          "id": "c_q_seas_xmas",
+          "statement": "Gift-quilt planning likely peaks in autumn ahead of Christmas; it is already late for 2026.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "New Year planning",
+        "demand_window": "12-15/02-15",
+        "publish_by": "12-01",
+        "assets": [
+          "Planner promotion",
+          "Year-of-projects tracker"
+        ],
+        "evidence": {
+          "id": "c_q_seas_ny",
+          "statement": "Planner purchases likely peak late December to January.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "National Quilting Day (third Saturday of March)",
+        "demand_window": "03-01/03-31",
+        "publish_by": "02-15",
+        "assets": [
+          "Campaign pins",
+          "Email"
+        ],
+        "evidence": {
+          "id": "c_q_seas_nqd",
+          "statement": "A recognised hobby day suitable for a campaign.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      }
+    ],
+    "market_size": [
+      {
+        "id": "c_q_ms",
+        "statement": "US quilting industry estimated at $4.50B in 2025.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_qtrends2025"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "competitors": [
+    {
+      "id": "patchwork-posse",
+      "name": "Patchwork Posse (The Patchwork Planner)",
+      "url": "https://patchworkposse.thrivecart.com/patchwork-planner",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "The Patchwork Planner",
+          "format": "PDF planner + bonus pattern and videos",
+          "price": {
+            "value": 19,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_patchworkposse"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_patchworkposse"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Planner made for quilters by a known pattern designer.",
+      "strengths": [
+        "Bundled pattern",
+        "Video",
+        "Audience"
+      ]
+    },
+    {
+      "id": "fqs-amy-ellis",
+      "name": "Fat Quarter Shop (Amy Ellis planner)",
+      "url": "https://www.fatquartershop.com/quilt-planner-downloadable-pdf-booklet",
+      "type": "retailer",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Quilt Planner Downloadable PDF Booklet (5 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 15,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_fqs_planner"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_fqs_planner"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Large retailer; planner as a pattern-style download.",
+      "strengths": [
+        "Huge retail traffic"
+      ]
+    },
+    {
+      "id": "qwip",
+      "name": "Qwip (Gumroad)",
+      "url": "https://qwip.gumroad.com/l/printable-quilt-planner",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Quilt Planner Printable (12 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 6,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_qwip"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_qwip"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "sewing-by-sarah",
+      "name": "Sewing By Sarah",
+      "url": "https://sewingbysarah.com/products/quilt-planner-printables",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Quilt Planner Printables",
+          "format": "PDF",
+          "price": {
+            "value": 5,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_sewingbysarah"
+            ]
+          },
+          "billing": "one_time",
+          "includes": [
+            "Planner sheets",
+            "Block reference",
+            "Binding/backing maths",
+            "Size cheat sheet"
+          ]
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_sewingbysarah"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "dime-my-quilt",
+      "name": "DIME My Quilt Planner",
+      "url": "https://sewingmachinesplus.com/products/dime-my-quilt-planner",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "My Quilt Planner (software)",
+          "format": "Desktop software",
+          "price": {
+            "value": 199.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_dime"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_dime"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Machine-quilting layout software."
+    },
+    {
+      "id": "prequilt",
+      "name": "PreQuilt",
+      "url": "https://www.prequilt.com/",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Basic",
+          "format": "Web app",
+          "price": {
+            "value": 50,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_prequilt"
+            ]
+          },
+          "billing": "annual"
+        },
+        {
+          "name": "Basic monthly",
+          "format": "Web app",
+          "price": {
+            "value": 7.5,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_prequilt"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_prequilt"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Quilt design and colour visualisation."
+    },
+    {
+      "id": "electric-quilt",
+      "name": "Electric Quilt (EQ8)",
+      "url": "https://electricquilt.com/",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "EQ8",
+          "format": "Desktop software",
+          "price": {
+            "value": 179,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_eq8"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_eq8",
+        "src_eq_shop"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Category-defining design software; list $239.95, $179 at a retailer on 2026-11-10."
+    },
+    {
+      "id": "quiltingcalc",
+      "name": "QuiltingCalc (app)",
+      "url": "https://apps.apple.com/us/app/quiltingcalc/id390366459",
+      "type": "app",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "QuiltingCalc",
+          "format": "iOS app, ad-supported",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_quiltingcalc"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_quiltingcalc"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "strengths": [
+        "8 calculators",
+        "4.3 stars / 147 ratings"
+      ]
+    },
+    {
+      "id": "fabric-math",
+      "name": "Fabric Math",
+      "url": "https://thefabricmath.pages.dev/",
+      "type": "free_tool",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Four calculators",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_fabricmath"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_fabricmath"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Free, no-signup calculators (same model as QPK)."
+    },
+    {
+      "id": "mfqs-toolbox",
+      "name": "My Favorite Quilt Store toolbox",
+      "url": "https://myfavoritequiltstore.com/toolbox",
+      "type": "retailer",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "About 30 free tools",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_mfqs_toolbox"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_mfqs_toolbox"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Retailer using free tools as traffic, broader than QPK."
+    },
+    {
+      "id": "fqs-pdf-patterns",
+      "name": "Fat Quarter Shop PDF patterns",
+      "url": "https://www.fatquartershop.com/pdf-patterns?p=25",
+      "type": "retailer",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "PDF quilt patterns (sample of 4)",
+          "format": "PDF",
+          "price": {
+            "value": 14,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_fqs_patterns"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_fqs_patterns"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Observed $4.98-$20 per PDF pattern."
+    }
+  ],
+  "pricing_map": [
+    {
+      "format": "PDF quilt planner",
+      "low": 5,
+      "median": 10.5,
+      "high": 19,
+      "currency": "USD",
+      "n_observations": 4,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "sewing-by-sarah",
+        "qwip",
+        "fqs-amy-ellis",
+        "patchwork-posse"
+      ]
+    },
+    {
+      "format": "PDF quilt pattern",
+      "low": 4.98,
+      "median": 14.48,
+      "high": 20,
+      "currency": "USD",
+      "n_observations": 4,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "fqs-pdf-patterns"
+      ]
+    },
+    {
+      "format": "Design software",
+      "low": 50,
+      "median": 179,
+      "high": 199.99,
+      "currency": "USD",
+      "n_observations": 3,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "prequilt",
+        "electric-quilt",
+        "dime-my-quilt"
+      ]
+    }
+  ],
+  "monetization_options": [
+    {
+      "id": "planner",
+      "model": "printable",
+      "description": "Existing $8 Quilt Planner PDF.",
+      "fit": "strong",
+      "price_hypothesis": {
+        "value": 8,
+        "evidence": "VERIFIED",
+        "observed_at": "2026-11-10",
+        "unit": "USD",
+        "currency": "USD",
+        "source_ids": [
+          "src_forge_ws3"
+        ]
+      },
+      "rationale": [
+        {
+          "id": "c_q_mo1",
+          "statement": "$8 sits inside the observed $5-$19 planner band.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_sewingbysarah",
+            "src_patchworkposse"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    },
+    {
+      "id": "planner-plus-pattern",
+      "model": "bundle",
+      "description": "Planner plus an original beginner or gift pattern built from QPK's calculators.",
+      "fit": "strong",
+      "price_hypothesis": {
+        "value": 18,
+        "evidence": "INFERRED",
+        "observed_at": "2026-11-10",
+        "unit": "USD",
+        "currency": "USD",
+        "source_ids": [
+          "src_patchworkposse"
+        ]
+      },
+      "rationale": [
+        {
+          "id": "c_q_mo2",
+          "statement": "The highest-priced planner observed ($19) bundles a pattern and videos; patterns sell at about $5-$20.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_patchworkposse",
+            "src_fqs_patterns"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Pattern design and testing effort",
+        "Original designs only"
+      ]
+    },
+    {
+      "id": "kdp",
+      "model": "kdp_book",
+      "description": "Existing $9.99 paperback.",
+      "fit": "moderate",
+      "rationale": [
+        {
+          "id": "c_q_mo3",
+          "statement": "Print fits an older, print-oriented audience.",
+          "evidence": "INFERRED",
+          "confidence": "medium",
+          "method": "analyst_inference",
+          "source_ids": [
+            "src_qtrends2025"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "KDP status unverified"
+      ]
+    },
+    {
+      "id": "affiliate-fabric",
+      "model": "affiliate",
+      "description": "Fabric, rulers and batting affiliate links in calculator results.",
+      "fit": "moderate",
+      "rationale": [
+        {
+          "id": "c_q_mo4",
+          "statement": "Calculator users are about to buy fabric; 64% buy supplies locally, which limits online commission.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [
+            "src_qtrends2025"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Needs owner-approved affiliate accounts"
+      ]
+    },
+    {
+      "id": "design-app",
+      "model": "saas_subscription",
+      "description": "Design/visualisation app.",
+      "fit": "reject",
+      "rationale": [
+        {
+          "id": "c_q_mo5",
+          "statement": "EQ8 and PreQuilt already own this.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_eq8",
+            "src_prequilt"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    }
+  ],
+  "premium_product_recommendation": {
+    "name": "Quilt Plan Kit Planner + Pattern bundle",
+    "target_segment_id": "dedicated-hobby-quilter",
+    "format": "Printable PDF planner (large type) + one original pattern with cutting charts generated from QPK's tested maths",
+    "price": {
+      "value": 18,
+      "evidence": "INFERRED",
+      "observed_at": "2026-11-10",
+      "unit": "USD",
+      "currency": "USD",
+      "source_ids": [
+        "src_patchworkposse",
+        "src_fqs_patterns"
+      ]
+    },
+    "must_include": [
+      "Everything in the $8 planner",
+      "Gift-quilt deadline planner (work back from the date)",
+      "Yardage and cutting worksheets for crib to king",
+      "UFO tracker",
+      "One original, tested pattern in several sizes",
+      "Printer-friendly, large type"
+    ],
+    "must_not": [
+      "Use unlicensed imagery (QPK hero photo provenance is unrecorded, per WS4)",
+      "Copy any designer's pattern"
+    ],
+    "why_they_pay": "Dedicated quilters spend heavily on patterns and organisation and buy as gifts to themselves; a planner tied to a real pattern is a recognised format at up to $19.",
+    "offer_ladder": [
+      {
+        "tier": "free",
+        "item": "Calculators, guides, cheat sheet",
+        "price": {
+          "value": 0,
+          "evidence": "VERIFIED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD",
+          "source_ids": [
+            "src_forge_ws4"
+          ]
+        }
+      },
+      {
+        "tier": "entry",
+        "item": "Quilt Planner PDF",
+        "price": {
+          "value": 8,
+          "evidence": "VERIFIED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD",
+          "source_ids": [
+            "src_forge_ws3"
+          ]
+        }
+      },
+      {
+        "tier": "core",
+        "item": "Planner + pattern bundle",
+        "price": {
+          "value": 18,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      },
+      {
+        "tier": "premium",
+        "item": "KDP paperback",
+        "price": {
+          "value": 9.99,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD",
+          "source_ids": [
+            "src_forge_ws4"
+          ],
+          "to_resolve": "Price from internal docs; confirm the Amazon listing is live"
+        }
+      }
+    ],
+    "falsifying_test": "After the $8 planner is buyable, fewer than 1 in 3 buyers take a bundle offer in the first 30 bundle-eligible orders: stay with the $8 planner and invest in traffic instead.",
+    "evidence": [
+      {
+        "id": "c_q_pp_e1",
+        "statement": "Planners at $5-$19 and patterns at about $5-$20 are verified price points.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_patchworkposse",
+          "src_fqs_planner",
+          "src_fqs_patterns"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "economics": {
+    "unit_economics": [
+      {
+        "id": "c_q_ue",
+        "statement": "An $8 sale nets about $7.10 after the estimated 5% + $0.50 fee.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 7.1,
+        "unit": "USD"
+      }
+    ],
+    "scenarios": {
+      "downside": {
+        "monthly_orders": 0,
+        "average_order_value": 8,
+        "monthly_gross": 0,
+        "monthly_contribution": 0.0,
+        "assumptions": [
+          "Checkout not yet live; Pinterest queue empty"
+        ],
+        "evidence": "INFERRED"
+      },
+      "base": {
+        "monthly_orders": 15,
+        "average_order_value": 10,
+        "monthly_gross": 150,
+        "monthly_contribution": 135.0,
+        "assumptions": [
+          "Hypothesis only: Pinterest refilled and organic calculator traffic converting a small share to the planner"
+        ],
+        "evidence": "INFERRED"
+      },
+      "upside": {
+        "monthly_orders": 50,
+        "average_order_value": 13,
+        "monthly_gross": 650,
+        "monthly_contribution": 592.5,
+        "assumptions": [
+          "Hypothesis only: bundle and KDP cross-sell lift AOV; seasonal gift campaigns"
+        ],
+        "evidence": "INFERRED"
+      }
+    }
+  },
+  "channel_fit": [
+    {
+      "channel": "Pinterest",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_q_ch_pin",
+        "statement": "Only verified live FORGE channel, but only 3 pins published and very low views so far; fit is plausible, not yet proven.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "first_party_analytics",
+        "source_ids": [
+          "src_forge_ws4"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Organic search",
+      "fit": "strong",
+      "rationale": {
+        "id": "c_q_ch_seo",
+        "statement": "QPK has 48 URLs including tested calculators and answer pages.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_forge_ws4"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Email",
+      "fit": "strong",
+      "rationale": {
+        "id": "c_q_ch_email",
+        "statement": "Older hobby audience reads newsletters; MailerLite account exists, wiring unverified.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_forge_ws4"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Facebook groups",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_q_ch_fb",
+        "statement": "Large quilting groups exist; owner participation only.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "date": "2026-11-10",
+      "call": "go",
+      "subject": "Keep $8 planner; add planner+pattern bundle next",
+      "rationale": "See summary.",
+      "falsifying_test": "See premium recommendation.",
+      "decided_by": "intelligence (recommendation)"
+    }
+  ],
+  "data_connectors": [
+    {
+      "name": "Google Trends (5-year, US, related queries)",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Relative interest 0-100 over 5 years, seasonal peaks, rising related queries; sets publish_by dates.",
+      "blocked_reason": "trends.google.com is robots-disallowed to the fetch tool and the container proxy refuses direct connections. Needs a scheduled job on an allowed runner (n8n or James's PC) or a manual CSV export."
+    },
+    {
+      "name": "Google Search autocomplete",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Long-tail question phrasing for keyword lists.",
+      "blocked_reason": "Proxy refuses suggestqueries.google.com from this container."
+    },
+    {
+      "name": "Google Keyword Planner",
+      "status": "requires_owner_account",
+      "cost": "free with a Google Ads account (no spend needed)",
+      "would_add": "Monthly search volume ranges and competition per keyword."
+    },
+    {
+      "name": "Google Search Console",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "First-party impressions, clicks, positions and real queries for each site; replaces guesses with measured demand."
+    },
+    {
+      "name": "Cloudflare Web Analytics",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "Visits and top pages per site."
+    },
+    {
+      "name": "FORGE ledger (D1 sales/events)",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Verified orders and funnel events by niche. As of 2026-11-10 holds test-mode rows only."
+    },
+    {
+      "name": "Etsy listings",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Prices, review counts and shop sales for template sellers. Individual listing pages are fetchable; search pages are not, so sampling is manual. Etsy Open API needs a developer account (new account, not authorized)."
+    },
+    {
+      "name": "Amazon / KDP bestseller ranks",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Book demand proxies (BSR, review counts).",
+      "blocked_reason": "robots-disallowed to the fetch tool."
+    },
+    {
+      "name": "Pinterest Trends and board RSS",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Seasonal pin interest and publication receipts.",
+      "blocked_reason": "robots-disallowed; Pinterest Trends needs a business login."
+    },
+    {
+      "name": "Semrush / Ahrefs / Similarweb",
+      "status": "requires_paid_access",
+      "cost": "paid (roughly $100+/month); not in budget",
+      "would_add": "Third-party traffic and keyword difficulty estimates for competitors (would be labelled ESTIMATED)."
+    },
+    {
+      "name": "Reddit API",
+      "status": "requires_owner_account",
+      "cost": "free tier",
+      "would_add": "Systematic mining of customer language. Read-only mirrors were used for a few threads instead."
+    }
+  ],
+  "sources": [
+    {
+      "id": "src_qia2014",
+      "title": "Quilting in America 2014 summary",
+      "url": "https://fabshopnet.com/wp-content/uploads/downloads/QIA_summary_2014.pdf",
+      "accessed_at": "2026-11-10",
+      "kind": "survey_or_report",
+      "publisher": "F+W / Quilts Inc. (TNS, DP Research)",
+      "published": "2014",
+      "reliability_note": "Industry survey; 7,500 household screen + 2,763 dedicated quilters. Dated."
+    },
+    {
+      "id": "src_qtrends2025",
+      "title": "Today's Quilting Trends (2025 Quilter's Survey)",
+      "url": "https://fabshopnet.com/downloads/Todays-Quilting-Trends-June2025.pdf",
+      "accessed_at": "2026-11-10",
+      "kind": "survey_or_report",
+      "publisher": "FabShopNet / Handi Quilter-funded survey",
+      "published": "2025-06",
+      "reliability_note": "30,000+ responses from brand email lists; self-selected, skews engaged quilters."
+    },
+    {
+      "id": "src_patchworkposse",
+      "title": "Patchwork Posse: The Patchwork Planner",
+      "url": "https://patchworkposse.thrivecart.com/patchwork-planner",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_fqs_planner",
+      "title": "Fat Quarter Shop: Quilt Planner Downloadable PDF Booklet (Amy Ellis)",
+      "url": "https://www.fatquartershop.com/quilt-planner-downloadable-pdf-booklet",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_qwip",
+      "title": "Gumroad: Quilt Planner Printable PDF",
+      "url": "https://qwip.gumroad.com/l/printable-quilt-planner",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_sewingbysarah",
+      "title": "Sewing By Sarah: Quilt Planner Printables",
+      "url": "https://sewingbysarah.com/products/quilt-planner-printables",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_dime",
+      "title": "Sewing Machines Plus: DIME My Quilt Planner",
+      "url": "https://sewingmachinesplus.com/products/dime-my-quilt-planner",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_prequilt",
+      "title": "Stitched in Color: Welcome PreQuilt (pricing)",
+      "url": "https://www.stitchedincolor.com/blog/2024/7/3/welcome-prequilt",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog",
+      "published": "2024-07-03",
+      "reliability_note": "Affiliate-style post; confirm on prequilt.com."
+    },
+    {
+      "id": "src_eq8",
+      "title": "Quilt in a Day: EQ8",
+      "url": "https://quiltinaday.com/products/eq8-quilt-design-software-for-windows-and-mac-by-the-electric-quilt-co",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_eq_shop",
+      "title": "Electric Quilt online shop (EQ8 category)",
+      "url": "https://electricquilt.com/online-shop/category/electric-quilt-8-eq8",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_quiltingcalc",
+      "title": "App Store: QuiltingCalc",
+      "url": "https://apps.apple.com/us/app/quiltingcalc/id390366459",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_fabricmath",
+      "title": "Fabric Math",
+      "url": "https://thefabricmath.pages.dev/",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_mfqs_toolbox",
+      "title": "My Favorite Quilt Store: Quilter's Toolbox",
+      "url": "https://myfavoritequiltstore.com/toolbox",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_fqs_patterns",
+      "title": "Fat Quarter Shop PDF patterns (page sample)",
+      "url": "https://www.fatquartershop.com/pdf-patterns?p=25",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_ls_fees",
+      "title": "Lemon Squeezy fee reviews (5% + 50c)",
+      "url": "https://dodopayments.com/blogs/lemonsqueezy-review",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog"
+    },
+    {
+      "id": "src_forge_ws4",
+      "title": "FORGE audit WS4",
+      "url": "/mnt/project-files/audit/WS4_MARKET_DESIGN_MARKETING.md",
+      "accessed_at": "2026-11-10",
+      "kind": "internal_doc"
+    },
+    {
+      "id": "src_forge_ws3",
+      "title": "FORGE audit WS3",
+      "url": "/mnt/project-files/audit/WS3_COMMERCIAL_READINESS.md",
+      "accessed_at": "2026-11-10",
+      "kind": "internal_doc"
+    }
+  ],
+  "open_questions": [
+    "Is the KDP paperback live, and at what price?",
+    "Where did the redesign hero photo come from?",
+    "Can Search Console for quiltplankit.pages.dev be read (docs say it is verified)?"
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "First brief from public sources."
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "QA-001 I1: Pinterest channel fit lowered to moderate (3 pins is not proof of fit)."
+    }
+  ]
+}

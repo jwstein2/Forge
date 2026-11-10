@@ -1,0 +1,245 @@
+[
+  {
+    "opportunity_key": "quilt-plan-kit",
+    "criterion_scores": [
+      {
+        "key": "demand_evidence",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "9-11M active consumers (2025 survey); paid planners and patterns abundant (relabelled INFERRED per QA-001 I1: audience size is not measured search/marketplace demand; volumes UNKNOWN)"
+      },
+      {
+        "key": "willingness_to_pay",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Planners $5-$19, patterns $5-$20, EQ8 $179 (INFERRED: prices observed, sales mostly not)"
+      },
+      {
+        "key": "competition_gap",
+        "score": 2,
+        "evidence": "INFERRED",
+        "rationale": "Calculators commoditised; planner space crowded"
+      },
+      {
+        "key": "unit_economics",
+        "score": 3,
+        "evidence": "VERIFIED",
+        "rationale": "Digital, ~89% net at $8 after fees"
+      },
+      {
+        "key": "time_to_first_revenue",
+        "score": 5,
+        "evidence": "VERIFIED",
+        "rationale": "Product built; only checkout activation needed"
+      },
+      {
+        "key": "infrastructure_reuse",
+        "score": 5,
+        "evidence": "VERIFIED",
+        "rationale": "Ledger, Pinterest drip, calculators, attribution exist"
+      },
+      {
+        "key": "acquisition_channel_fit",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Pinterest live (3 pins); 48 SEO URLs (INFERRED: no channel has measured traffic yet)"
+      },
+      {
+        "key": "seasonal_timing",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "New Year planning window ahead"
+      },
+      {
+        "key": "low_support_load",
+        "score": 5,
+        "evidence": "INFERRED",
+        "rationale": "Static PDF"
+      },
+      {
+        "key": "low_risk",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Image licence gap on redesign"
+      },
+      {
+        "key": "strategic_fit",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Proven content engine"
+      }
+    ],
+    "gates": [
+      {
+        "key": "free_channel",
+        "passed": true
+      },
+      {
+        "key": "evidence_coverage",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "opportunity_key": "bidline",
+    "criterion_scores": [
+      {
+        "key": "demand_evidence",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "2.9M construction nonemployers; spreadsheet use observed; volume unknown (relabelled INFERRED per QA-001 I1: audience size is not measured search/marketplace demand; volumes UNKNOWN)"
+      },
+      {
+        "key": "willingness_to_pay",
+        "score": 2,
+        "evidence": "INFERRED",
+        "rationale": "Paid bundles exist but free vendor templates dominate; $109 bundle 9 sales/5 months (INFERRED: prices observed, sales mostly not)"
+      },
+      {
+        "key": "competition_gap",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "Profit-loop kit is a gap; templates saturated"
+      },
+      {
+        "key": "unit_economics",
+        "score": 4,
+        "evidence": "VERIFIED",
+        "rationale": "$19 nets ~$17.55"
+      },
+      {
+        "key": "time_to_first_revenue",
+        "score": 3,
+        "evidence": "VERIFIED",
+        "rationale": "Paid kit not built (identical to free template)"
+      },
+      {
+        "key": "infrastructure_reuse",
+        "score": 4,
+        "evidence": "VERIFIED",
+        "rationale": "Best-built site, ledger, checkout"
+      },
+      {
+        "key": "acquisition_channel_fit",
+        "score": 2,
+        "evidence": "INFERRED",
+        "rationale": "SEO contested; no Pinterest fit; no channels live (INFERRED: no channel has measured traffic yet)"
+      },
+      {
+        "key": "seasonal_timing",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Winter planning and spring bidding ahead"
+      },
+      {
+        "key": "low_support_load",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Spreadsheet questions possible"
+      },
+      {
+        "key": "low_risk",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Disclaim pricing outcomes"
+      },
+      {
+        "key": "strategic_fit",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Shovel-seller tool; owner's Stage 2 candidate"
+      }
+    ],
+    "gates": [
+      {
+        "key": "free_channel",
+        "passed": false
+      },
+      {
+        "key": "evidence_coverage",
+        "passed": true
+      }
+    ]
+  },
+  {
+    "opportunity_key": "loaf-ledger",
+    "criterion_scores": [
+      {
+        "key": "demand_evidence",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "Cottage producers mostly bakers; pricing pain widely discussed; volume unknown (relabelled INFERRED per QA-001 I1: audience size is not measured search/marketplace demand; volumes UNKNOWN)"
+      },
+      {
+        "key": "willingness_to_pay",
+        "score": 2,
+        "evidence": "INFERRED",
+        "rationale": "Paid sheets $7.79-$29; median producer sales $2,000/yr (INFERRED: prices observed, sales mostly not)"
+      },
+      {
+        "key": "competition_gap",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Bread/market angle underserved"
+      },
+      {
+        "key": "unit_economics",
+        "score": 3,
+        "evidence": "VERIFIED",
+        "rationale": "$17 nets ~$15.65"
+      },
+      {
+        "key": "time_to_first_revenue",
+        "score": 3,
+        "evidence": "VERIFIED",
+        "rationale": "No product file exists; 2-3 weeks to build"
+      },
+      {
+        "key": "infrastructure_reuse",
+        "score": 4,
+        "evidence": "VERIFIED",
+        "rationale": "Site, calculator, ledger, Pinterest pattern reusable"
+      },
+      {
+        "key": "acquisition_channel_fit",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "Pinterest and SEO plausible, nothing live (INFERRED: no channel has measured traffic yet)"
+      },
+      {
+        "key": "seasonal_timing",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "Holiday window open but product not ready; spring markets next"
+      },
+      {
+        "key": "low_support_load",
+        "score": 4,
+        "evidence": "INFERRED",
+        "rationale": "Spreadsheet"
+      },
+      {
+        "key": "low_risk",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "Must avoid cottage-law advice"
+      },
+      {
+        "key": "strategic_fit",
+        "score": 3,
+        "evidence": "INFERRED",
+        "rationale": "Low-spend audience"
+      }
+    ],
+    "gates": [
+      {
+        "key": "free_channel",
+        "passed": true
+      },
+      {
+        "key": "evidence_coverage",
+        "passed": true
+      }
+    ]
+  }
+]
