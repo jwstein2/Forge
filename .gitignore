@@ -18,3 +18,4 @@ coverage/
 *.tgz
 *.bundle
 .data/
+.claude/settings.local.json
