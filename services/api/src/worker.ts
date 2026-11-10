@@ -8,6 +8,7 @@ import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
 
 const handlers = defaultHandlers();
+export const CRON_MAX_JOBS = 3;
 const app = createApp({ handlers });
 
 /** Enqueue the recurring FORGE jobs for this time slot (idempotent), then run a tick. */
@@ -22,7 +23,9 @@ export async function scheduledTick(env: Env, now = new Date()): Promise<void> {
   await seedSchedules(env.DB, OPERATOR_SCHEDULES);    // git is the source of truth for schedules
   // One job per due schedule slot. Not in the unit-test environment: Operator jobs make real read-only GETs to the live sites.
   if (env.ENVIRONMENT !== "test") await enqueueDue(env.DB, handlers, now);
-  await tick(env.DB, env, handlers, { workerId: "cron", now });
+  // Free-plan CPU budget: the first staging cron measured 203 ms CPU running every due job in one invocation.
+  // Run at most CRON_MAX_JOBS per tick; the rest wait for the next 15-minute tick (jobs are durable and idempotent).
+  await tick(env.DB, env, handlers, { workerId: "cron", now, maxJobs: CRON_MAX_JOBS });
 }
 
 export default {
