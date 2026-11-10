@@ -17,7 +17,7 @@ migrations_dir = "migrations"
 
 [env.staging]
 name = "forge-api-staging"
-vars = { ENVIRONMENT = "staging" }   # OWNER_EMAILS, ACCESS_TEAM_DOMAIN, ACCESS_AUD set at approval time
+vars = { ENVIRONMENT = "staging", ACCESS_TEAM_DOMAIN = "https://autumn-flower-c26e.cloudflareaccess.com", ACCESS_AUD = "58d6d66f8938d87d5cff37809963d7fec43f1e1ea958956eafd6a75458f79268" }   # OWNER_EMAILS and HEARTBEAT_SECRET are Worker secrets
 [env.staging.triggers]
 crons = ["*/15 * * * *"]
 [[env.staging.d1_databases]]          # created 2026-11-10 after owner approval (free tier); migrations 0001-0006, 0100, 0101 applied

@@ -38,7 +38,8 @@ export async function verifyAccessJwt(token: string, env: Env, fetcher: JwksFetc
   const [h, p, sig] = parts as [string, string, string];
   const header = b64urlJson(h); const payload = b64urlJson(p);
   if (header.alg !== "RS256") throw new AuthError("unexpected alg");
-  const team = env.ACCESS_TEAM_DOMAIN.replace(/\/$/, "");
+  const raw = env.ACCESS_TEAM_DOMAIN.trim().replace(/\/$/, "");
+  const team = /^https:\/\//.test(raw) ? raw : `https://${raw}`; // accept "team.cloudflareaccess.com" or the full URL
   const { keys } = await fetcher(`${team}/cdn-cgi/access/certs`);
   const jwk = keys.find((k) => k.kid === header.kid);
   if (!jwk) throw new AuthError("unknown signing key");
