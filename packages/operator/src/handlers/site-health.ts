@@ -49,7 +49,7 @@ export function siteHealth(fetcher: Fetcher): HandlerDef {
         const targets = [...niches.filter((n) => n.site_url).flatMap((n) => siteTargets(n as { id: string; name: string; site_url: string })), ...(input.nicheId ? [] : SHARED_TARGETS)];
         let failing = 0; let resolved = 0;
         for (const t of targets) {
-          const r = await fetcher(t.url, { timeoutMs: 15000, maxBytes: 600_000 });
+          const r = await fetcher(t.url, { timeoutMs: 15000, maxBytes: 256_000 });
           const findings = evaluate(t, r);
           const blocking = findings.filter((x) => x.severity !== "info");
           await recordCheck(db, { kind: "site_health", nicheId: t.nicheId, target: t.url, ok: blocking.length === 0, status: r.status, latencyMs: r.latencyMs, findings, jobId });

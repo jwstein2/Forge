@@ -7,7 +7,7 @@ import { auditPage } from "../src/handlers/seo.ts";
 import { previousWeek } from "../src/handlers/summary.ts";
 import { boundedJsonCall, costCents, extractJson, type LlmProvider } from "../src/llm.ts";
 import { brief, fakeFetcher, handlersWith, healthySites, makeEnv, page, run } from "./helpers.ts";
-import { enqueue } from "../../../services/api/src/orchestration/engine.ts";
+import { enqueue, tick } from "../../../services/api/src/orchestration/engine.ts";
 
 const PAST = "2000-01-01T00:00:00.000Z";
 const T = (s: string) => new Date(s);
@@ -171,8 +171,17 @@ describe("SEO audit", () => {
       [`${base}/sitemap.xml`]: `<urlset><url><loc>${base}/</loc></url><url><loc>${base}/gone</loc></url><url><loc>${base}/thin</loc></url></urlset>`,
       [`${base}/thin`]: page({ title: "Thin" }),
     })) });
-    await enqueue(db, h, { runAt: PAST, kind: "ops.seo_audit", createdBy: "t", input: { nicheId: "quilt-plan-kit" } });
-    await run(env, h);
+    await enqueue(db, h, { runAt: PAST, kind: "ops.seo_audit", createdBy: "t", input: { nicheId: "quilt-plan-kit", batchSize: 2 } });
+    // One job per tick, as on the CPU-limited cron: planner, then 2 batches, then finalize.
+    const one = () => tick(env.DB, env, h, { workerId: "test", now: new Date(), maxJobs: 1 });
+    await one();
+    const kids = await q(db, `SELECT kind, status FROM jobs WHERE kind IN ('ops.seo_batch','ops.seo_finalize') ORDER BY kind`);
+    expect(kids.map((k) => k.kind)).toEqual(["ops.seo_batch", "ops.seo_batch", "ops.seo_finalize"]);
+    await one(); await one();
+    expect((await q(db, `SELECT status FROM jobs WHERE kind='ops.seo_finalize'`))[0]!.status).not.toBe("succeeded");
+    expect(await q(db, `SELECT * FROM alerts WHERE dedupe_key='ops:seo:quilt-plan-kit'`)).toHaveLength(0);
+    await one();
+    expect((await q(db, `SELECT status FROM jobs WHERE kind='ops.seo_finalize'`))[0]!.status).toBe("succeeded");
     const pages = await q(db, `SELECT target, ok, status_code FROM op_checks WHERE check_kind='seo_page' ORDER BY target`);
     expect(pages.map((p) => [p.target.replace(base, ""), p.ok])).toEqual([["/", 1], ["/gone", 0], ["/thin", 0]]);
     const [a] = await q(db, `SELECT severity, title FROM alerts WHERE dedupe_key='ops:seo:quilt-plan-kit'`);

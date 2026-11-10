@@ -13,8 +13,16 @@ export const defaultFetcher: Fetcher = async (url, opts = {}) => {
   const started = Date.now();
   try {
     const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "user-agent": UA, accept: "text/html,application/xml,application/json;q=0.9,*/*;q=0.5" }, signal: AbortSignal.timeout(opts.timeoutMs ?? 15000) });
-    const buf = await res.arrayBuffer();
-    const text = new TextDecoder().decode(buf.slice(0, opts.maxBytes ?? 2_000_000));
+    // Stream and stop at maxBytes so a large page costs neither download nor decode time past the cap.
+    const cap = opts.maxBytes ?? 2_000_000; const chunks: Uint8Array[] = []; let got = 0;
+    const reader = res.body?.getReader();
+    if (reader) {
+      while (got < cap) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); got += value.byteLength; }
+      if (got >= cap) await reader.cancel().catch(() => undefined);
+    }
+    const buf = new Uint8Array(Math.min(got, cap)); let off = 0;
+    for (const c of chunks) { const n = Math.min(c.byteLength, buf.length - off); if (n <= 0) break; buf.set(c.subarray(0, n), off); off += n; }
+    const text = new TextDecoder().decode(buf);
     return { ok: res.ok, status: res.status, text, latencyMs: Date.now() - started, finalUrl: res.url };
   } catch (e) {
     return { ok: false, status: null, text: "", latencyMs: Date.now() - started, error: String((e as Error).message ?? e).slice(0, 300) };
@@ -66,7 +74,8 @@ export async function activeNiches(db: D1Database, only?: string | null): Promis
 export const joinUrl = (base: string, path: string): string => base.replace(/\/+$/, "") + (path.startsWith("/") ? path : `/${path}`);
 
 /** Minimal tag/attribute extraction for our own static sites (no DOM in Workers). */
-export function htmlFacts(html: string) {
+export function htmlFacts(fullHtml: string) {
+  const html = fullHtml.length > 64_000 ? fullHtml.slice(0, 64_000) : fullHtml; // regex cost stays bounded
   const one = (re: RegExp) => re.exec(html)?.[1]?.trim() ?? null;
   const attr = (tagRe: RegExp, name: string) => {
     const tag = tagRe.exec(html)?.[0];

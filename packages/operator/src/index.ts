@@ -14,7 +14,7 @@ import { providerFromEnv, type LlmProvider } from "./llm.ts";
 import type { ScheduleDef } from "./schedule.ts";
 import { siteHealth } from "./handlers/site-health.ts";
 import { pinRunway } from "./handlers/pinterest.ts";
-import { seoAudit } from "./handlers/seo.ts";
+import { seoAudit, seoBatch, seoFinalize } from "./handlers/seo.ts";
 import { contentDraft, contentPlan, contentPublish, contentVerify, dryRunPublisher, type Publisher } from "./handlers/content.ts";
 import { weeklySummary } from "./handlers/summary.ts";
 
@@ -32,7 +32,11 @@ export function operatorHandlers(deps: OperatorDeps = {}): HandlerDef[] {
   const fetcher = deps.fetcher ?? defaultFetcher;
   const provider = deps.provider ?? providerFromEnv; // reads ANTHROPIC_API_KEY from the Worker env at run time
   const publishers = new Map([dryRunPublisher, manualPublisher, ...(deps.publishers ?? [])].map((p) => [p.id, p]));
-  return [siteHealth(fetcher), pinRunway(fetcher), seoAudit(fetcher), contentPlan(), contentDraft(provider), contentPublish(publishers), contentVerify(fetcher), weeklySummary()];
+  // The SEO planner enqueues its batch and finalize jobs, so it needs the handler map it belongs to.
+  const list: HandlerDef[] = [];
+  const map = () => new Map(list.map((h) => [h.kind, h]));
+  list.push(siteHealth(fetcher), pinRunway(fetcher), seoAudit(fetcher, map), seoBatch(fetcher), seoFinalize(), contentPlan(), contentDraft(provider), contentPublish(publishers), contentVerify(fetcher), weeklySummary());
+  return list;
 }
 
 /** Git is the source of truth for schedules. All times UTC. */

@@ -1,10 +1,20 @@
 /**
- * ops.seo_audit — weekly technical SEO crawl of each live site from its own sitemap.
- * Deterministic: robots → sitemap → up to `maxPages` URLs → status, title, description, canonical, h1, noindex, viewport.
- * Search demand, rankings and clicks stay UNKNOWN until Search Console is connected (owner approval); this job never guesses them.
+ * Weekly technical SEO crawl, split into small jobs so each cron invocation stays light (staging measured 203 ms
+ * CPU for an unsplit tick against a 10 ms free-plan budget).
+ *
+ *  ops.seo_audit     planner: per niche, reads robots.txt and the sitemap, records site-level findings, then enqueues
+ *                    one ops.seo_batch job per `batchSize` URLs and one ops.seo_finalize job that depends on them.
+ *  ops.seo_batch     fetches its URLs (head of the page only, capped bytes) and records per-page findings.
+ *  ops.seo_finalize  runs after every batch of that niche succeeded; raises or resolves the niche's SEO alert.
+ *
+ * Parsing is regex over at most the first 64 KB of each page (enough for <head> and the first <h1>), never a DOM.
+ * Search demand, rankings and clicks stay UNKNOWN until Search Console is connected.
  */
 import type { HandlerDef } from "../../../../services/api/src/orchestration/engine.ts";
+import { enqueue } from "../../../../services/api/src/orchestration/engine.ts";
 import { activeNiches, htmlFacts, joinUrl, raiseAlert, recordCheck, resolveAlert, xmlTags, type Fetcher, type Finding } from "../lib.ts";
+
+export const PAGE_BYTES = 64_000;
 
 export function auditPage(url: string, html: string, siteOrigin: string): Finding[] {
   const f: Finding[] = []; const h = htmlFacts(html);
@@ -16,9 +26,12 @@ export function auditPage(url: string, html: string, siteOrigin: string): Findin
   else {
     const norm = (u: string) => u.replace(/\/index\.html$/, "/").replace(/\/+$/, "");
     if (!h.canonical.startsWith("http")) f.push({ code: "canonical_relative", severity: "info", message: `Relative canonical ${h.canonical}` });
-    else if (norm(h.canonical) !== norm(url)) f.push({ code: "canonical_mismatch", severity: new URL(h.canonical).origin === siteOrigin ? "info" : "warning", message: `Canonical ${h.canonical} differs from ${url}` });
+    else if (norm(h.canonical) !== norm(url)) {
+      let sameOrigin = false; try { sameOrigin = new URL(h.canonical).origin === siteOrigin; } catch { /* malformed */ }
+      f.push({ code: "canonical_mismatch", severity: sameOrigin ? "info" : "warning", message: `Canonical ${h.canonical} differs from ${url}` });
+    }
   }
-  if (h.h1Count === 0) f.push({ code: "h1_missing", severity: "warning", message: "No <h1>" });
+  if (h.h1Count === 0) f.push({ code: "h1_missing", severity: "warning", message: "No <h1> in the first 64 KB" });
   if (h.h1Count > 1) f.push({ code: "h1_multiple", severity: "info", message: `${h.h1Count} <h1> elements` });
   if (h.robots && /noindex/i.test(h.robots)) f.push({ code: "noindex", severity: "warning", message: `robots meta: ${h.robots}` });
   if (!h.hasViewport) f.push({ code: "viewport_missing", severity: "warning", message: "No viewport meta (mobile)" });
@@ -26,53 +39,105 @@ export function auditPage(url: string, html: string, siteOrigin: string): Findin
   return f;
 }
 
-export function seoAudit(fetcher: Fetcher): HandlerDef {
+/** Planner. */
+export function seoAudit(fetcher: Fetcher, handlers: () => Map<string, HandlerDef>): HandlerDef {
   return {
     kind: "ops.seo_audit",
     registryId: "OPS-SEO-AUDIT",
     steps: [{
-      name: "crawl",
+      name: "plan",
       async run({ db, jobId, input }) {
         const maxPages = Math.min(Number(input.maxPages ?? 60), 200);
+        const batchSize = Math.min(Math.max(Number(input.batchSize ?? 8), 1), 25);
         const niches = (await activeNiches(db, (input.nicheId as string) ?? null)).filter((n) => n.site_url);
-        const summary: Record<string, unknown>[] = [];
+        const planned: Record<string, unknown>[] = [];
         for (const n of niches) {
           const base = n.site_url!; const origin = new URL(base).origin;
           const site: Finding[] = [];
-          const robots = await fetcher(joinUrl(base, "/robots.txt"));
+          const robots = await fetcher(joinUrl(base, "/robots.txt"), { maxBytes: 32_000 });
           if (!robots.ok) site.push({ code: "robots_missing", severity: "warning", message: `robots.txt HTTP ${robots.status ?? "none"}` });
           else {
             if (/^\s*Disallow:\s*\/\s*$/im.test(robots.text)) site.push({ code: "robots_blocks_all", severity: "critical", message: "robots.txt disallows the whole site" });
             if (!/^\s*Sitemap:/im.test(robots.text)) site.push({ code: "robots_no_sitemap", severity: "info", message: "robots.txt does not reference a sitemap" });
           }
-          const sm = await fetcher(joinUrl(base, "/sitemap.xml"));
-          const urls = sm.ok ? xmlTags(sm.text, "loc").filter((u) => u.startsWith(origin)) : [];
+          const sm = await fetcher(joinUrl(base, "/sitemap.xml"), { maxBytes: 500_000 });
+          const locs = sm.ok ? xmlTags(sm.text, "loc") : [];
+          const urls = locs.filter((u) => u.startsWith(origin));
           if (!sm.ok) site.push({ code: "sitemap_missing", severity: "warning", message: `sitemap.xml HTTP ${sm.status ?? "none"}` });
           else if (!urls.length) site.push({ code: "sitemap_empty", severity: "warning", message: "sitemap has no same-origin <loc> URLs" });
-          const foreign = sm.ok ? xmlTags(sm.text, "loc").filter((u) => !u.startsWith(origin)).length : 0;
-          if (foreign) site.push({ code: "sitemap_foreign_urls", severity: "warning", message: `${foreign} sitemap URLs point to another origin` });
-
-          let broken = 0; let pagesWithWarnings = 0; const counts: Record<string, number> = {};
+          if (locs.length > urls.length) site.push({ code: "sitemap_foreign_urls", severity: "warning", message: `${locs.length - urls.length} sitemap URLs point to another origin` });
           const sample = urls.slice(0, maxPages);
-          for (const u of sample) {
-            const r = await fetcher(u, { timeoutMs: 15000, maxBytes: 600_000 });
-            const pf: Finding[] = r.ok ? auditPage(u, r.text, origin) : [{ code: "page_status", severity: "critical", message: `HTTP ${r.status ?? "none"}${r.error ? ` (${r.error})` : ""}` }];
-            if (!r.ok) broken++;
-            if (pf.some((x) => x.severity !== "info")) pagesWithWarnings++;
-            pf.forEach((x) => { counts[x.code] = (counts[x.code] ?? 0) + 1; });
-            await recordCheck(db, { kind: "seo_page", nicheId: n.id, target: u, ok: !pf.some((x) => x.severity !== "info"), status: r.status, latencyMs: r.latencyMs, findings: pf, jobId });
-          }
-          if (urls.length > sample.length) site.push({ code: "sample_capped", severity: "info", message: `Checked ${sample.length} of ${urls.length} sitemap URLs` });
-          await recordCheck(db, { kind: "seo_site", nicheId: n.id, target: base, ok: !site.some((x) => x.severity !== "info") && broken === 0, status: sm.status, findings: site, jobId });
+          if (urls.length > sample.length) site.push({ code: "sample_capped", severity: "info", message: `Checking ${sample.length} of ${urls.length} sitemap URLs` });
+          await recordCheck(db, { kind: "seo_site", nicheId: n.id, target: base, ok: !site.some((x) => x.severity !== "info"), status: sm.status, findings: site, jobId });
 
-          const key = `ops:seo:${n.id}`;
-          const severe = site.filter((x) => x.severity !== "info");
-          if (broken || severe.length) await raiseAlert(db, { key, severity: broken || severe.some((x) => x.severity === "critical") ? "critical" : "warning", nicheId: n.id, source: "ops.seo_audit",
-            title: `${n.name}: ${broken} broken page(s), ${severe.length} site-level SEO issue(s)`, detail: [...severe.map((x) => x.message), ...(broken ? [`${broken} sitemap URLs did not return 200`] : [])].join("; "), nextAction: "See the SEO findings in Operations; fixes go through the site's normal release gate.", evidenceUrl: joinUrl(base, "/sitemap.xml") });
-          else await resolveAlert(db, key);
-          summary.push({ nicheId: n.id, sitemapUrls: urls.length, checked: sample.length, broken, pagesWithWarnings, findingCounts: counts, siteFindings: site.map((x) => x.code), searchConsole: "unconnected" });
+          const h = handlers(); const batchIds: string[] = [];
+          for (let i = 0; i < sample.length; i += batchSize) {
+            const b = await enqueue(db, h, { kind: "ops.seo_batch", nicheId: n.id, parentId: jobId, idempotencyKey: `${jobId}:${n.id}:${i}`, input: { nicheId: n.id, urls: sample.slice(i, i + batchSize) }, createdBy: `job:${jobId}`, maxAttempts: 2 });
+            batchIds.push(b.id);
+          }
+          await enqueue(db, h, { kind: "ops.seo_finalize", nicheId: n.id, parentId: jobId, idempotencyKey: `${jobId}:${n.id}:final`, dependsOn: batchIds,
+            input: { nicheId: n.id, batchJobIds: batchIds, siteFindings: site, sitemapUrls: urls.length }, createdBy: `job:${jobId}`, maxAttempts: 2 });
+          planned.push({ nicheId: n.id, sitemapUrls: urls.length, batches: batchIds.length, siteFindings: site.map((x) => x.code) });
         }
-        return { output: { niches: summary } };
+        return { output: { niches: planned } };
+      },
+    }],
+  };
+}
+
+export function seoBatch(fetcher: Fetcher): HandlerDef {
+  return {
+    kind: "ops.seo_batch",
+    registryId: "OPS-SEO-AUDIT",
+    steps: [{
+      name: "crawl",
+      async run({ db, jobId, input }) {
+        const nicheId = String(input.nicheId);
+        const urls = (input.urls as string[]) ?? [];
+        let broken = 0; let warn = 0;
+        for (const u of urls) {
+          const origin = new URL(u).origin;
+          const r = await fetcher(u, { timeoutMs: 15000, maxBytes: PAGE_BYTES });
+          const pf: Finding[] = r.ok ? auditPage(u, r.text, origin) : [{ code: "page_status", severity: "critical", message: `HTTP ${r.status ?? "none"}${r.error ? ` (${r.error})` : ""}` }];
+          if (!r.ok) broken++;
+          const bad = pf.some((x) => x.severity !== "info"); if (bad) warn++;
+          await recordCheck(db, { kind: "seo_page", nicheId, target: u, ok: !bad, status: r.status, latencyMs: r.latencyMs, findings: pf, jobId });
+        }
+        return { output: { nicheId, checked: urls.length, broken, pagesWithWarnings: warn } };
+      },
+    }],
+  };
+}
+
+export function seoFinalize(): HandlerDef {
+  return {
+    kind: "ops.seo_finalize",
+    registryId: "OPS-SEO-AUDIT",
+    steps: [{
+      name: "summarize",
+      async run({ db, input }) {
+        const nicheId = String(input.nicheId);
+        const ids = (input.batchJobIds as string[]) ?? [];
+        const site = (input.siteFindings as Finding[]) ?? [];
+        const niche = await db.prepare(`SELECT name, site_url FROM niches WHERE id = ?`).bind(nicheId).first<{ name: string; site_url: string }>();
+        const rows = ids.length
+          ? (await db.prepare(`SELECT ok, status_code, findings_json FROM op_checks WHERE check_kind='seo_page' AND job_id IN (${ids.map(() => "?").join(",")})`).bind(...ids).all<{ ok: number; status_code: number | null; findings_json: string }>()).results
+          : [];
+        const counts: Record<string, number> = {};
+        let broken = 0; let pagesWithWarnings = 0;
+        for (const r of rows) {
+          const f = JSON.parse(r.findings_json) as Finding[];
+          if (f.some((x) => x.code === "page_status")) broken++;
+          if (!r.ok) pagesWithWarnings++;
+          f.forEach((x) => { counts[x.code] = (counts[x.code] ?? 0) + 1; });
+        }
+        const key = `ops:seo:${nicheId}`;
+        const severe = site.filter((x) => x.severity !== "info");
+        if (broken || severe.length) await raiseAlert(db, { key, severity: broken || severe.some((x) => x.severity === "critical") ? "critical" : "warning", nicheId, source: "ops.seo_audit",
+          title: `${niche?.name ?? nicheId}: ${broken} broken page(s), ${severe.length} site-level SEO issue(s)`, detail: [...severe.map((x) => x.message), ...(broken ? [`${broken} sitemap URLs did not return 200`] : [])].join("; "),
+          nextAction: "See the SEO findings in Operations; fixes go through the site's normal release gate.", evidenceUrl: niche?.site_url ? joinUrl(niche.site_url, "/sitemap.xml") : null });
+        else await resolveAlert(db, key);
+        return { output: { nicheId, sitemapUrls: input.sitemapUrls ?? null, checked: rows.length, broken, pagesWithWarnings, findingCounts: counts, siteFindings: site.map((x) => x.code), searchConsole: "unconnected" } };
       },
     }],
   };
