@@ -31,7 +31,7 @@ export const HEARTBEAT_PLAN: { targets: HeartbeatTarget[]; excluded: { workflowI
   prerequisites: [
     "Owner approval to edit the five live workflows (live n8n change).",
     "A HEARTBEAT_SECRET of 32+ characters set on the FORGE Worker for the target environment, and the same value stored once in n8n forge_config as heartbeat_secret (through the existing one-time bootstrap pattern, never pasted in chat).",
-    "The FORGE heartbeat endpoint reachable from n8n cloud: /api/v1/ingest/heartbeat must bypass Cloudflare Access (it is signature-checked instead).",
+    "BLOCKED until James approves: n8n cloud cannot reach /api/v1/ingest/heartbeat today (staging Access answers with a 302 to its login). Recommended: an Access service token with a Service Auth policy; n8n then also sends CF-Access-Client-Id and CF-Access-Client-Secret, stored in forge_config like the other secrets (docs/STAGING.md). Alternative: a Bypass policy on /api/v1/ingest/* behind the HMAC check.",
     "forge_config key forge_api_base = the FORGE API origin for that environment.",
   ],
 };
