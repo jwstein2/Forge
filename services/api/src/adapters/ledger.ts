@@ -72,6 +72,12 @@ export function attributeEvent(path: string, prefixes: { nicheId: string; prefix
   return null;
 }
 
+/** Live rows with a NULL owner_test are treated as owner tests (excluded from revenue); only pre-flag snapshots default to 0. */
+export function ownerTest(v: number | null | undefined, mode: LedgerReader["mode"]): 0 | 1 {
+  if (v === null || v === undefined) return mode === "live" ? 1 : 0;
+  return v ? 1 : 0;
+}
+
 export async function importLedger(db: D1Database, reader: LedgerReader, at = nowIso()): Promise<{ financialEvents: number; funnelRows: number }> {
   if (reader.mode === "unconnected") {
     await recordSource(db, { id: "ledger.d1", label: "D1 sales ledger", mode: "unconnected", asOf: null, note: "No ledger binding or snapshot configured." });
@@ -87,7 +93,7 @@ export async function importLedger(db: D1Database, reader: LedgerReader, at = no
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source, source_ref) DO UPDATE SET owner_test=excluded.owner_test, test_mode=excluded.test_mode`;
   for (const s of await reader.readSales()) {
     const niche = byVertical.get(s.vertical) ?? null;
-    const base = [s.currency || "USD", s.created_at, s.product, s.order_id, s.test_mode ? 1 : 0, s.owner_test ? 1 : 0, "ledger.d1"] as const;
+    const base = [s.currency || "USD", s.created_at, s.product, s.order_id, s.test_mode ? 1 : 0, ownerTest(s.owner_test, reader.mode), "ledger.d1"] as const;
     if (s.event === "order_created") {
       const net = Number(s.total_cents) - Number(s.tax_cents || 0);
       stmts.push(db.prepare(insFin).bind(`fe_${s.id}`, niche, "sale", net, ...base, s.id, s.source || null, s.campaign || null, at));

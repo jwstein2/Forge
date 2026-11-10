@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { makeEnv } from "./helpers.ts";
-import { attributeEvent, d1RestLedger, importLedger, isTestEvent, snapshotLedger, unconnectedLedger, type LedgerSnapshot } from "../src/adapters/ledger.ts";
+import { attributeEvent, d1RestLedger, ownerTest, importLedger, isTestEvent, snapshotLedger, unconnectedLedger, type LedgerSnapshot } from "../src/adapters/ledger.ts";
 import { importN8n, liveN8n, snapshotN8n, unconnectedN8n, type N8nSnapshot } from "../src/adapters/n8n.ts";
 import { listSources } from "../src/adapters/sources.ts";
 import ledgerSnap from "../fixtures/ledger-snapshot-2026-11-10.json" with { type: "json" };
@@ -62,6 +62,13 @@ describe("ledger over D1 REST with a read-only token", () => {
     const r = await importLedger(env.DB, d1RestLedger({ accountId: "acc", databaseId: "db", token: "tok" }, fetcher));
     expect(r.funnelRows).toBe((ledgerSnap as LedgerSnapshot).events.length);
     expect(sent.every((s) => s.sql.startsWith("SELECT ") && s.auth === "Bearer tok" && s.url.endsWith("/accounts/acc/d1/database/db/query"))).toBe(true);
+  });
+
+  it("treats a live row with NULL owner_test as an owner test (excluded), but not a pre-flag snapshot row", () => {
+    expect(ownerTest(null, "live")).toBe(1);
+    expect(ownerTest(undefined, "live")).toBe(1);
+    expect(ownerTest(0, "live")).toBe(0);
+    expect(ownerTest(undefined, "snapshot")).toBe(0);
   });
 
   it("fails loudly (no silent zeros) when the token is refused", async () => {
