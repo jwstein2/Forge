@@ -11,14 +11,17 @@ import { validateBlueprint } from "../src/validate.ts";
 import { loadBrief, registryProducts } from "./helpers.ts";
 
 const brief = loadBrief("garden-planner");
-const opts = { businessKind: "new_business" as const, registryProducts: registryProducts() };
+const opts = {
+  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.1", supersedes: "bp_garden-planner_v1-0-0",
+  changelog: "Regenerated from brief v1.0.1: frost dates from NOAA 1991-2020 Climate Normals (CC0), station name and distance shown.",
+};
 const brand = JSON.parse(readFileSync(join(import.meta.dirname, "..", "brands", "garden-planner.brand.json"), "utf8")) as Brand;
 
 describe("garden-planner (new business) blueprint", () => {
   it("is valid, traceable, and matches the committed file", async () => {
     const bp = await generateBlueprint(brief, opts);
     expect(validateBlueprint(bp, brief).errors).toEqual([]);
-    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.0.json"), "utf8"));
+    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.1.json"), "utf8"));
     expect(await contentHash(committed)).toBe(await contentHash(bp));
   });
 
@@ -31,10 +34,11 @@ describe("garden-planner (new business) blueprint", () => {
     expect(ev.status).toBe("awaiting_approval");
   });
 
-  it("carries the frost-date honesty rule and the dataset licence question", async () => {
+  it("carries the frost-date honesty rule, the station disclosure and the ZIP-to-station question", async () => {
     const bp = await generateBlueprint(brief, opts);
     expect(bp.products[0]!.must_not.join(" ")).toMatch(/estimates with the source/);
-    expect(bp.unknowns.some((u) => /frost-date dataset/i.test(u.statement))).toBe(true);
+    expect(bp.products[0]!.must_include.join(" ")).toMatch(/station/i);
+    expect(bp.unknowns.some((u) => /ZIP|station/i.test(u.statement))).toBe(true);
     expect(bp.unknowns.some((u) => u.field === "offer_ladder.free.price")).toBe(false);
   });
 

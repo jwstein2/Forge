@@ -14,6 +14,7 @@ const args = process.argv.slice(2);
 /** Committed blueprint history: what changed in each generated version. */
 const CHANGELOG: Record<string, string> = {
   "1.0.1": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap).",
+  "garden-planner@1.0.1": "Regenerated from brief v1.0.1: frost dates from NOAA 1991-2020 Climate Normals (CC0), station name and distance shown.",
   "1.0.2": "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
 };
 function previousId(niche: string, version: string): string | null {
@@ -43,7 +44,7 @@ const budget = flag("--budget-cents");
 const bp = await generateBlueprint(brief, {
   version: flag("--version"), registryProducts,
   supersedes: args.includes("--supersedes-previous") && flag("--version") ? previousId(brief.niche, flag("--version")!) : null,
-  changelog: args.includes("--supersedes-previous") ? CHANGELOG[flag("--version") ?? ""] : undefined, budgetCeilingCents: budget ? Number(budget) : null,
+  changelog: args.includes("--supersedes-previous") ? (CHANGELOG[`${brief.niche}@${flag("--version")}`] ?? CHANGELOG[flag("--version") ?? ""]) : undefined, budgetCeilingCents: budget ? Number(budget) : null,
   businessKind: args.includes("--new-business") ? "new_business" : "existing_niche",
 });
 const v = validateBlueprint(bp, brief);

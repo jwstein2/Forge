@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_garden-planner_v1-0-0",
+  "brief_id": "brief_garden-planner_v1-0-1",
   "niche": "garden-planner",
   "display_name": "Garden Planner (working name)",
-  "version": "1.0.0",
-  "supersedes": null,
+  "version": "1.0.1",
+  "supersedes": "brief_garden-planner_v1-0-0",
   "status": "draft",
   "created_at": "2026-11-10T05:00:00Z",
-  "updated_at": "2026-11-10T05:00:00Z",
+  "updated_at": "2026-11-10T04:40:00Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
@@ -101,6 +101,20 @@
         ],
         "observed_at": "2026-11-10",
         "notes": "The 'out of date' part is an inference."
+      },
+      {
+        "id": "c_g_frost_data",
+        "statement": "Frost dates can come from NOAA NCEI's 1991-2020 U.S. Climate Normals, which Data.gov lists under CC0 (public domain). The annual normals include last-spring and first-fall 32F, 28F and 36F probability dates at 10-90%, for 7,300+ stations with temperature normals. Climate.gov's last-freeze map uses the 50% date.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "government_statistics",
+        "source_ids": [
+          "src_ncei_normals_catalog",
+          "src_ncei_normals_doc",
+          "src_climategov_lastfreeze"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Element names ANN-TMIN-PRBLST-T32FP50 (spring) and ANN-TMIN-PRBFST-T32FP50 (fall). Not yet checked: the date encoding in the CSV, and the coverage of the freeze elements, which is a subset of the 7,300."
       }
     ]
   },
@@ -1168,7 +1182,8 @@
       "Seed inventory and sowing log",
       "Harvest log with a 'next year' notes page",
       "Succession-sowing planner",
-      "US Letter and A4"
+      "US Letter and A4",
+      "Frost dates from NOAA NCEI 1991-2020 normals (50% last-spring 32F date by default), with the station name and distance shown"
     ],
     "must_not": [
       "Give pesticide or legal advice",
@@ -1520,12 +1535,37 @@
       "url": "/mnt/project-files/forge/intelligence/briefs/quilt-plan-kit.brief.json",
       "accessed_at": "2026-11-10",
       "kind": "internal_doc"
+    },
+    {
+      "id": "src_ncei_normals_catalog",
+      "title": "Data.gov: U.S. Climate Normals 2020, Annual/Seasonal Normals (1991-2020)",
+      "url": "https://catalog.data.gov/dataset/u-s-climate-normals-2020-u-s-annual-seasonal-climate-normals-1991-2020",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA National Centers for Environmental Information",
+      "reliability_note": "Catalog lists licence CC0 1.0 (public domain). Bulk CSV at ncei.noaa.gov/data/normals-annualseasonal/1991-2020 and the NOAA open-data S3 bucket."
+    },
+    {
+      "id": "src_ncei_normals_doc",
+      "title": "NCEI Annual/Seasonal Normals 1991-2020 documentation",
+      "url": "https://www.ncei.noaa.gov/pub/data/cdo/documentation/normals-annualseasonal-1991-2020_documentation.pdf",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA NCEI"
+    },
+    {
+      "id": "src_climategov_lastfreeze",
+      "title": "Climate.gov: Interactive map of average date of last spring freeze",
+      "url": "https://www.climate.gov/news-features/understanding-climate/interactive-map-average-date-last-spring-freeze-across-united",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA Climate.gov"
     }
   ],
   "open_questions": [
-    "Which free frost-date dataset can be used by ZIP code, and under what licence? (NOAA climate normals are public; confirm before building.)",
     "Will James approve an Etsy seller account as a second channel?",
-    "Brand name and domain (Builder to propose)."
+    "Brand name and domain (Builder to propose).",
+    "ZIP-to-station mapping: use Census ZCTA centroids (Gazetteer files, public) and the nearest normals station with freeze elements. Confirm the CSV date encoding and coverage when building."
   ],
   "changelog": [
     {
@@ -1533,6 +1573,12 @@
       "date": "2026-11-10",
       "author": "forge-intelligence",
       "change": "First brief, from Opportunity Scout run 2026-11-scout-01."
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "Resolved the frost-date dataset question: NOAA NCEI 1991-2020 normals (CC0). Added 3 sources, a key finding and a must-include. Opened a follow-up question on the ZIP-to-station mapping."
     }
   ]
 }
