@@ -2,7 +2,7 @@
  * Built-in job handlers. Each is deterministic; none spends money or writes outside the FORGE database.
  */
 import type { HandlerDef } from "./engine.ts";
-import { d1Ledger, importLedger, snapshotLedger, type LedgerSnapshot } from "../adapters/ledger.ts";
+import { d1Ledger, d1RestLedger, importLedger, snapshotLedger, type LedgerSnapshot } from "../adapters/ledger.ts";
 import { importN8n, liveN8n, snapshotN8n, type N8nSnapshot } from "../adapters/n8n.ts";
 import { listSources } from "../adapters/sources.ts";
 import { listRegistry } from "../domain/registry.ts";
@@ -19,7 +19,9 @@ export const ledgerSync: HandlerDef = {
     name: "import",
     async run({ db, env }) {
       // Live read-only binding when the owner has approved one for this environment; otherwise the dated snapshot.
-      const reader = env.LEDGER_DB ? d1Ledger(env.LEDGER_DB) : snapshotLedger(ledgerSnapshot as LedgerSnapshot);
+      const reader = env.LEDGER_API_TOKEN && env.LEDGER_ACCOUNT_ID && env.LEDGER_DATABASE_ID
+        ? d1RestLedger({ accountId: env.LEDGER_ACCOUNT_ID, databaseId: env.LEDGER_DATABASE_ID, token: env.LEDGER_API_TOKEN })
+        : env.LEDGER_DB ? d1Ledger(env.LEDGER_DB) : snapshotLedger(ledgerSnapshot as LedgerSnapshot);
       return { output: { mode: reader.mode, ...(await importLedger(db, reader)) } };
     },
   }],

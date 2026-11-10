@@ -37,6 +37,26 @@ export function d1Ledger(ledger: D1Database, at = nowIso()): LedgerReader {
   };
 }
 
+const SALES_SQL = `SELECT id,event,order_id,test_mode,currency,total_cents,tax_cents,refunded_cents,product,created_at,received_at,source,campaign,vertical,owner_test FROM sales`;
+const EVENTS_SQL = `SELECT day,name,path,source,count FROM events`;
+
+/**
+ * Live ledger over the D1 REST API with a token that only has D1 Read permission, so FORGE
+ * cannot write to the ledger even by mistake. Only the two fixed SELECTs above are ever sent.
+ */
+export function d1RestLedger(cfg: { accountId: string; databaseId: string; token: string }, fetcher: typeof fetch = fetch, at = nowIso()): LedgerReader {
+  const query = async <T>(sql: string): Promise<T[]> => {
+    if (!/^SELECT /.test(sql)) throw new Error("ledger reader only sends SELECT");
+    const res = await fetcher(`https://api.cloudflare.com/client/v4/accounts/${cfg.accountId}/d1/database/${cfg.databaseId}/query`, {
+      method: "POST", headers: { authorization: `Bearer ${cfg.token}`, "content-type": "application/json" }, body: JSON.stringify({ sql }),
+    });
+    const body = (await res.json().catch(() => null)) as { success?: boolean; result?: { results?: T[] }[]; errors?: { code: number }[] } | null;
+    if (!res.ok || !body?.success) throw new Error(`ledger REST query failed (${res.status}${body?.errors?.[0] ? `, code ${body.errors[0].code}` : ""})`);
+    return body.result?.[0]?.results ?? [];
+  };
+  return { mode: "live", asOf: at, readSales: () => query<LedgerSale>(SALES_SQL), readEvents: () => query<LedgerEvent>(EVENTS_SQL) };
+}
+
 export const unconnectedLedger: LedgerReader = { mode: "unconnected", asOf: null, readSales: async () => [], readEvents: async () => [] };
 
 /** Funnel rows produced by QA and local testing, identified by the naming conventions the sites use. */

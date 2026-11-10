@@ -2,6 +2,9 @@
 export interface Env {
   DB: D1Database;                       // FORGE platform database (never the live sales ledger)
   LEDGER_DB?: D1Database;               // OPTIONAL read-only binding to the live sales ledger (staging, owner-approved only)
+  LEDGER_ACCOUNT_ID?: string;           // with LEDGER_API_TOKEN: read the ledger over the D1 REST API
+  LEDGER_DATABASE_ID?: string;
+  LEDGER_API_TOKEN?: string;            // Cloudflare API token limited to "Account · D1 · Read". Preferred over LEDGER_DB.
   ENVIRONMENT: "development" | "staging" | "production" | "test";
   OWNER_EMAILS: string;                 // comma-separated allowlist
   ACCESS_TEAM_DOMAIN?: string;          // e.g. https://<team>.cloudflareaccess.com

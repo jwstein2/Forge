@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { makeEnv } from "./helpers.ts";
-import { attributeEvent, importLedger, isTestEvent, snapshotLedger, unconnectedLedger, type LedgerSnapshot } from "../src/adapters/ledger.ts";
+import { attributeEvent, d1RestLedger, importLedger, isTestEvent, snapshotLedger, unconnectedLedger, type LedgerSnapshot } from "../src/adapters/ledger.ts";
 import { importN8n, liveN8n, snapshotN8n, unconnectedN8n, type N8nSnapshot } from "../src/adapters/n8n.ts";
 import { listSources } from "../src/adapters/sources.ts";
 import ledgerSnap from "../fixtures/ledger-snapshot-2026-11-10.json" with { type: "json" };
@@ -46,6 +46,27 @@ describe("ledger adapter (read-only)", () => {
     const s = (await listSources(env.DB)).find((x) => x.id === "ledger.d1")!;
     expect(s.mode).toBe("unconnected");
     expect(s.asOf).toBeNull();
+  });
+});
+
+describe("ledger over D1 REST with a read-only token", () => {
+  it("sends only the two fixed SELECTs with the bearer token and imports the rows", async () => {
+    const sent: { url: string; sql: string; auth: string | null }[] = [];
+    const fetcher = (async (url: string, init: RequestInit) => {
+      const sql = JSON.parse(String(init.body)).sql as string;
+      sent.push({ url, sql, auth: new Headers(init.headers).get("authorization") });
+      const results = sql.includes("FROM sales") ? (ledgerSnap as LedgerSnapshot).sales : (ledgerSnap as LedgerSnapshot).events;
+      return new Response(JSON.stringify({ success: true, result: [{ results }] }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const { env } = await makeEnv();
+    const r = await importLedger(env.DB, d1RestLedger({ accountId: "acc", databaseId: "db", token: "tok" }, fetcher));
+    expect(r.funnelRows).toBe((ledgerSnap as LedgerSnapshot).events.length);
+    expect(sent.every((s) => s.sql.startsWith("SELECT ") && s.auth === "Bearer tok" && s.url.endsWith("/accounts/acc/d1/database/db/query"))).toBe(true);
+  });
+
+  it("fails loudly (no silent zeros) when the token is refused", async () => {
+    const fetcher = (async () => new Response(JSON.stringify({ success: false, errors: [{ code: 10000 }] }), { status: 403 })) as unknown as typeof fetch;
+    await expect(d1RestLedger({ accountId: "a", databaseId: "d", token: "t" }, fetcher).readSales()).rejects.toThrow(/403, code 10000/);
   });
 });
 
