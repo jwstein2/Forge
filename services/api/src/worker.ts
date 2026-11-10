@@ -8,19 +8,35 @@ import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
 
 const handlers = defaultHandlers();
-export const CRON_MAX_JOBS = 3;
+export const CRON_MAX_JOBS = 3; // ~288 job slots a day; recurring load is ~180 (watchdog 96, syncs 48, operator ~35)
+
+/** Cheap, synchronous fingerprint of the seed data (FNV-1a). Seeding is skipped when it is unchanged since the last tick. */
+function fingerprint(text: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(16);
+}
+let seedPrint: string | null = null; // computed once per isolate
+async function seedIfChanged(env: Env): Promise<void> {
+  seedPrint ??= fingerprint(JSON.stringify([REGISTRY_DATA, OPERATOR_SCHEDULES]));
+  const row = await env.DB.prepare(`SELECT value_json FROM system_controls WHERE key = 'seed:fingerprint'`).first<{ value_json: string }>();
+  if (row && JSON.parse(row.value_json) === seedPrint) return;
+  await seedRegistry(env.DB, REGISTRY_DATA);
+  await seedOperatorRegistry(env.DB);
+  await seedSchedules(env.DB, OPERATOR_SCHEDULES);
+  await env.DB.prepare(`INSERT INTO system_controls (key,value_json,updated_by,updated_at) VALUES ('seed:fingerprint',?,'cron',?)
+    ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json, updated_at=excluded.updated_at`).bind(JSON.stringify(seedPrint), new Date().toISOString()).run();
+}
 const app = createApp({ handlers });
 
 /** Enqueue the recurring FORGE jobs for this time slot (idempotent), then run a tick. */
 export async function scheduledTick(env: Env, now = new Date()): Promise<void> {
   const hour = now.toISOString().slice(0, 13);
   const quarter = `${hour}:${String(Math.floor(now.getUTCMinutes() / 15) * 15).padStart(2, "0")}`;
-  await seedRegistry(env.DB, REGISTRY_DATA); // idempotent; guarantees registry rows exist before jobs reference them
+  await seedIfChanged(env); // registry rows and schedules must exist before jobs reference them; skipped when unchanged
   await enqueue(env.DB, handlers, { kind: "ledger.sync", idempotencyKey: `ledger.sync:${hour}`, createdBy: "cron", runAt: now.toISOString() });
   await enqueue(env.DB, handlers, { kind: "n8n.sync", idempotencyKey: `n8n.sync:${hour}`, createdBy: "cron", runAt: now.toISOString() });
   await enqueue(env.DB, handlers, { kind: "heartbeat.watchdog", idempotencyKey: `heartbeat.watchdog:${quarter}`, createdBy: "cron", runAt: now.toISOString() });
-  await seedOperatorRegistry(env.DB);                 // idempotent
-  await seedSchedules(env.DB, OPERATOR_SCHEDULES);    // git is the source of truth for schedules
   // One job per due schedule slot. Not in the unit-test environment: Operator jobs make real read-only GETs to the live sites.
   if (env.ENVIRONMENT !== "test") await enqueueDue(env.DB, handlers, now);
   // Free-plan CPU budget: the first staging cron measured 203 ms CPU running every due job in one invocation.
