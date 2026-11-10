@@ -1,27 +1,38 @@
 {
   "niche": "bidline",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "PROPOSED",
-  "note": "Brand stage proposal. G2 visual review and G8 licence review NOT RUN. No images or webfonts are used, so there are no third-party assets to license.",
-  "basis_claim_ids": ["c_bl_vis_practical", "c_bl_vis_excel"],
-  "direction": "Job-site practical, not SaaS: graph-paper background, charcoal ink, kraft panels, a carpenter-pencil orange for actions, tabular numbers like a takeoff sheet.",
+  "note": "Tokens from Owner's V2 design package (BRAND_SYSTEM.md), applied 2026-11-10; see forge/v2-redesign/V2_REDESIGN_NOTES.md. System font stacks only (named webfonts apply only if installed); no images. G2/G8 review of generated sites NOT RUN.",
+  "basis_claim_ids": [
+    "c_bl_vis_practical",
+    "c_bl_vis_excel"
+  ],
+  "direction": "V2: dark slate and warm gold, blueprint lines; practical contractor tone, not SaaS.",
   "fonts": {
-    "heading": "\"Roboto Condensed\", \"Arial Narrow\", \"Helvetica Neue Condensed\", \"Liberation Sans Narrow\", sans-serif-condensed, sans-serif",
+    "heading": "Manrope, system-ui, -apple-system, \"Segoe UI\", Roboto, \"Liberation Sans\", sans-serif",
     "body": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Liberation Sans\", sans-serif",
     "numeric": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Consolas, \"Liberation Mono\", monospace"
   },
   "base_size_px": 17,
-  "radius_px": 3,
+  "radius_px": 14,
   "motif": "graph-paper",
   "colors": {
-    "bg": "#F5F3EE",
+    "bg": "#F5F7F6",
     "surface": "#FFFFFF",
-    "ink": "#1E2226",
-    "muted": "#4F565D",
-    "line": "#D9D4C8",
-    "accent": "#A84C0B",
+    "ink": "#1C3039",
+    "muted": "#4B5E66",
+    "line": "#CFDCDB",
+    "accent": "#183C4A",
     "accent_ink": "#FFFFFF",
-    "secondary": "#2F3B45",
-    "highlight": "#EADFC9"
+    "secondary": "#5D817C",
+    "highlight": "#DCE6E5",
+    "gold": "#E7A342"
+  },
+  "layout": {
+    "card_radius_px": 22,
+    "button_radius_px": 14,
+    "shadow": "0 16px 48px rgb(0 0 0 / .07)",
+    "container_px": 1160,
+    "hero": "dark-grid"
   }
 }

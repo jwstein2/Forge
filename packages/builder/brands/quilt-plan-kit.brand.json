@@ -1,27 +1,38 @@
 {
   "niche": "quilt-plan-kit",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "PROPOSED",
-  "note": "Brand stage proposal. G2 visual review and G8 licence review NOT RUN. No images or webfonts are used, so there are no third-party assets to license.",
-  "basis_claim_ids": ["c_q_vis_print", "c_q_vis_warm"],
-  "direction": "Warm, printed-pattern feel for experienced quilters: large type, generous spacing, cream paper, madder red and indigo like classic cotton prints, a pieced-square motif drawn in CSS.",
+  "note": "Tokens from Owner's V2 design package (BRAND_SYSTEM.md), applied 2026-11-10; see forge/v2-redesign/V2_REDESIGN_NOTES.md. System font stacks only (named webfonts apply only if installed); no images. G2/G8 review of generated sites NOT RUN.",
+  "basis_claim_ids": [
+    "c_q_vis_print",
+    "c_q_vis_warm"
+  ],
+  "direction": "V2: cosy studio in rose, sage, cream and terracotta; large readable type for experienced quilters.",
   "fonts": {
-    "heading": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, Georgia, serif",
-    "body": "\"Seravek\", \"Gill Sans Nova\", Ubuntu, Calibri, \"DejaVu Sans\", sans-serif",
-    "numeric": "\"Iowan Old Style\", Georgia, serif"
+    "heading": "Fraunces, \"Iowan Old Style\", Georgia, serif",
+    "body": "\"Source Sans 3\", \"Seravek\", Calibri, \"DejaVu Sans\", sans-serif",
+    "numeric": "Fraunces, Georgia, serif"
   },
   "base_size_px": 19,
-  "radius_px": 6,
+  "radius_px": 14,
   "motif": "pieced-squares",
   "colors": {
-    "bg": "#FBF6EC",
-    "surface": "#FFFDF8",
-    "ink": "#2B2420",
-    "muted": "#5E534B",
-    "line": "#E3D7C3",
-    "accent": "#9A3B2C",
+    "bg": "#FFF9F3",
+    "surface": "#FFFFFF",
+    "ink": "#443A37",
+    "muted": "#6A5A55",
+    "line": "#EADBD0",
+    "accent": "#925B68",
     "accent_ink": "#FFFFFF",
-    "secondary": "#33467A",
-    "highlight": "#F3E3C3"
+    "secondary": "#768C79",
+    "highlight": "#F2E2DA",
+    "gold": "#DB9B72"
+  },
+  "layout": {
+    "card_radius_px": 22,
+    "button_radius_px": 14,
+    "shadow": "0 16px 48px rgb(0 0 0 / .07)",
+    "container_px": 1160,
+    "hero": "light"
   }
 }

@@ -100,6 +100,33 @@ describe("site scaffold generator", () => {
     expect(r0css).toMatch(/input\[type=email\]\{width:100%/);
   });
 
+  it("V2: the three brands carry the owner's V2 tokens and layout system", () => {
+    const v2: Record<string, [string, string, string]> = { bidline: ["#F5F7F6", "#183C4A", "#E7A342"], "quilt-plan-kit": ["#FFF9F3", "#925B68", "#DB9B72"], "loaf-ledger": ["#FCF5EA", "#7D5539", "#D69B58"] };
+    for (const [n, [paper, primary, gold]] of Object.entries(v2)) {
+      const b = brand(n);
+      expect([b.colors.bg, b.colors.accent, b.colors.gold]).toEqual([paper, primary, gold]);
+      expect(b.layout).toMatchObject({ card_radius_px: 22, button_radius_px: 14, container_px: 1160 });
+    }
+    expect(brand("bidline").layout!.hero).toBe("dark-grid");
+  });
+
+  it("V2: signup is omitted until a form action is configured, then rendered", async () => {
+    const { r, bp } = await build("quilt-plan-kit");
+    expect(r.files["index.html"]).not.toContain("data-signup");
+    const c = cfg("quilt-plan-kit"); c.runtime.email.action = "https://forms.example.test/sub";
+    const r2 = await scaffoldSite(bp, brand("quilt-plan-kit"), c);
+    expect(r2.files["index.html"]).toContain("data-signup");
+  });
+
+  it("V2: the hero has at most one button and links to the product page, not checkout", async () => {
+    for (const n of NICHES) {
+      const { r } = await build(n);
+      const hero = r.files["index.html"]!.match(/<section class="hero">[\s\S]*?<\/section>/)![0];
+      expect((hero.match(/class="btn/g) ?? []).length).toBeLessThanOrEqual(1);
+      expect(hero).not.toContain("data-checkout");
+    }
+  });
+
   it("is deterministic", async () => {
     const a = await build("bidline"); const b = await build("bidline");
     expect(a.r.files).toEqual(b.r.files);

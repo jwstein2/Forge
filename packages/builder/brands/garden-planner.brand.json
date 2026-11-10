@@ -1,9 +1,11 @@
 {
   "niche": "garden-planner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "status": "PROPOSED",
-  "note": "Brand stage proposal for a business that does not exist and is not approved. Working name only (the brief asks the Builder to propose a name; no domain or trademark checks have been run). G2 and G8 NOT RUN. No images or webfonts are used.",
-  "basis_claim_ids": ["c_g_vis"],
+  "note": "Brand stage proposal for a business that does not exist and is not approved. Working name only (the brief asks the Builder to propose a name; no domain or trademark checks have been run). G2 and G8 NOT RUN. No images or webfonts are used. Layout system (radii, shadow, container, spacing) follows the owner's V2 design package so all FORGE sites match; palette is its own.",
+  "basis_claim_ids": [
+    "c_g_vis"
+  ],
   "direction": "Kitchen-table seed catalogue: off-white paper, soil-dark ink, leaf green for actions, terracotta accents, seed-row rules in CSS. Real printed-page previews will carry the visual weight once the kit exists.",
   "fonts": {
     "heading": "\"Charter\", \"Bitstream Charter\", \"Sitka Text\", Cambria, Georgia, serif",
@@ -11,17 +13,25 @@
     "numeric": "\"Charter\", Cambria, Georgia, serif"
   },
   "base_size_px": 18,
-  "radius_px": 8,
+  "radius_px": 14,
   "motif": "seed-rows",
   "colors": {
     "bg": "#F7F5EE",
-    "surface": "#FFFEFA",
+    "surface": "#FFFFFF",
     "ink": "#22281F",
     "muted": "#525C4C",
     "line": "#DCD9C9",
     "accent": "#3D6A2C",
     "accent_ink": "#FFFFFF",
     "secondary": "#8A4526",
-    "highlight": "#E6EDD6"
+    "highlight": "#E6EDD6",
+    "gold": "#C9A24A"
+  },
+  "layout": {
+    "card_radius_px": 22,
+    "button_radius_px": 14,
+    "shadow": "0 16px 48px rgb(0 0 0 / .07)",
+    "container_px": 1160,
+    "hero": "light"
   }
 }

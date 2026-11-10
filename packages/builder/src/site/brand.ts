@@ -9,7 +9,10 @@ export interface Brand {
   fonts: { heading: string; body: string; numeric: string };
   base_size_px: number; radius_px: number;
   motif: "pieced-squares" | "graph-paper" | "flour-dust" | "seed-rows" | "none";
-  colors: { bg: string; surface: string; ink: string; muted: string; line: string; accent: string; accent_ink: string; secondary: string; highlight: string };
+  /** accent = primary action/link colour; secondary is decorative only; highlight = soft panels; gold = warm CTA/rule colour (V2 "accent"). */
+  colors: { bg: string; surface: string; ink: string; muted: string; line: string; accent: string; accent_ink: string; secondary: string; highlight: string; gold?: string };
+  /** Layout system from the owner's V2 design package; defaults apply when absent. */
+  layout?: { card_radius_px: number; button_radius_px: number; shadow: string; container_px: number; hero: "light" | "dark-grid" };
 }
 
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -25,14 +28,16 @@ export function contrast(a: string, b: string): number {
 /** WCAG 2.2 AA pairs the templates actually use. Returns problems; empty means usable. */
 export function checkBrand(b: Brand): string[] {
   const e: string[] = [];
-  for (const [k, v] of Object.entries(b.colors)) if (!HEX.test(v)) e.push(`colour ${k} must be #rrggbb`);
+  for (const [k, v] of Object.entries(b.colors)) if (v !== undefined && !HEX.test(v)) e.push(`colour ${k} must be #rrggbb`);
   if (e.length) return e;
   const c = b.colors;
   const pairs: [string, string, string, number][] = [
     ["ink on bg", c.ink, c.bg, 4.5], ["ink on surface", c.ink, c.surface, 4.5], ["muted on bg", c.muted, c.bg, 4.5],
     ["muted on surface", c.muted, c.surface, 4.5], ["accent_ink on accent", c.accent_ink, c.accent, 4.5],
     ["accent on bg (links)", c.accent, c.bg, 4.5], ["accent on surface (links)", c.accent, c.surface, 4.5],
-    ["ink on highlight", c.ink, c.highlight, 4.5], ["surface on secondary", c.surface, c.secondary, 4.5],
+    ["ink on highlight", c.ink, c.highlight, 4.5], ["surface on ink (staging banner)", c.surface, c.ink, 4.5],
+    ...(c.gold ? [["ink on gold (warm CTA)", c.ink, c.gold, 4.5] as [string, string, string, number]] : []),
+    ...(b.layout?.hero === "dark-grid" ? [["surface on accent (dark hero)", c.surface, c.accent, 4.5] as [string, string, string, number]] : []),
   ];
   for (const [name, fg, bg, min] of pairs) { const r = contrast(fg, bg); if (r < min) e.push(`${name} contrast ${r.toFixed(2)} < ${min}`); }
   if (b.base_size_px < 16) e.push("base size below 16px");
@@ -52,32 +57,36 @@ const MOTIF: Record<Brand["motif"], (c: Brand["colors"]) => string> = {
   none: () => `.motif{display:none}`,
 };
 
+export const DEFAULT_LAYOUT: NonNullable<Brand["layout"]> = { card_radius_px: 22, button_radius_px: 14, shadow: "0 16px 48px rgb(0 0 0 / .07)", container_px: 1160, hero: "light" };
+
 export function brandCss(b: Brand): string {
-  const c = b.colors;
+  const c = b.colors; const l = b.layout ?? DEFAULT_LAYOUT; const gold = c.gold ?? c.highlight;
   return `/* Generated from brands/${b.niche}.brand.json v${b.version} (${b.status}). Do not edit by hand. */
 :root{--bg:${c.bg};--surface:${c.surface};--ink:${c.ink};--muted:${c.muted};--line:${c.line};--accent:${c.accent};--accent-ink:${c.accent_ink};--secondary:${c.secondary};--highlight:${c.highlight};
---f-head:${b.fonts.heading};--f-body:${b.fonts.body};--f-num:${b.fonts.numeric};--r:${b.radius_px}px;--base:${b.base_size_px}px}
+--gold:${gold};--f-head:${b.fonts.heading};--f-body:${b.fonts.body};--f-num:${b.fonts.numeric};--r:${l.button_radius_px}px;--r-card:${l.card_radius_px}px;--shadow:${l.shadow};
+--container:${l.container_px}px;--gutter:20px;--section:clamp(56px,8vw,88px);--base:${b.base_size_px}px}
+@media (min-width:768px){:root{--gutter:32px}}@media (min-width:1200px){:root{--gutter:40px}}
 *{box-sizing:border-box}
 html{font-size:var(--base);-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);line-height:1.6}
 a{color:var(--accent);text-underline-offset:3px}
-a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--secondary);outline-offset:2px}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .skip{position:absolute;left:-999px}.skip:focus{left:1rem;top:1rem;background:var(--surface);padding:.5rem 1rem;z-index:10}
-.staging{background:var(--secondary);color:var(--surface);font-size:.85rem;padding:.5rem 1rem;text-align:center}
+.staging{background:var(--ink);color:var(--surface);font-size:.85rem;padding:.5rem 1rem;text-align:center}
 .staging a{color:var(--surface)}
-header.site,footer.site{max-width:68rem;margin:0 auto;padding:1rem}
+header.site,footer.site{max-width:var(--container);margin:0 auto;padding:1rem var(--gutter)}
 header.site{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;align-items:center;justify-content:space-between}
 .brand{font-family:var(--f-head);font-size:1.4rem;font-weight:700;color:var(--ink);text-decoration:none}
 nav ul{display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;list-style:none;margin:0;padding:0}
 nav a{color:var(--ink);text-decoration:none;padding:.4rem 0;display:inline-block}
 nav a:hover,nav a[aria-current]{color:var(--accent);text-decoration:underline}
-main{max-width:68rem;margin:0 auto;padding:0 1rem 3rem}
+main{max-width:var(--container);margin:0 auto;padding:0 var(--gutter) var(--section)}
 h1,h2,h3{font-family:var(--f-head);line-height:1.2;margin:1.6em 0 .5em}
 h1{font-size:clamp(2rem,5vw,3rem);margin-top:.8em}
 h2{font-size:clamp(1.4rem,3.2vw,1.9rem)}
 .lede{font-size:1.15rem;color:var(--muted);max-width:40rem}
-section{margin:2.5rem 0}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1.25rem 1.5rem}
+section{margin:var(--section) 0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow);padding:clamp(1.25rem,3vw,2rem)}
 .grid{display:grid;gap:1.25rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))}
 .price{font-family:var(--f-num);font-size:2rem;font-weight:700}
 .btn{display:inline-block;background:var(--accent);color:var(--accent-ink);border:0;border-radius:var(--r);padding:.8rem 1.4rem;font:inherit;font-weight:700;text-decoration:none;cursor:pointer;min-height:44px}
@@ -91,7 +100,7 @@ ul.ticks{padding-left:1.2rem}ul.ticks li{margin:.35rem 0}
 .badge{display:inline-block;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;background:var(--highlight);color:var(--ink);border-radius:999px;padding:.1rem .55rem;vertical-align:middle;margin-left:.4rem}
 .copy-gap{display:block;border:2px dashed var(--accent);border-radius:var(--r);padding:.6rem .9rem;margin:.6rem 0;color:var(--ink);background:var(--surface);font-size:.95rem}
 .copy-gap::before{content:"Copy needed · ";font-weight:700;color:var(--accent)}
-.preview{border:2px dashed var(--line);border-radius:var(--r);min-height:9rem;display:grid;place-items:center;color:var(--muted);text-align:center;padding:1rem}
+.preview{border:2px dashed var(--line);border-radius:var(--r-card);min-height:9rem;display:grid;place-items:center;color:var(--muted);text-align:center;padding:1rem}
 details{border-bottom:1px solid var(--line);padding:.7rem 0}summary{cursor:pointer;font-weight:600}
 form.signup{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end}
 form.signup label{display:flex;flex-direction:column;gap:.25rem;flex:1 1 min(16rem,100%);min-width:0}
@@ -100,6 +109,12 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.9rem;
 footer.site ul{display:flex;flex-wrap:wrap;gap:.25rem 1.2rem;list-style:none;padding:0}
 footer.site a{color:var(--muted)}
 .legal{max-width:44rem}
+.hero{margin-top:2rem}.hero .ctas{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:1.25rem}
+.btn-warm{background:var(--gold);color:var(--ink)}
+${l.hero === "dark-grid" ? `.hero{background:var(--accent);color:var(--surface);border-radius:var(--r-card);padding:clamp(1.5rem,5vw,3.5rem);
+background-image:linear-gradient(rgb(255 255 255 / .07) 1px,transparent 1px),linear-gradient(90deg,rgb(255 255 255 / .07) 1px,transparent 1px);background-size:28px 28px;box-shadow:var(--shadow)}
+.hero h1{color:var(--surface);margin-top:0}.hero a:not(.btn){color:var(--surface)}.hero .btn{background:var(--gold);color:var(--ink)}
+.hero h1::after{content:"";display:block;width:4rem;height:4px;background:var(--gold);margin-top:.9rem;border-radius:2px}` : `.hero h1::after{content:"";display:block;width:4rem;height:4px;background:var(--gold);margin-top:.9rem;border-radius:2px}`}
 ${MOTIF[b.motif](c)}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 @media print{.staging,nav,form.signup,.btn{display:none}}
