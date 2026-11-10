@@ -50,6 +50,11 @@ describe("QPK pin pack is publishable copy", () => {
       for (const f of [...p.facts, ...p.headline]) expect(f.length).toBeLessThanOrEqual(30);
     }
   });
+  it("says one jelly roll for a throw is tight (QA-016 PP-1)", () => {
+    const p = PINS.find((x) => x.slug === "precuts-throw")!;
+    expect(p.description).toContain("1 jelly roll, which is tight");
+    expect(p.facts).toContain("or 1 jelly roll (tight)");
+  });
   it("builds valid RSS items", () => {
     const x = rssItem(PINS[0]!);
     expect(x).toContain("<pubDate>Mon, 14 Dec 2026 19:00:00 GMT</pubDate>");
