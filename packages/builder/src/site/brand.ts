@@ -92,8 +92,8 @@ ul.ticks{padding-left:1.2rem}ul.ticks li{margin:.35rem 0}
 .preview{border:2px dashed var(--line);border-radius:var(--r);min-height:9rem;display:grid;place-items:center;color:var(--muted);text-align:center;padding:1rem}
 details{border-bottom:1px solid var(--line);padding:.7rem 0}summary{cursor:pointer;font-weight:600}
 form.signup{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end}
-form.signup label{display:flex;flex-direction:column;gap:.25rem;flex:1 1 16rem}
-input[type=email]{font:inherit;padding:.7rem .8rem;border:1px solid var(--muted);border-radius:var(--r);background:var(--surface);color:var(--ink);min-height:44px}
+form.signup label{display:flex;flex-direction:column;gap:.25rem;flex:1 1 min(16rem,100%);min-width:0}
+input[type=email]{width:100%;font:inherit;padding:.7rem .8rem;border:1px solid var(--muted);border-radius:var(--r);background:var(--surface);color:var(--ink);min-height:44px}
 footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.9rem;margin-top:2rem}
 footer.site ul{display:flex;flex-wrap:wrap;gap:.25rem 1.2rem;list-style:none;padding:0}
 footer.site a{color:var(--muted)}

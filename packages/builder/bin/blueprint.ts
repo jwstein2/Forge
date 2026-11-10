@@ -12,7 +12,10 @@ import type { Brief } from "../src/brief.ts";
 
 const args = process.argv.slice(2);
 /** Committed blueprint history: what changed in each generated version. */
-const CHANGELOG: Record<string, string> = { "1.0.1": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap)." };
+const CHANGELOG: Record<string, string> = {
+  "1.0.1": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap).",
+  "1.0.2": "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
+};
 function previousId(niche: string, version: string): string | null {
   const [a, b, c] = version.split(".").map(Number);
   return c! > 0 ? `bp_${niche}_v${a}-${b}-${c! - 1}` : null;

@@ -28,10 +28,10 @@ describe("blueprint generator on the three real v1 briefs", () => {
     });
 
     it(`${niche}: committed blueprint matches a fresh generation (no drift)`, async () => {
-      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.1.json"), "utf8"));
+      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.2.json"), "utf8"));
       const fresh = await generateBlueprint(loadBrief(niche), {
-        registryProducts: registryProducts(), version: "1.0.1", supersedes: `bp_${niche}_v1-0-0`,
-        changelog: "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap).",
+        registryProducts: registryProducts(), version: "1.0.2", supersedes: `bp_${niche}_v1-0-1`,
+        changelog: "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
       });
       expect(await contentHash(committed)).toBe(await contentHash(fresh));
     });
@@ -39,9 +39,18 @@ describe("blueprint generator on the three real v1 briefs", () => {
 
   it("classifies the real offer ladders into the right playbooks", async () => {
     const pb = async (n: string) => (await generateBlueprint(loadBrief(n))).offer_ladder.map((t) => `${t.tier}:${t.playbook}`);
-    expect(await pb("bidline")).toEqual(["free:free-resource", "core:spreadsheet-template", "premium:bundle"]);
+    expect(await pb("bidline")).toEqual(["free:free-resource", "core:spreadsheet-template", "premium:unsupported"]);
     expect(await pb("quilt-plan-kit")).toEqual(["free:free-resource", "entry:printable-pdf", "core:bundle", "premium:kdp-book"]);
     expect(await pb("loaf-ledger")).toEqual(["free:free-resource", "core:spreadsheet-template", "bundle:bundle"]);
+  });
+
+  it("QA-009 S3: an offer item naming alternatives is undecided, not a product", async () => {
+    const bp = await generateBlueprint(loadBrief("bidline"));
+    const premium = bp.offer_ladder.find((t) => t.tier === "premium")!;
+    expect(premium.product_id).toBeNull();
+    expect(bp.products.map((p) => p.tier)).toEqual(["core"]);
+    expect(bp.page_map.some((p) => /trade/i.test(p.path))).toBe(false);
+    expect(bp.unknowns.some((u) => u.field === "offer_ladder.premium.item")).toBe(true);
   });
 
   it("links existing registry products instead of inventing parallel ones", async () => {

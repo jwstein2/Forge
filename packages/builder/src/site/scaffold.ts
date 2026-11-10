@@ -9,7 +9,7 @@
  *  - The internal positioning statement is strategy, not customer copy, so it is never rendered.
  */
 import type { LaunchBlueprint, PageSpec, ProductSpec } from "../types.ts";
-import { contentHash } from "../hash.ts";
+import { contentHash, sha256Hex } from "../hash.ts";
 import { brandCss, checkBrand, type Brand } from "./brand.ts";
 import { COMPONENTS_JS, runtimeConfigJs, type SiteRuntimeConfig } from "./components.ts";
 
@@ -33,6 +33,8 @@ export class ScaffoldRefused extends Error {}
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const money = (v: number | null) => (v == null ? null : `$${v % 1 ? v.toFixed(2) : v}`);
+/** CSP source list: 'self' plus only the configured https origin (QA-009 S4). */
+const csp = (url: string | null): string => { try { const u = new URL(url ?? ""); return u.protocol === "https:" ? `'self' ${u.origin}` : "'self'"; } catch { return "'self'"; } };
 const outPath = (p: string) => (p.endsWith("/") ? `${p.slice(1)}index.html` : p.slice(1));
 
 export async function scaffoldSite(bp: LaunchBlueprint, brand: Brand, cfg: SiteConfig, opts: { generatedAt?: string } = {}): Promise<ScaffoldResult> {
@@ -62,7 +64,7 @@ export async function scaffoldSite(bp: LaunchBlueprint, brand: Brand, cfg: SiteC
   files["assets/forge.js"] = COMPONENTS_JS;
   files["assets/forge-config.js"] = runtimeConfigJs(cfg.runtime);
   files["robots.txt"] = "# Staging preview: not for indexing\nUser-agent: *\nDisallow: /\n";
-  files["_headers"] = `/*\n  X-Robots-Tag: noindex, nofollow\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https:; form-action 'self' https:; frame-ancestors 'none'; base-uri 'self'\n`;
+  files["_headers"] = `/*\n  X-Robots-Tag: noindex, nofollow\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: DENY\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src ${csp(cfg.runtime.beacon.url)}; form-action ${csp(cfg.runtime.email.action)}; frame-ancestors 'none'; base-uri 'self'\n`;
   files["SOURCES_AND_LICENSES.md"] = `# Sources and licences: ${name} staging build\n\nNo images, webfonts, icons, video or third-party text are used. Fonts are system font stacks installed on the visitor's device; no font files are shipped. Decorative motifs are CSS gradients.\n\nAdd a row here for every asset before it ships (G8): asset, source URL, author, licence, commercial use, attribution, date, destination. Unknown provenance is a FAIL.\n\n| Asset | Source | Author | Licence | Commercial use | Attribution | Date | Used on |\n|---|---|---|---|---|---|---|---|\n`;
 
   for (const p of bp.products) files[`_drafts/${p.product_id}/PRODUCT_DRAFT.md`] = productDraft(p, bp);
@@ -82,7 +84,7 @@ export async function scaffoldSite(bp: LaunchBlueprint, brand: Brand, cfg: SiteC
     brand: { niche: brand.niche, version: brand.version, status: brand.status },
     generated_at: opts.generatedAt ?? bp.created_at, generator: "@forge/builder site scaffold 1.0.0",
     pages: bp.page_map.map((p) => p.path), copy_gaps: gaps.length, gates,
-    files: await Promise.all(sorted.map(async (path) => ({ path, sha256: (await contentHash(files[path])).slice(7) }))),
+    files: await Promise.all(sorted.map(async (path) => ({ path, sha256: await sha256Hex(files[path]!) }))),
   };
   files["STAGING_MANIFEST.json"] = JSON.stringify(manifest, null, 2) + "\n";
   return { files, copyGaps: gaps, manifest };
@@ -111,7 +113,7 @@ function layout(a: { bp: LaunchBlueprint; page: PageSpec; nav: PageSpec[]; title
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
-<div class="staging" role="note">Staging preview built from blueprint ${esc(a.bp.blueprint_id)}. Not live, not indexed. Draft text is marked; checkout and signup are not connected.</div>
+<aside class="staging" aria-label="Staging notice">Staging preview built from blueprint ${esc(a.bp.blueprint_id)}. Not live, not indexed. Draft text is marked; checkout and signup are not connected.</aside>
 <header class="site"><a class="brand" href="/">${esc(a.bp.display_name)}</a><nav aria-label="Main"><ul>${navHtml}</ul></nav></header>
 <div class="motif" aria-hidden="true"></div>
 <main id="main">

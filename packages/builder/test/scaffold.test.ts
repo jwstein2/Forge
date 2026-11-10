@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { generateBlueprint } from "../src/generate.ts";
-import { contentHash } from "../src/hash.ts";
 import { checkBrand, type Brand } from "../src/site/brand.ts";
 import { ScaffoldRefused, scaffoldSite, type SiteConfig } from "../src/site/scaffold.ts";
 import { NICHES, clone, loadBrief, registryProducts } from "./helpers.ts";
@@ -17,6 +17,7 @@ const build = async (n: string, operator = true) => {
   const bp = await generateBlueprint(loadBrief(n), { registryProducts: registryProducts() });
   return { bp, r: await scaffoldSite(bp, brand(n), cfg(n, operator)) };
 };
+const r0css = readFileSync(join(import.meta.dirname, "..", "src", "site", "brand.ts"), "utf8");
 const html = (files: Record<string, string>) => Object.entries(files).filter(([p]) => p.endsWith(".html"));
 const visibleText = (h: string) => h.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
@@ -75,13 +76,29 @@ describe("site scaffold generator", () => {
       const { r } = await build(n);
       expect(r.manifest.deployable_to_production).toBe(false);
       expect(r.manifest.gates.every((g) => g.result === "NOT_RUN")).toBe(true);
-      for (const f of r.manifest.files) expect((await contentHash(r.files[f.path]!)).slice(7), f.path).toBe(f.sha256);
+      // QA-009 S1: hashes are of the raw bytes, so `sha256sum` on the written files matches.
+      for (const f of r.manifest.files) expect(createHash("sha256").update(r.files[f.path]!, "utf8").digest("hex"), f.path).toBe(f.sha256);
       expect(r.manifest.copy_gaps).toBe(r.copyGaps.length);
       expect(r.files["COPY_GAPS.md"]!.split("\n").filter((l) => l.startsWith("| `")).length).toBe(r.copyGaps.length);
     });
 
     it(`${n}: brand passes WCAG AA contrast checks`, () => expect(checkBrand(brand(n))).toEqual([]));
   }
+
+  it("QA-009 S4: staging banner is inside a landmark; CSP allows only configured origins", async () => {
+    const { r } = await build("bidline");
+    expect(r.files["index.html"]).toMatch(/<aside class="staging" aria-label="Staging notice">/);
+    expect(r.files["_headers"]).toContain("connect-src 'self'; form-action 'self';");
+    const bp = await generateBlueprint(loadBrief("bidline"));
+    const c = cfg("bidline"); c.runtime.email.action = "https://forms.example.test/sub"; c.runtime.beacon.url = "https://beacon.example.test/e";
+    const r2 = await scaffoldSite(bp, brand("bidline"), c);
+    expect(r2.files["_headers"]).toContain("connect-src 'self' https://beacon.example.test; form-action 'self' https://forms.example.test;");
+  });
+
+  it("QA-009 S2: signup fields can shrink to the viewport", () => {
+    expect(r0css).toContain("flex:1 1 min(16rem,100%);min-width:0");
+    expect(r0css).toMatch(/input\[type=email\]\{width:100%/);
+  });
 
   it("is deterministic", async () => {
     const a = await build("bidline"); const b = await build("bidline");

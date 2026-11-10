@@ -78,9 +78,12 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
   const ladder: OfferTier[] = rec.offer_ladder.map((t) => {
     const p = price(t.price);
     const matchesRec = rec.name.toLowerCase().includes(t.item.toLowerCase()) || t.item.toLowerCase().includes(rec.name.toLowerCase());
-    const playbook = classifyPlaybook(t.item, t.tier, p.value, { formatHint: matchesRec ? rec.format : undefined });
+    // "A or B" in an offer item is an undecided choice, not a product: never build a page for it (QA-009 S3).
+    const undecided = !matchesRec && /\bor\b/i.test(t.item);
+    const playbook = undecided ? "unsupported" : classifyPlaybook(t.item, t.tier, p.value, { formatHint: matchesRec ? rec.format : undefined });
     let productId: string | null = null;
-    if (playbook !== "free-resource") {
+    if (undecided) unknowns.push({ field: `offer_ladder.${t.tier}.item`, statement: `"${t.item}" names alternatives; choose one before it becomes a product.`, resolve_by: "Product & Offer recommends; owner decides at B1" });
+    if (playbook !== "free-resource" && !undecided) {
       productId = `prd_${niche}_${slug(t.item)}`;
       const pb = PLAYBOOKS[playbook];
       const spec: ProductSpec = {

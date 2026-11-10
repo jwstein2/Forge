@@ -2,7 +2,7 @@
 
 Turns an approved opportunity's **Audience & Market Brief** into a versioned **Launch Blueprint**, then tracks a build through nine stages until the owner decides whether to launch. **FORGE never launches anything on its own.**
 
-Status: **BUILT and TESTED locally** (87 tests; blueprint engine QA-004 PASS; site scaffold awaiting QA). Not registered in the API yet, not deployed, not independently reviewed.
+Status: **BUILT and TESTED locally** (90 tests; blueprint engine QA-004 PASS; site scaffold awaiting QA). Not registered in the API yet, not deployed, not independently reviewed.
 
 ## What is here
 
@@ -32,7 +32,7 @@ Status: **BUILT and TESTED locally** (87 tests; blueprint engine QA-004 PASS; si
 
 ```bash
 npm install                                  # at repo root
-npm test -w @forge/builder                   # 87 tests, incl. integration with the real migrations + engine
+npm test -w @forge/builder                   # 90 tests, incl. integration with the real migrations + engine
 npm run typecheck -w @forge/builder
 npm run blueprints -w @forge/builder         # regenerate the three committed blueprints
 npm run blueprint -w @forge/builder -- path/to/brief.json --out /tmp/bp [--new-business] [--budget-cents 50000]
