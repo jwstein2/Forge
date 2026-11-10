@@ -3,6 +3,7 @@ import { makeApp, makeEnv, collectMetrics, DEV_TOKEN } from "./helpers.ts";
 import { tick } from "../src/orchestration/engine.ts";
 import { defaultHandlers } from "../src/orchestration/handlers.ts";
 import { hmacSha256Hex } from "../src/lib/util.ts";
+import { sign } from "@forge/controls/signing";
 import { scheduledTick } from "../src/worker.ts";
 
 async function synced() {
@@ -151,16 +152,31 @@ describe("API: controls", () => {
     expect((await call(env, "POST", "/orchestration/tick")).status).toBe(401);
   });
 
-  it("accepts only correctly signed heartbeats", async () => {
+  it("accepts only correctly signed, fresh heartbeats with an externalId (v2, replay-safe)", async () => {
     const { env, call } = await synced();
+    const post = (body: string, headers: Record<string, string>) => makeApp().app.fetch(new Request("http://t/api/v1/ingest/heartbeat", { method: "POST", body, headers }), env);
     const body = JSON.stringify({ registryId: "N8N-02", startedAt: "2026-11-10T03:07:21Z", finishedAt: "2026-11-10T03:07:23Z", status: "success", externalId: "560" });
-    const bad = await makeApp().app.fetch(new Request("http://t/api/v1/ingest/heartbeat", { method: "POST", body, headers: { "x-forge-signature": "0".repeat(64) } }), env);
-    expect(bad.status).toBe(401);
-    const sig = await hmacSha256Hex(env.HEARTBEAT_SECRET!, body);
-    const good = await makeApp().app.fetch(new Request("http://t/api/v1/ingest/heartbeat", { method: "POST", body, headers: { "x-forge-signature": sig } }), env);
-    expect(good.status).toBe(201);
-    const runs = (await call(env, "GET", "/jobs/N8N-02/runs")).json.data;
+    const now = Math.floor(Date.now() / 1000);
+    expect((await post(body, { "x-forge-signature": "0".repeat(64) })).status).toBe(401);
+    expect((await post(body, { "x-forge-signature": await hmacSha256Hex(env.HEARTBEAT_SECRET!, body) })).status).toBe(401); // old body-only scheme refused
+    expect((await post(body, await sign(env.HEARTBEAT_SECRET!, body, now - 600))).status).toBe(401);                         // stale
+    const good = await sign(env.HEARTBEAT_SECRET!, body, now);
+    expect((await post(body, good)).status).toBe(201);
+    expect((await post(body, good)).status).toBe(201);                                                                       // exact replay: deduped
+    const runs = (await call(env, "GET", "/jobs/N8N-02/runs")).json.data.filter((r: any) => r.source === "heartbeat");
+    expect(runs).toHaveLength(1);
     expect(runs[0]).toMatchObject({ startedAt: "2026-11-10T03:07:21Z", source: "heartbeat" });
+    const noId = JSON.stringify({ registryId: "N8N-02", startedAt: "2026-11-10T03:07:21Z", status: "success" });
+    expect((await post(noId, await sign(env.HEARTBEAT_SECRET!, noId, now))).status).toBe(400);
+  });
+
+  it("heartbeat ingestion refuses a short secret and supports rotation", async () => {
+    const { env } = await synced();
+    const body = JSON.stringify({ registryId: "N8N-02", startedAt: "2026-11-10T03:07:21Z", status: "success", externalId: "r1" });
+    const OLD = env.HEARTBEAT_SECRET!; const NEW = "rotated-heartbeat-secret-0123456789abcdef";
+    const res = await makeApp().app.fetch(new Request("http://t/api/v1/ingest/heartbeat", { method: "POST", body, headers: await sign(OLD, body) }), { ...env, HEARTBEAT_SECRET: `${NEW},${OLD}` });
+    expect(res.status).toBe(201);
+    expect((await makeApp().app.fetch(new Request("http://t/api/v1/ingest/heartbeat", { method: "POST", body, headers: await sign(OLD, body) }), { ...env, HEARTBEAT_SECRET: "short" })).status).toBe(403);
   });
 
   it("account directory never returns secret-like fields", async () => {

@@ -42,7 +42,7 @@ Rules: `verified`/`estimated` always have a value; `null` only with `unknown`/`u
 
 * Staging/production: Cloudflare Access in front; Worker verifies `Cf-Access-Jwt-Assertion` (RS256 via team JWKS, `aud`, `iss`, `exp`) and requires the email on `OWNER_EMAILS`.
 * Development/test only: header `x-forge-dev-token: <token>` (Node dev server prints it and stores it in `services/api/.data/dev-token`).
-* Public: `GET /health`, `POST /ingest/heartbeat` (HMAC).
+* Public: `GET /health`, `POST /ingest/heartbeat` (HMAC v2 with timestamp; see §5).
 
 ## 5. Endpoints (base `/api/v1`)
 
@@ -72,7 +72,7 @@ Rules: `verified`/`estimated` always have a value; `null` only with `unknown`/`u
 | POST `/orchestration/tick` | outcomes | development/test only |
 | GET `/approvals` · POST `/approvals/:id/decide {approve}` | | owner only |
 | GET `/control` · POST `/control/emergency-stop {reason}` · POST `/control/resume` | `SystemControl` | global kill switch for FORGE-run work |
-| POST `/ingest/heartbeat` | `{recorded}` | body `{registryId, startedAt, finishedAt?, status, evidenceUrl?, modelCostCents?, error?, externalId}`; header `X-Forge-Signature: hex(HMAC-SHA256(HEARTBEAT_SECRET, rawBody))` |
+| POST `/ingest/heartbeat` | `{recorded}` | body `{registryId, startedAt, finishedAt?, status, evidenceUrl?, modelCostCents?, error?, externalId}` (externalId **required**, dedupes replays); headers `X-Forge-Timestamp: <unix seconds>` and `X-Forge-Signature: v2=hex(HMAC-SHA256(HEARTBEAT_SECRET, ts + "." + rawBody))`; rejected outside ±300 s; secret ≥32 chars, `new,old` during rotation. Helper: `sign()` in `@forge/controls/signing` |
 
 ## 6. Mapping notes for apps/command (VIEW_MODELS.ts)
 

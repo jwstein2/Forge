@@ -13,7 +13,7 @@ export const OWNER = "owner@forge.test";
 export async function makeEnv(opts: { seed?: boolean; environment?: Env["ENVIRONMENT"] } = {}): Promise<{ env: Env; d1: NodeD1 }> {
   const d1 = new NodeD1(":memory:");
   applyMigrations(d1, join(import.meta.dirname, "..", "migrations"));
-  const env: Env = { DB: d1.asD1(), ENVIRONMENT: opts.environment ?? "test", OWNER_EMAILS: OWNER, DEV_AUTH_TOKEN: DEV_TOKEN, HEARTBEAT_SECRET: "hb-secret-for-tests" };
+  const env: Env = { DB: d1.asD1(), ENVIRONMENT: opts.environment ?? "test", OWNER_EMAILS: OWNER, DEV_AUTH_TOKEN: DEV_TOKEN, HEARTBEAT_SECRET: "hb-secret-for-tests-0123456789abcdef" };
   if (opts.seed !== false) await seedRegistry(env.DB, REGISTRY_DATA);
   return { env, d1 };
 }

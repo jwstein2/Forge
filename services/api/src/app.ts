@@ -8,7 +8,8 @@ import { API_VERSION } from "@forge/contracts";
 import type { Env } from "./lib/env.ts";
 import { AuthError, authenticate, type JwksFetcher } from "./lib/auth.ts";
 import { parsePeriod } from "./lib/metric.ts";
-import { hmacSha256Hex, newId, nowIso, parseJson, timingSafeEqualHex } from "./lib/util.ts";
+import { newId, nowIso, parseJson } from "./lib/util.ts";
+import { verify as verifySigned } from "@forge/controls/signing";
 import { listSources } from "./adapters/sources.ts";
 import { nicheDetail, portfolioSummary, recentActivity, type Sources } from "./domain/portfolio.ts";
 import { financials } from "./domain/finance.ts";
@@ -62,19 +63,22 @@ export function createApp(deps: AppDeps) {
   // ---------- public ----------
   app.get("/health", (c) => c.json({ ok: true, data: { status: "ok", environment: c.env.ENVIRONMENT, apiVersion: API_VERSION } }));
 
-  // Signed heartbeat from an external runner (n8n): HMAC-SHA256 of the raw body in X-Forge-Signature.
+  // Signed heartbeat from an external runner (n8n). Scheme v2 (@forge/controls/signing):
+  // X-Forge-Timestamp (unix s) + X-Forge-Signature "v2=" hex HMAC-SHA256(secret, `${ts}.${rawBody}`), ±5 min window.
+  // externalId is required so an exact replay inside the window dedupes on runs(source, external_id).
+  // HEARTBEAT_SECRET may hold "new,old" during rotation.
   app.post("/ingest/heartbeat", async (c) => {
-    const secret = c.env.HEARTBEAT_SECRET;
-    if (!secret) return err(c, "forbidden", "heartbeat ingestion not configured");
+    const secrets = (c.env.HEARTBEAT_SECRET ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (!secrets.length) return err(c, "forbidden", "heartbeat ingestion not configured");
     const raw = await c.req.text();
-    const sig = (c.req.header("x-forge-signature") ?? "").toLowerCase();
-    if (!/^[0-9a-f]{64}$/.test(sig) || !timingSafeEqualHex(sig, await hmacSha256Hex(secret, raw))) return err(c, "unauthorized", "bad signature");
+    const v = await verifySigned({ secrets, rawBody: raw, signature: c.req.header("x-forge-signature") ?? null, timestamp: c.req.header("x-forge-timestamp") ?? null });
+    if (!v.ok) return v.reason === "not_configured" ? err(c, "forbidden", "heartbeat secret too short (min 32 chars)") : err(c, "unauthorized", `bad signature (${v.reason})`);
     const b = parseJson<Record<string, any>>(raw, {});
-    if (!b.registryId || !b.startedAt || !["success", "failed", "running", "timeout", "skipped"].includes(b.status)) return err(c, "bad_request", "registryId, startedAt, status required");
+    if (!b.registryId || !b.startedAt || !b.externalId || !["success", "failed", "running", "timeout", "skipped"].includes(b.status)) return err(c, "bad_request", "registryId, startedAt, status, externalId required");
     const entry = await c.env.DB.prepare(`SELECT id FROM registry_entries WHERE id = ?`).bind(b.registryId).first();
     if (!entry) return err(c, "not_found", "unknown registry entry");
     await c.env.DB.prepare(`INSERT INTO runs (id,registry_id,started_at,finished_at,status,evidence_url,model_cost_cents,error,source,external_id) VALUES (?,?,?,?,?,?,?,?,'heartbeat',?) ON CONFLICT(source, external_id) DO NOTHING`)
-      .bind(newId("run"), b.registryId, b.startedAt, b.finishedAt ?? null, b.status, b.evidenceUrl ?? null, b.modelCostCents ?? null, b.error ? String(b.error).slice(0, 500) : null, String(b.externalId ?? newId("hb"))).run();
+      .bind(newId("run"), b.registryId, b.startedAt, b.finishedAt ?? null, b.status, b.evidenceUrl ?? null, b.modelCostCents ?? null, b.error ? String(b.error).slice(0, 500) : null, String(b.externalId).slice(0, 200)).run();
     return c.json({ ok: true, data: { recorded: true } }, 201);
   });
 
