@@ -10,7 +10,7 @@ Status: **BUILT, TESTED locally** (unit, browser, accessibility, responsive). No
 npm install
 npm run dev            # http://localhost:5173, audit snapshot data
 VITE_FORGE_API=http://localhost:8787/api/v1 VITE_FORGE_DEV_TOKEN=<token printed by the API dev server> npm run dev   # read the platform API
-npm test               # 66 unit, component and API-mapping tests (Vitest)
+npm test               # 67 unit, component and API-mapping tests (Vitest)
 npm run test:e2e       # axe (light, dark, 320px), responsive at 320/375/820/1440, keyboard (Playwright)
 npm run screenshots    # evidence screenshots → test-results/screens/
 ```
@@ -51,4 +51,4 @@ See `DESIGN_SYSTEM.md` for the design rules.
 
 ## API mapping
 
-`src/data/apiSource.ts` reads the platform API (envelope `{ ok, data, meta }`, CONTRACTS.md v1.1.0) and `src/data/apiMap.ts` maps `@forge/contracts` types (vendored in `src/data/contracts.ts`) to the view models. Notable rules: pause returns 409 for jobs FORGE can't enforce (all n8n jobs) and the UI explains that; `needsOwner` comes from `Alert.needsOwner` (inferred from the next action only for pre-1.1.0 APIs); the revenue trend comes from `GET /series` and is omitted, never guessed, if that call fails; opportunity economics and seasonality show "unknown" / "not in this run" unless the Scout produced them.
+`src/data/apiSource.ts` reads the platform API (envelope `{ ok, data, meta }`, CONTRACTS.md v1.2.0) and `src/data/apiMap.ts` maps `@forge/contracts` types (vendored in `src/data/contracts.ts`) to the view models. Notable rules: pause returns 409 for jobs FORGE can't enforce (all n8n jobs) and the UI explains that; `needsOwner` comes from `Alert.needsOwner` (inferred from the next action only for pre-1.1.0 APIs); the revenue trend comes from `GET /series` and is omitted, never guessed, if that call fails; opportunity economics and seasonality show "unknown" / "not in this run" unless the Scout produced them.

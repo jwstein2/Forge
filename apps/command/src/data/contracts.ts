@@ -1,5 +1,5 @@
 /**
- * VENDORED COPY of packages/contracts/src/index.ts (@forge/contracts 1.1.0), copied from
+ * VENDORED COPY of packages/contracts/src/index.ts (@forge/contracts 1.2.0), copied from
  * /mnt/project-files/forge/platform/contracts.ts on 2026-11-10 so apps/command stays self-contained.
  * Replace with `import ... from "@forge/contracts"` once the workspace links it. Do not edit by hand.
  */
@@ -15,7 +15,7 @@
  *  - Timestamps are ISO 8601 UTC strings. Storage money is integer cents; Metric.value
  *    for unit 'usd' is dollars (cents / 100).
  */
-export const API_VERSION = "1.1.0" as const;
+export const API_VERSION = "1.2.0" as const;
 
 export type NicheId = string; // 'bidline' | 'quilt-plan-kit' | 'loaf-ledger' | future kebab-case slugs
 export type IsoTimestamp = string;
@@ -196,7 +196,7 @@ export interface RegistryEntry {
   paused: boolean;
   lastRun: RunSummary | null;
   lastSuccess: RunSummary | null;
-  heartbeat: "ok" | "late" | "never_observed" | "not_scheduled" | "paused";
+  heartbeat: "ok" | "late" | "stale" | "never_observed" | "not_scheduled" | "paused"; // stale (1.2.0): judged from a snapshot older than 2x the interval, so current health is unknown
   /** Only approved automation with a FORGE-controlled kill switch can be paused from Command. */
   pausable: boolean;
   runsLast30d: Metric;

@@ -203,6 +203,14 @@ describe('QA-001 D10 mapping', () => {
   });
 });
 
+describe('API 1.2.0 heartbeat stale', () => {
+  it('renders stale like unknown, never like ok', async () => {
+    const { mapJob } = await import('./apiMap');
+    expect(mapJob({ ...registry, heartbeat: 'stale' }).heartbeatOk).toBeNull();
+    expect(mapJob({ ...registry, heartbeat: 'ok' }).heartbeatOk).toBe(true);
+  });
+});
+
 describe('needsOwner', () => {
   it('flags actions naming the owner', () => {
     expect(needsOwner('Owner completes store activation.')).toBe(true);
