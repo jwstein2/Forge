@@ -925,6 +925,7 @@
         "third_party_estimate",
         "public_dataset",
         "keyword_volume",
+        "listing_absence_observation",
         "analyst_inference",
         "owner_statement",
         "not_collected"

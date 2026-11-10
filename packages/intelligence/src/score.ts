@@ -19,7 +19,13 @@ export interface Scored extends ScoreInput {
   eligible_for_recommendation: boolean; missing_required: string[]; rank: number; recommended: boolean; recommendation_strength: "clear" | "narrow" | "none";
 }
 
-const r1 = (x: number) => Math.round(x * 10) / 10;
+/** Shared rounding rule (QA-013 I4-1), identical in tools/score.py: snap to 1e-6 to remove float noise, then round half up. */
+export function roundHalfUp(x: number, digits: number): number {
+  const n = Math.floor(x * 1_000_000 + 0.5);
+  const step = 10 ** (6 - digits);
+  return Math.floor(n / step + 0.5) / 10 ** digits;
+}
+const r1 = (x: number) => roundHalfUp(x, 1);
 
 export function scoreCandidate(model: ScoringModel, cand: ScoreInput): Omit<Scored, "rank" | "recommended" | "recommendation_strength"> {
   const given = new Map(cand.criterion_scores.map((s) => [s.key, s]));
@@ -36,7 +42,7 @@ export function scoreCandidate(model: ScoringModel, cand: ScoreInput): Omit<Scor
   const gates = new Map((cand.gates ?? []).map((g) => [g.key, g.passed]));
   const failed = (mode: string) => model.gates.some((g) => g.on_fail === mode && gates.get(g.key) === false);
   const excluded = failed("exclude"); const blocked = failed("cannot_recommend");
-  const coverage = Math.round(covered * 100) / 100;
+  const coverage = roundHalfUp(covered, 2);
   return { ...cand, raw_score: r1(raw * 100), adjusted_score: r1(adj * 100), evidence_coverage: coverage, excluded,
     eligible_for_recommendation: !excluded && !blocked && !missing.length && covered + 1e-9 >= model.recommendation_rules.min_evidence_coverage, missing_required: missing };
 }

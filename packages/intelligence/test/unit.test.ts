@@ -108,3 +108,33 @@ describe("connectors", () => {
     expect(connectorStates({}).find((c) => c.id === "wikimedia_pageviews")?.status).toBe("connected");
   });
 });
+
+describe("scorer parity with tools/score.py (QA-013 I4-1)", () => {
+  it("scores the shared 400-candidate random fixture identically", () => {
+    const fx = fixture("random-400.json") as { candidates: any[]; expected: any[] };
+    const keys = ["raw_score", "adjusted_score", "evidence_coverage", "excluded", "eligible_for_recommendation"] as const;
+    const diffs: string[] = [];
+    fx.candidates.forEach((c, i) => {
+      const got = scoreCandidate(M, c) as any; const e = fx.expected[i];
+      for (const k of keys) if (got[k] !== e[k]) diffs.push(`${e.opportunity_key}.${k}: ts ${got[k]} py ${e[k]}`);
+    });
+    expect(diffs).toEqual([]);
+  });
+  it("rounds half up after removing float noise", async () => {
+    const { roundHalfUp } = await import("../src/score.ts");
+    expect(roundHalfUp(48.25, 1)).toBe(48.3);
+    expect(roundHalfUp(48.2499, 1)).toBe(48.2);
+    expect(roundHalfUp(0.6000000000000001, 2)).toBe(0.6);
+    expect(roundHalfUp(52.75000000000001, 1)).toBe(52.8);
+  });
+});
+
+describe("absence claims (QA-013 I4-4)", () => {
+  it("a removed listing does not downgrade a claim that says the listing was removed", () => {
+    const c = testPack().candidates[0]!;
+    c.claims.push({ id: "c_gone", statement: "Listing removed", evidence: "VERIFIED", confidence: "medium", method: "listing_absence_observation", source_ids: ["src_alpha_kit_listing"], observed_at: "2026-11-10" });
+    const { candidate } = applyEvidenceRules(c, [{ sourceId: "src_alpha_kit_listing", url: "u", outcome: "dead", httpStatus: 404, missing: [] }]);
+    expect(candidate.claims.find((x) => x.id === "c_gone")!.evidence).toBe("VERIFIED");
+    expect(candidate.claims.find((x) => x.id === "c_alpha_kit_sales")!.evidence).toBe("INFERRED");
+  });
+});
