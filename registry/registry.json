@@ -8,7 +8,7 @@
     {
       "id": "N8N-01",
       "kind": "workflow",
-      "name": "QPK · Sales log and daily report",
+      "name": "QPK \u00b7 Sales log and daily report",
       "nicheId": "quilt-plan-kit",
       "department": "Operations, Finance & Infrastructure",
       "owner": null,
@@ -33,7 +33,7 @@
     {
       "id": "N8N-02",
       "kind": "workflow",
-      "name": "QPK · Health check (all 3 sites)",
+      "name": "QPK \u00b7 Health check (all 3 sites)",
       "nicheId": null,
       "department": "Operations, Finance & Infrastructure",
       "owner": null,
@@ -56,7 +56,7 @@
     {
       "id": "N8N-03",
       "kind": "workflow",
-      "name": "QPK · Pinterest pin tracker",
+      "name": "QPK \u00b7 Pinterest pin tracker",
       "nicheId": "quilt-plan-kit",
       "department": "Marketing & Distribution",
       "owner": null,
@@ -77,7 +77,7 @@
     {
       "id": "N8N-04",
       "kind": "workflow",
-      "name": "QPK · Lemon Squeezy status watch",
+      "name": "QPK \u00b7 Lemon Squeezy status watch",
       "nicheId": null,
       "department": "Operations, Finance & Infrastructure",
       "owner": null,
@@ -101,7 +101,7 @@
     {
       "id": "N8N-05",
       "kind": "workflow",
-      "name": "Portfolio · Monthly brand & UX audit",
+      "name": "Portfolio \u00b7 Monthly brand & UX audit",
       "nicheId": null,
       "department": "Independent Quality",
       "owner": null,
@@ -167,7 +167,7 @@
         "/e unauthenticated"
       ],
       "definedIn": "audit/final/FORGE_AGENT_AND_WORKFLOW_REGISTRY.md",
-      "notes": "HMAC-verified Lemon Squeezy webhook → D1 sales; anonymous /e counters → D1 events."
+      "notes": "HMAC-verified Lemon Squeezy webhook \u2192 D1 sales; anonymous /e counters \u2192 D1 events."
     },
     {
       "id": "SCH-01",
@@ -262,7 +262,7 @@
     {
       "id": "AG-03",
       "kind": "agent",
-      "name": "Vertical Operator A — Quilt Plan Kit",
+      "name": "Vertical Operator A \u2014 Quilt Plan Kit",
       "nicheId": "quilt-plan-kit",
       "department": null,
       "owner": null,
@@ -285,7 +285,7 @@
     {
       "id": "AG-04",
       "kind": "agent",
-      "name": "Vertical Operator B — Loaf Ledger",
+      "name": "Vertical Operator B \u2014 Loaf Ledger",
       "nicheId": "loaf-ledger",
       "department": null,
       "owner": null,
@@ -308,7 +308,7 @@
     {
       "id": "AG-05",
       "kind": "agent",
-      "name": "Vertical Operator C — Bidline",
+      "name": "Vertical Operator C \u2014 Bidline",
       "nicheId": "bidline",
       "department": null,
       "owner": null,
@@ -434,6 +434,69 @@
       "defects": [],
       "definedIn": "audit/final/FORGE_AGENT_AND_WORKFLOW_REGISTRY.md",
       "notes": "Implemented as orchestration handler ledger.sync; reads the live ledger, writes only to the FORGE database."
+    },
+    {
+      "id": "FORGE-BUILDER-BLUEPRINT",
+      "kind": "workflow",
+      "name": "Builder: generate Launch Blueprint",
+      "nicheId": null,
+      "department": "Ecosystem Builder",
+      "owner": null,
+      "runner": "forge",
+      "externalRef": null,
+      "trigger": "on demand (job kind builder.blueprint.generate)",
+      "cadence": "On demand",
+      "intervalMinutes": null,
+      "model": null,
+      "costCapCents": 0,
+      "retryBudget": null,
+      "status": "BUILT",
+      "pausable": true,
+      "defects": [],
+      "definedIn": "packages/builder/README.md",
+      "notes": "Deterministic blueprint draft from an approved market brief. No spend; FORGE tables only."
+    },
+    {
+      "id": "FORGE-BUILDER-PLAN",
+      "kind": "workflow",
+      "name": "Builder: plan a build",
+      "nicheId": null,
+      "department": "Ecosystem Builder",
+      "owner": null,
+      "runner": "forge",
+      "externalRef": null,
+      "trigger": "on demand (job kind builder.build.plan)",
+      "cadence": "On demand",
+      "intervalMinutes": null,
+      "model": null,
+      "costCapCents": 0,
+      "retryBudget": null,
+      "status": "BUILT",
+      "pausable": true,
+      "defects": [],
+      "definedIn": "packages/builder/README.md",
+      "notes": "Writes builds + build_stages; a new-niche build waits for owner approval."
+    },
+    {
+      "id": "FORGE-BUILDER-EVALUATE",
+      "kind": "workflow",
+      "name": "Builder: evaluate build stages",
+      "nicheId": null,
+      "department": "Ecosystem Builder",
+      "owner": null,
+      "runner": "forge",
+      "externalRef": null,
+      "trigger": "on demand (job kind builder.build.evaluate)",
+      "cadence": "On demand",
+      "intervalMinutes": null,
+      "model": null,
+      "costCapCents": 0,
+      "retryBudget": null,
+      "status": "BUILT",
+      "pausable": true,
+      "defects": [],
+      "definedIn": "packages/builder/README.md",
+      "notes": "Recomputes stage status from independent gate receipts and owner approvals. Never launches."
     }
   ]
 }

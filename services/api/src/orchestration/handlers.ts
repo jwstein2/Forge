@@ -1,7 +1,8 @@
 /**
  * Built-in job handlers. Each is deterministic; none spends money or writes outside the FORGE database.
  */
-import type { HandlerDef } from "./engine.ts";
+import { NonRetryableError, type HandlerDef } from "./engine.ts";
+import { builderHandlers } from "@forge/builder/handlers";
 import { d1Ledger, d1RestLedger, importLedger, snapshotLedger, type LedgerSnapshot } from "../adapters/ledger.ts";
 import { importN8n, liveN8n, snapshotN8n, type N8nSnapshot } from "../adapters/n8n.ts";
 import { listSources } from "../adapters/sources.ts";
@@ -77,4 +78,10 @@ export const registrySeed: HandlerDef = {
   steps: [{ name: "seed", async run({ db }) { return { output: await seedRegistry(db, REGISTRY_DATA) }; } }],
 };
 
-export const defaultHandlers = (): Map<string, HandlerDef> => new Map([registrySeed, ledgerSync, n8nSync, heartbeatWatchdog].map((h) => [h.kind, h]));
+const BUILDER_REGISTRY: Record<string, string> = {
+  "builder.blueprint.generate": "FORGE-BUILDER-BLUEPRINT", "builder.build.plan": "FORGE-BUILDER-PLAN", "builder.build.evaluate": "FORGE-BUILDER-EVALUATE",
+};
+const builder = (): HandlerDef[] => builderHandlers({ NonRetryableError }).map((h) => ({ ...h, registryId: h.registryId ?? BUILDER_REGISTRY[h.kind] }) as HandlerDef);
+
+export const defaultHandlers = (): Map<string, HandlerDef> =>
+  new Map([registrySeed, ledgerSync, n8nSync, heartbeatWatchdog, ...builder()].map((h) => [h.kind, h]));

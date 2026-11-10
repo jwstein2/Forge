@@ -200,6 +200,18 @@ describe("API 1.1 additions", () => {
   });
 });
 
+describe("builder integration", () => {
+  it("accepts the three builder job kinds and ties them to registry entries", async () => {
+    const { env } = await makeEnv(); const { call } = makeApp();
+    for (const kind of ["builder.blueprint.generate", "builder.build.plan", "builder.build.evaluate"]) {
+      const r = await call(env, "POST", "/orchestration/jobs", { kind, input: {} });
+      expect(r.status, kind).toBe(201);
+    }
+    const ids = (await env.DB.prepare(`SELECT registry_id FROM jobs ORDER BY registry_id`).all<{ registry_id: string }>()).results.map((r) => r.registry_id);
+    expect(ids).toEqual(["FORGE-BUILDER-BLUEPRINT", "FORGE-BUILDER-EVALUATE", "FORGE-BUILDER-PLAN"]);
+  });
+});
+
 describe("enqueue guards", () => {
   it("refuses a job whose registry entry is not loaded, with a clear message", async () => {
     const { env } = await makeEnv({ seed: false }); const { call } = makeApp();

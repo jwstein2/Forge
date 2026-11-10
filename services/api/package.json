@@ -13,7 +13,8 @@
   "dependencies": {
     "@cfworker/json-schema": "^4.1.6",
     "@forge/contracts": "0.1.0",
-    "hono": "4.13.17"
+    "hono": "4.13.17",
+    "@forge/builder": "0.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251101.0",
