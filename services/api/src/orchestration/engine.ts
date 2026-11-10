@@ -51,6 +51,9 @@ export async function event(db: D1Database, jobId: string, type: string, detail?
     .bind(newId("jev"), jobId, nowIso(), type, detail === undefined ? null : JSON.stringify(detail)).run();
 }
 
+/** Default priority by kind (lower runs first). Time-sensitive monitors must not queue behind batch work (QA-008 ST4). */
+export const KIND_PRIORITY: Record<string, number> = { "heartbeat.watchdog": 10, "ops.site_health": 20, "ledger.sync": 30, "n8n.sync": 30 };
+
 export async function enqueue(db: D1Database, handlers: Map<string, HandlerDef>, o: EnqueueOptions): Promise<{ id: string; created: boolean }> {
   const h = handlers.get(o.kind);
   if (!h) throw new Error(`unknown job kind: ${o.kind}`);
@@ -65,7 +68,7 @@ export async function enqueue(db: D1Database, handlers: Map<string, HandlerDef>,
   const id = newId("job"); const at = nowIso();
   const costCap = defaultCapFor(o.kind, o.costCapCents, { runType: h.runType, usesModel: h.usesModel });
   const stmts = [db.prepare(`INSERT INTO jobs (id,kind,niche_id,registry_id,status,priority,idempotency_key,input_json,max_attempts,next_run_at,cost_cap_cents,parent_id,created_by,created_at,updated_at)
-    VALUES (?,?,?,?,'queued',?,?,?,?,?,?,?,?,?,?)`).bind(id, o.kind, o.nicheId ?? null, registryId, o.priority ?? 100,
+    VALUES (?,?,?,?,'queued',?,?,?,?,?,?,?,?,?,?)`).bind(id, o.kind, o.nicheId ?? null, registryId, o.priority ?? KIND_PRIORITY[o.kind] ?? 100,
     o.idempotencyKey ?? null, JSON.stringify(o.input ?? {}), o.maxAttempts ?? 3, o.runAt ?? at, costCap, o.parentId ?? null, o.createdBy, at, at)];
   h.steps.forEach((s, i) => stmts.push(db.prepare(`INSERT INTO job_steps (job_id,seq,name,status) VALUES (?,?,?,'pending')`).bind(id, i, s.name)));
   for (const d of o.dependsOn ?? []) stmts.push(db.prepare(`INSERT INTO job_dependencies (job_id,depends_on_id) VALUES (?,?)`).bind(id, d));

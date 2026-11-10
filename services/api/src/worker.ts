@@ -10,7 +10,8 @@ import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } f
 import { seedIntelligenceRegistry, INTEL_SCHEDULES } from "@forge/intelligence";
 
 const handlers = defaultHandlers();
-export const CRON_MAX_JOBS = 3; // ~288 job slots a day; recurring load is ~180 (watchdog 96, syncs 48, operator ~35)
+export const CRON_MAX_JOBS = 6; // ~576 job slots a day vs ~180 recurring plus fan-out bursts (SEO, Scout). Each job is its own child
+// invocation, so the cap only adds SELF subrequests to the scheduled one (measured 05:00Z: parent 39 ms CPU, children 9-25 ms).
 
 /** Cheap, synchronous fingerprint of the seed data (FNV-1a). Seeding is skipped when it is unchanged since the last tick. */
 function fingerprint(text: string): string {
@@ -40,6 +41,8 @@ export async function scheduledTick(env: Env, now = new Date()): Promise<void> {
   await seedIfChanged(env); // registry rows and schedules must exist before jobs reference them; skipped when unchanged
   await enqueue(env.DB, handlers, { kind: "ledger.sync", idempotencyKey: `ledger.sync:${hour}`, createdBy: "cron", runAt: now.toISOString() });
   await enqueue(env.DB, handlers, { kind: "n8n.sync", idempotencyKey: `n8n.sync:${hour}`, createdBy: "cron", runAt: now.toISOString() });
+  // A watchdog that never ran is superseded by this slot's: keep one, so a backlog can't pile up copies (QA-008 ST4).
+  await env.DB.prepare(`UPDATE jobs SET status='cancelled', updated_at=? WHERE kind='heartbeat.watchdog' AND status='queued'`).bind(now.toISOString()).run();
   await enqueue(env.DB, handlers, { kind: "heartbeat.watchdog", idempotencyKey: `heartbeat.watchdog:${quarter}`, createdBy: "cron", runAt: now.toISOString() });
   // One job per due schedule slot. Not in the unit-test environment: Operator jobs make real read-only GETs to the live sites.
   if (env.ENVIRONMENT !== "test") await enqueueDue(env.DB, handlers, now);

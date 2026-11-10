@@ -121,3 +121,11 @@ describe("durable job engine", () => {
     expect(ran).not.toContain(nicheJob.id);
   });
 });
+
+describe("QA-008 ST4 scheduling", () => {
+  it("monitors default ahead of batch work", async () => {
+    const { KIND_PRIORITY } = await import("../src/orchestration/engine");
+    expect(KIND_PRIORITY["heartbeat.watchdog"]).toBeLessThan(100);
+    expect(KIND_PRIORITY["ops.site_health"]).toBeLessThan(100);
+  });
+});

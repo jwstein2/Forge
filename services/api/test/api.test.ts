@@ -258,9 +258,19 @@ describe("cron fan-out: one job per invocation (free-plan per-invocation limits)
       return res;
     } } as unknown as Fetcher;
     await scheduledTick(env, new Date());
-    expect(children).toEqual([1, 1, 1]); // three recurring jobs, each in its own invocation
+    expect(children).toEqual([1, 1, 1, 0]); // three recurring jobs, each in its own invocation; the 4th probe finds none and stops
     const done = (await env.DB.prepare("SELECT COUNT(*) AS n FROM jobs WHERE status='succeeded'").first<{ n: number }>())!.n;
     expect(done).toBe(3);
+  });
+
+  it("keeps a single queued watchdog and runs it before batch work (QA-008 ST4)", async () => {
+    const { env } = await makeEnv({ seed: false });
+    env.SELF = { fetch: async () => new Response(JSON.stringify({ ran: 0 }), { status: 200 }) } as unknown as Fetcher; // nothing runs
+    await scheduledTick(env, new Date("2026-11-10T05:00:05Z"));
+    await scheduledTick(env, new Date("2026-11-10T05:15:05Z"));
+    const q = (await env.DB.prepare("SELECT kind, priority FROM jobs WHERE status='queued' ORDER BY priority, next_run_at").all<{ kind: string; priority: number }>()).results;
+    expect(q.filter((r) => r.kind === "heartbeat.watchdog").length).toBe(1);
+    expect(q[0]).toEqual({ kind: "heartbeat.watchdog", priority: 10 });
   });
 
   it("refuses the internal tick route without the derived token", async () => {
