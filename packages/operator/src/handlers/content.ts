@@ -124,7 +124,7 @@ const CLAIM_RULES: [RegExp, string][] = [
   [/(["“”'‘’])[^"“”'‘’\n]{3,200}["“”'‘’]\s*[—–-]+\s*[A-Z]/u, "quoted testimonial with attribution"],
   [/\bas seen (on|in)\b|\bfeatured (on|in)\b/i, "unsupported press claim"],
   [/\bproven\b|\bclinically\b|\bscientifically\b|\bexperts? (agree|say)\b/i, "unsupported proof claim"],
-  [/\b(double|triple|10x|2x|3x)\b|\b\d+\s*(x|times) (faster|quicker|more|better|easier)\b|\bin half\b|\bhalve\b|\bpays? for itself\b|\b(raise|boost|increase|grow|cut|slash|reduce)\b[^.\n]{0,40}\b(margins?|profits?|revenue|sales|income|costs?|time)\b[^.\n]{0,20}\d/i, "unsupported performance claim"],
+  [/\b(double|triple|10x|2x|3x)\b|\b\d+\s*(x|times) (faster|quicker|more|better|easier)\b|\bin half\b|\bhalve\b|\bpays? for itself\b|\b(raise|boost|increase|grow|cut|slash|reduce)\b[^.\n]{0,40}\b(margins?|profits?|revenue|sales|income|costs?|(?<!at a )time)\b[^.\n]{0,20}\d/i, "unsupported performance claim"],
   [/\b(earn|make|save|extra|additional)\b[^.\n]{0,20}\$\s?\d/i, "unsupported financial outcome"],
   [/\d+(\.\d+)?\s*%|\bpercent\b/i, "percentage claim FORGE cannot verify"],
 ];
