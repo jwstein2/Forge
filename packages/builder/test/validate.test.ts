@@ -35,5 +35,36 @@ describe("blueprint validation rejects unsafe or untraceable content", () => {
     const r = validateBlueprint(base, loadBrief("bidline"));
     expect(r.errors.join()).toMatch(/source_brief does not match/);
   });
+  it("QA-004 B1: rejects a price changed in both product and ladder", () => {
+    const r = tamper((b) => { b.products[0].price.value = 29; b.offer_ladder[1].price.value = 29; });
+    expect(r.errors.join()).toMatch(/differs from the brief/);
+  });
+  it("QA-004 B1: rejects a price relabelled VERIFIED", () => {
+    const core = base.offer_ladder.findIndex((t) => t.tier === "core");
+    const r = tamper((b) => { b.offer_ladder[core].price.evidence = "VERIFIED"; const p = b.products.find((x: any) => x.product_id === b.offer_ladder[core].product_id); p.price.evidence = "VERIFIED"; });
+    expect(r.errors.join()).toMatch(/differs from the brief/);
+  });
+  it("QA-004 B1: rejects an invented offer tier", () => {
+    const r = tamper((b) => { b.offer_ladder.push({ tier: "vip", item: "VIP coaching", price: { value: 499, currency: "USD", evidence: "INFERRED" }, product_id: null, playbook: "unsupported" }); });
+    expect(r.errors.join()).toMatch(/not in the brief's offer ladder/);
+  });
+  it("QA-004 B2: rejects an invented result claim in the promise", () => {
+    const r = tamper((b) => { b.sales_framework.promise.draft = "Quilters using QPK finish 23% more quilts in 30 days"; });
+    expect(r.errors.join()).toMatch(/promise.draft must be empty or a cited basis claim/);
+  });
+  it("QA-004 B2: rejects invented figures in the plan or CTA", () => {
+    expect(tamper((b) => { b.sales_framework.plan[1] = "Join 5,000 happy quilters"; }).errors.join()).toMatch(/figure "5000"/);
+    expect(tamper((b) => { b.sales_framework.cta.label = "Save 40% today"; }).errors.join()).toMatch(/figure "40"/);
+  });
+  it("QA-004 B2: rejects rewritten positioning, decision or pre-written objection answers", () => {
+    expect(tamper((b) => { b.positioning.one_line = "The #1 quilting brand"; }).ok).toBe(false);
+    expect(tamper((b) => { b.go_hold.rationale = "Huge proven demand"; }).ok).toBe(false);
+    expect(tamper((b) => { b.sales_framework.objections[0].response = "Everyone loves it"; }).ok).toBe(false);
+  });
+  it("QA-004 B6: refuses to validate without the source brief", () => {
+    const r = validateBlueprint(base, undefined as never);
+    expect(r.ok).toBe(false);
+    expect(r.errors[0]).toMatch(/source brief is required/);
+  });
   it("rejects unknown fields (schema is closed)", () => expect(tamper((b) => { b.testimonials = ["great"]; }).ok).toBe(false));
 });

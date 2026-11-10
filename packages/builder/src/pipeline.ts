@@ -14,7 +14,8 @@ export type StageStatus = "not_started" | "running" | "blocked" | "failed" | "pa
 export type BuildStatus = "draft" | "running" | "blocked" | "awaiting_approval" | "complete" | "cancelled";
 
 export interface ReceiptLike { stage: BuildStage; gate: string; result: GateResult; reviewer: string; producer: string; createdAt: string }
-export interface ApprovalLike { action: string; status: "pending" | "approved" | "denied" | "expired" }
+/** decidedAt (or createdAt) orders decisions: the latest one per action wins, so a later denial revokes an approval (QA-004 B4). */
+export interface ApprovalLike { action: string; status: "pending" | "approved" | "denied" | "expired"; decidedAt?: string | null; createdAt?: string | null }
 
 export interface StageEvaluation {
   stage: BuildStage; status: StageStatus;
@@ -22,7 +23,12 @@ export interface StageEvaluation {
   pendingApprovals: string[]; deniedApprovals: string[]; escalate: GateId[]; ignoredSelfCertified: number;
   notes: string;
 }
-export interface BuildEvaluation { status: BuildStatus; stages: StageEvaluation[]; next: BuildStage[]; launchReady: boolean }
+export interface BuildEvaluation { status: BuildStatus; stages: StageEvaluation[]; next: BuildStage[];
+  /** Every launch gate has an independent PASS. This is NOT permission to launch (QA-004 B3). */
+  gatesReadyForLaunchDecision: boolean;
+  /** The owner's latest decision on "Production deploy and launch" is approved. */
+  launchApproved: boolean;
+}
 
 export const releaseId = (buildId: string, stage: BuildStage) => `${buildId}:${stage}`;
 export const approvalScope = (buildId: string) => `build:${buildId}`;
@@ -33,11 +39,22 @@ export function parseReleaseId(id: string): { buildId: string; stage: BuildStage
   return (BUILD_STAGES as readonly string[]).includes(stage) ? { buildId: id.slice(0, i), stage } : null;
 }
 
+/** Identity comparison ignores case, whitespace and separators, so "Builder" and "builder " are the same identity (QA-004 B5). */
+export const normaliseIdentity = (s: string | null | undefined) => (s ?? "").toLowerCase().replace(/[\s_.-]+/g, "");
+export const independent = (reviewer: string, producer: string) => { const r = normaliseIdentity(reviewer); return r !== "" && r !== normaliseIdentity(producer); };
+
+function latestDecision(approvals: ApprovalLike[], action: string): ApprovalLike["status"] | null {
+  const xs = approvals.map((a, i) => ({ a, i })).filter((x) => x.a.action === action);
+  if (!xs.length) return null;
+  xs.sort((x, y) => (x.a.decidedAt ?? x.a.createdAt ?? "").localeCompare(y.a.decidedAt ?? y.a.createdAt ?? "") || x.i - y.i);
+  return xs.at(-1)!.a.status;
+}
+
 /** Latest independent receipt per gate. Self-certified receipts never count (the database also refuses them). */
 function latest(receipts: ReceiptLike[]): { byGate: Map<string, ReceiptLike>; fails: Map<string, number>; ignored: number } {
   const byGate = new Map<string, ReceiptLike>(); const fails = new Map<string, number>(); let ignored = 0;
   for (const r of [...receipts].sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
-    if (!r.reviewer || r.reviewer === r.producer) { ignored++; continue; }
+    if (!independent(r.reviewer, r.producer)) { ignored++; continue; }
     byGate.set(r.gate, r);
     if (r.result === "FAIL") fails.set(r.gate, (fails.get(r.gate) ?? 0) + 1);
   }
@@ -60,9 +77,8 @@ export function evaluateBuild(bp: LaunchBlueprint, receipts: ReceiptLike[], appr
       // One revision cycle after a FAIL; a second FAIL escalates (FORGE_RELEASE_GATES §1).
       if ((fails.get(g) ?? 0) >= 2 && r?.result !== "PASS") escalate.push(g);
     }
-    const appr = (a: string) => approvals.filter((x) => x.action === a);
-    const pendingApprovals = plan.owner_approvals.filter((a) => !appr(a).some((x) => x.status === "approved"));
-    const deniedApprovals = plan.owner_approvals.filter((a) => appr(a).some((x) => x.status === "denied") && !appr(a).some((x) => x.status === "approved"));
+    const pendingApprovals = plan.owner_approvals.filter((a) => latestDecision(approvals, a) !== "approved");
+    const deniedApprovals = plan.owner_approvals.filter((a) => latestDecision(approvals, a) === "denied");
     const unmet = plan.depends_on.filter((d) => results.get(d)?.status !== "passed");
 
     let status: StageStatus; const notes: string[] = [];
@@ -78,7 +94,7 @@ export function evaluateBuild(bp: LaunchBlueprint, receipts: ReceiptLike[], appr
     results.set(plan.stage, { stage: plan.stage, status, passed, missing, failed, blocked, pendingApprovals, deniedApprovals, escalate, ignoredSelfCertified: ignored, notes: notes.join(". ") });
   }
   const stages = BUILD_STAGES.map((s) => results.get(s)!);
-  const launchReady = stages.every((s) => s.stage === "launch_readiness" ? s.missing.length === 0 && !s.failed.length && !s.blocked.length : s.status === "passed");
+  const gatesReadyForLaunchDecision = stages.every((s) => s.stage === "launch_readiness" ? s.missing.length === 0 && !s.failed.length && !s.blocked.length : s.status === "passed");
   const next = stages.filter((s) => (s.status === "not_started" || s.status === "running") && !s.notes.startsWith("Waiting on")).map((s) => s.stage);
 
   let status: BuildStatus;
@@ -88,5 +104,7 @@ export function evaluateBuild(bp: LaunchBlueprint, receipts: ReceiptLike[], appr
   else if (stages.some((s) => s.status === "blocked")) status = "awaiting_approval";
   else if (stages.some((s) => s.status === "running" || s.status === "passed")) status = "running";
   else status = "draft";
-  return { status, stages, next, launchReady };
+  const launchAction = bp.stages.find((s) => s.stage === "launch_readiness")?.owner_approvals.find((a) => /launch/i.test(a));
+  const launchApproved = !!launchAction && latestDecision(approvals, launchAction) === "approved";
+  return { status, stages, next, gatesReadyForLaunchDecision, launchApproved };
 }

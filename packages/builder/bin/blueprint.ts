@@ -17,7 +17,8 @@ const readJson = (p: string) => JSON.parse(readFileSync(resolve(p), "utf8"));
 if (args.includes("--validate")) {
   const bp = readJson(flag("--validate")!);
   const briefPath = flag("--brief");
-  const r = validateBlueprint(bp, briefPath ? (readJson(briefPath) as Brief) : undefined);
+  if (!briefPath) { console.error("--validate needs --brief <brief.json>: blueprints are traced to their brief"); process.exit(2); }
+  const r = validateBlueprint(bp, readJson(briefPath) as Brief);
   console.log(r.ok ? "valid" : `INVALID\n${r.errors.join("\n")}`);
   process.exit(r.ok ? 0 : 1);
 }

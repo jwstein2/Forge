@@ -66,7 +66,8 @@ describe("build stage pipeline", () => {
   it("all gates PASS still does not launch without the owner's launch approval", () => {
     const all = passThrough(bp, "launch_readiness");
     const ev = evaluateBuild(bp, all, approved(bp, ["Production deploy and launch"]));
-    expect(ev.launchReady).toBe(true);
+    expect(ev.gatesReadyForLaunchDecision).toBe(true);
+    expect(ev.launchApproved).toBe(false);
     expect(ev.stages[8]!.status).toBe("blocked");
     expect(ev.status).toBe("awaiting_approval");
     const done = evaluateBuild(bp, all, approved(bp));
@@ -76,7 +77,7 @@ describe("build stage pipeline", () => {
   it("launch readiness uses the latest receipt per gate across the build, so a later FAIL reopens it", () => {
     const all = passThrough(bp, "launch_readiness");
     const ev = evaluateBuild(bp, [...all, pass("website", "G12", "FAIL")], approved(bp));
-    expect(ev.launchReady).toBe(false);
+    expect(ev.gatesReadyForLaunchDecision).toBe(false);
     expect(ev.status).toBe("blocked");
   });
 
@@ -91,6 +92,29 @@ describe("build stage pipeline", () => {
     const ev = evaluateBuild(nb, [pass("research", "B0")], []);
     expect(ev.stages[0]!.status).toBe("blocked");
     expect(ev.status).toBe("awaiting_approval");
+  });
+
+  it("QA-004 B4: a later denial revokes an earlier approval", () => {
+    const all = passThrough(bp, "launch_readiness");
+    const launch = "Production deploy and launch";
+    const approvals: ApprovalLike[] = [
+      ...approved(bp, [launch]),
+      { action: launch, status: "approved", decidedAt: "2026-11-10T06:00:00Z" },
+      { action: launch, status: "denied", decidedAt: "2026-11-10T07:00:00Z" },
+    ];
+    const ev = evaluateBuild(bp, all, approvals);
+    expect(ev.status).toBe("blocked");
+    expect(ev.launchApproved).toBe(false);
+    const reapproved = evaluateBuild(bp, all, [...approvals, { action: launch, status: "approved", decidedAt: "2026-11-10T08:00:00Z" }]);
+    expect(reapproved.status).toBe("complete");
+    expect(reapproved.launchApproved).toBe(true);
+  });
+
+  it("QA-004 B5: reviewer identity differing only by case or spacing is not independent", () => {
+    for (const reviewer of ["Builder", " builder ", "BUILDER", "build-er"]) {
+      const ev = evaluateBuild(bp, [pass("research", "B0", "PASS", reviewer, "builder")], []);
+      expect(ev.stages[0]!.status).toBe("not_started");
+    }
   });
 
   it("cancelled builds report cancelled", () => expect(evaluateBuild(bp, [], [], { cancelled: true }).status).toBe("cancelled"));

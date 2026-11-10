@@ -84,7 +84,7 @@ describe("builder job handlers on the platform engine", () => {
     await expect(ctx.db.prepare(`INSERT INTO gate_receipts (id,release_id,gate,result,reviewer,producer,created_at) VALUES ('g0',?,'B0','PASS','builder','builder','2026-11-10T05:00:00Z')`).bind(releaseId(buildId, "research")).run()).rejects.toThrow(/CHECK/);
     await ctx.db.prepare(`INSERT INTO gate_receipts (id,release_id,gate,result,reviewer,producer,created_at) VALUES ('g1',?,'B0','PASS','qa','builder','2026-11-10T05:00:00Z')`).bind(releaseId(buildId, "research")).run();
     const ev = await run(ctx, "builder.build.evaluate", { buildId });
-    expect((ev.output as any).evaluate).toMatchObject({ status: "running", next: ["blueprint"], launchReady: false });
+    expect((ev.output as any).evaluate).toMatchObject({ status: "running", next: ["blueprint"], gatesReadyForLaunchDecision: false, launchApproved: false });
     const research = await ctx.db.prepare(`SELECT status FROM build_stages WHERE build_id=? AND stage='research'`).bind(buildId).first<any>();
     expect(research.status).toBe("passed");
   });

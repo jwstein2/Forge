@@ -142,13 +142,13 @@ export function builderHandlers(deps: { NonRetryableError: ErrCtor }): BuilderHa
         const bp = JSON.parse(bpRow.content_json) as LaunchBlueprint;
         const receipts: ReceiptLike[] = (await db.prepare(`SELECT * FROM gate_receipts WHERE release_id LIKE ?`).bind(`${b.id}:%`).all<Row>()).results
           .flatMap((r) => { const p = parseReleaseId(r.release_id); return p && p.buildId === b.id ? [{ stage: p.stage, gate: r.gate, result: r.result, reviewer: r.reviewer, producer: r.producer, createdAt: r.created_at }] : []; });
-        const approvals: ApprovalLike[] = (await db.prepare(`SELECT action, status FROM approvals WHERE scope = ?`).bind(approvalScope(b.id)).all<Row>()).results.map((a) => ({ action: a.action, status: a.status }));
+        const approvals: ApprovalLike[] = (await db.prepare(`SELECT action, status, decided_at, created_at FROM approvals WHERE scope = ?`).bind(approvalScope(b.id)).all<Row>()).results.map((a) => ({ action: a.action, status: a.status, decidedAt: a.decided_at, createdAt: a.created_at }));
         const ev = evaluateBuild(bp, receipts, approvals, { cancelled: b.status === "cancelled" });
         const at = iso();
         const stmts = ev.stages.map((s) => db.prepare(`UPDATE build_stages SET status = ?, notes = ?, updated_at = ? WHERE build_id = ? AND stage = ?`).bind(s.status, s.notes || null, at, b.id, s.stage));
         stmts.push(db.prepare(`UPDATE builds SET status = ?, updated_at = ? WHERE id = ?`).bind(ev.status, at, b.id));
         await db.batch(stmts);
-        return { output: { buildId: b.id, status: ev.status, launchReady: ev.launchReady, next: ev.next, stages: ev.stages.map((s) => ({ stage: s.stage, status: s.status })) } };
+        return { output: { buildId: b.id, status: ev.status, gatesReadyForLaunchDecision: ev.gatesReadyForLaunchDecision, launchApproved: ev.launchApproved, next: ev.next, stages: ev.stages.map((s) => ({ stage: s.stage, status: s.status })) } };
       },
     }],
   };
