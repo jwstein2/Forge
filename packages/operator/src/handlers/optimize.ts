@@ -27,7 +27,9 @@ export function recommend(f: NicheFacts): Reco[] {
   const funnel = f.funnelSource !== "unconnected";
   // Data that stops before the period ends (a dated snapshot) can't prove an absence: rules that need "no sales" are
   // skipped, and the rest are labelled INFERRED (QA-011 P2-3).
-  const partial = funnel && (!f.dataAsOf || f.dataAsOf < f.period.end);
+  // A live ledger is synced periodically, so a sync within 26 h of the period end counts as complete (QA-011 R1-1).
+  const completeFrom = f.funnelSource === "live" ? new Date(Date.parse(f.period.end) - 26 * 3600000).toISOString() : f.period.end;
+  const partial = funnel && (!f.dataAsOf || f.dataAsOf < completeFrom);
   const label = (l: Reco["label"]): Reco["label"] => (partial && l === "VERIFIED" ? "INFERRED" : l);
   const out: Reco[] = []; const src = { source: `funnel_daily + financial_events (${f.funnelSource})`, period: f.period, dataAsOf: f.dataAsOf, partial };
   if (f.signups > 0 && f.welcomeStatus !== null && f.welcomeStatus !== "active")

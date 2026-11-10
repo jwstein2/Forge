@@ -1,6 +1,6 @@
 # FORGE Operator (workstream E · Milestone 3)
 
-**Date:** 2026-11-10 · **Package:** `packages/operator` (`@forge/operator`) · **Status:** BUILT and TESTED locally (54 package tests plus the platform, builder and controls suites, and one real cron tick under local workerd). Merged on main. Migrations 0100 and 0101 are applied to staging D1. QA-005 defects fixed and passed QA. The SEO crawl was split into small jobs after staging measured 203 ms CPU for one unsplit tick.
+**Date:** 2026-11-10 · **Package:** `packages/operator` (`@forge/operator`) · **Status:** BUILT and TESTED locally (56 package tests plus the platform, builder and controls suites, and one real cron tick under local workerd). Merged on main. Migrations 0100 and 0101 are applied to staging D1. QA-005 defects fixed and passed QA. The SEO crawl was split into small jobs after staging measured 203 ms CPU for one unsplit tick.
 
 FORGE Operator is the part of FORGE that keeps the businesses running between conversations. It runs on the platform's durable job engine (`services/api/src/orchestration/engine.ts`), so every run is stored in D1, takes a lease, saves a checkpoint after each step, retries a limited number of times, respects the global, niche and job pause switches, and writes a `runs` row. That row is the heartbeat FORGE Command shows as the last successful run.
 
@@ -83,7 +83,7 @@ return [{ json: { body, ts, sig } }];
 
 ```bash
 npm install && npm run check                              # all workspaces incl. operator
-cd packages/operator && npx vitest run                    # 54 operator tests
+cd packages/operator && npx vitest run                    # 56 operator tests
 FORGE_OPERATOR=1 npm run dev:api                          # local dev server also runs Operator schedules (real GETs to the live sites)
 cd services/api && npx wrangler dev --env development --test-scheduled   # then GET /__scheduled
 ```

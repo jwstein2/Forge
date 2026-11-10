@@ -88,6 +88,12 @@ describe("optimization loop", () => {
     expect(r.map((x) => [x.rule, x.label])).toEqual([["calculator_no_checkout", "INFERRED"]]);
     expect(r[0]!.evidence).toMatchObject({ dataAsOf: "2026-11-01T00:00:00Z", partial: true });
   });
+  it("treats a live ledger synced within a day as complete (QA-011 R1-1)", () => {
+    const live = { ...base, funnelSource: "live" as const, checkoutClicks: 30, pageViews: 500, checkoutLiveSince: "2026-10-20T00:00:00Z" };
+    expect(recommend({ ...live, dataAsOf: "2026-11-09T23:59:59Z" }).map((x) => [x.rule, x.label]).sort()).toEqual([["checkout_no_sale", "VERIFIED"], ["kill_rule", "VERIFIED"]]);
+    expect(recommend({ ...live, dataAsOf: "2026-11-08T00:00:00Z" })).toEqual([]); // stale live sync: no absence claims
+    expect(recommend({ ...base, checkoutClicks: 30, dataAsOf: "2026-11-09T23:59:59Z" })).toEqual([]); // dated snapshot stays strict
+  });
   it("fires the kill rule only inside 60 days of checkout going live", () => {
     expect(recommend({ ...base, pageViews: 320, checkoutLiveSince: "2026-10-01T00:00:00Z" }).map((x) => x.rule)).toEqual(["kill_rule"]);
     expect(recommend({ ...base, pageViews: 320, checkoutLiveSince: "2026-08-01T00:00:00Z" })).toEqual([]);
@@ -139,6 +145,8 @@ describe("one-decision publishing proposal", () => {
     const r = await app("owner")(env, "POST", "/recommendations/decide", { ids: ["r1"], status: "dismissed" });
     expect(r.json.data.updated).toBe(1);
     expect((await q(db, `SELECT status, decided_by FROM op_recommendations`))[0]).toEqual({ status: "dismissed", decided_by: "owner@forge.test" });
+    // Already decided or expired rows are not re-decided, and the count says so (QA-012).
+    expect((await app("owner")(env, "POST", "/recommendations/decide", { ids: ["r1", "nope"], status: "accepted" })).json.data.updated).toBe(0);
     expect((await app("owner")(env, "GET", "/recommendations?status=all")).json.data).toHaveLength(1);
   });
 

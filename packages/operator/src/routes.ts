@@ -163,8 +163,11 @@ export function operatorRoutes() {
     const b = await c.req.json<{ ids?: string[]; status?: string }>().catch(() => ({} as { ids?: string[]; status?: string }));
     if (!Array.isArray(b.ids) || !b.ids.length || !["accepted", "dismissed", "done"].includes(String(b.status))) return fail(c, 400, "bad_request", "ids[] and status accepted|dismissed|done required");
     const at = nowIso();
-    await c.env.DB.batch(b.ids.slice(0, 100).map((id) => c.env.DB.prepare(`UPDATE op_recommendations SET status=?, decided_at=?, decided_by=? WHERE id=?`).bind(b.status, at, who, id)));
-    return c.json({ ok: true, data: { updated: Math.min(b.ids.length, 100), status: b.status } });
+    // Only open proposals (or accepted ones being closed) can be decided; expired ones stay expired.
+    const ids = [...new Set(b.ids.slice(0, 100).map(String))];
+    const eligible = (await c.env.DB.prepare(`SELECT id FROM op_recommendations WHERE status IN ('proposed','accepted') AND id IN (${ids.map(() => "?").join(",")})`).bind(...ids).all<{ id: string }>()).results.map((x) => x.id);
+    if (eligible.length) await c.env.DB.batch(eligible.map((id) => c.env.DB.prepare(`UPDATE op_recommendations SET status=?, decided_at=?, decided_by=? WHERE id=? AND status IN ('proposed','accepted')`).bind(b.status, at, who, id)));
+    return c.json({ ok: true, data: { updated: eligible.length, status: b.status } });
   });
 
   return r;
