@@ -1,0 +1,27 @@
+{
+  "niche": "loaf-ledger",
+  "version": "0.1.0",
+  "status": "PROPOSED",
+  "note": "Brand stage proposal keeping Loaf Ledger's existing brown and cream. G2 visual review and G8 licence review NOT RUN. No images or webfonts are used.",
+  "basis_claim_ids": ["c_ll_vis"],
+  "direction": "Warm bakery counter: cream and crust brown, rounded serif headings, chalkboard-style price tags, a faint flour-dust texture in CSS.",
+  "fonts": {
+    "heading": "\"Hoefler Text\", \"Book Antiqua\", Georgia, serif",
+    "body": "\"Avenir Next\", Avenir, \"Segoe UI\", Ubuntu, \"DejaVu Sans\", sans-serif",
+    "numeric": "\"Hoefler Text\", Georgia, serif"
+  },
+  "base_size_px": 18,
+  "radius_px": 10,
+  "motif": "flour-dust",
+  "colors": {
+    "bg": "#FAF3E6",
+    "surface": "#FFFCF6",
+    "ink": "#2E2118",
+    "muted": "#5F4D3F",
+    "line": "#E6D6BD",
+    "accent": "#7A4321",
+    "accent_ink": "#FFFFFF",
+    "secondary": "#3E5A3A",
+    "highlight": "#F1E0C2"
+  }
+}

@@ -11,6 +11,12 @@ import { validateBlueprint } from "../src/validate.ts";
 import type { Brief } from "../src/brief.ts";
 
 const args = process.argv.slice(2);
+/** Committed blueprint history: what changed in each generated version. */
+const CHANGELOG: Record<string, string> = { "1.0.1": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap)." };
+function previousId(niche: string, version: string): string | null {
+  const [a, b, c] = version.split(".").map(Number);
+  return c! > 0 ? `bp_${niche}_v${a}-${b}-${c! - 1}` : null;
+}
 const flag = (name: string) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
 const readJson = (p: string) => JSON.parse(readFileSync(resolve(p), "utf8"));
 
@@ -32,7 +38,9 @@ const rawRegistry = registryPath ? readJson(registryPath) : [];
 const registryProducts: RegistryProduct[] = Array.isArray(rawRegistry) ? rawRegistry : (rawRegistry.products ?? rawRegistry.items ?? []);
 const budget = flag("--budget-cents");
 const bp = await generateBlueprint(brief, {
-  version: flag("--version"), registryProducts, budgetCeilingCents: budget ? Number(budget) : null,
+  version: flag("--version"), registryProducts,
+  supersedes: args.includes("--supersedes-previous") && flag("--version") ? previousId(brief.niche, flag("--version")!) : null,
+  changelog: args.includes("--supersedes-previous") ? CHANGELOG[flag("--version") ?? ""] : undefined, budgetCeilingCents: budget ? Number(budget) : null,
   businessKind: args.includes("--new-business") ? "new_business" : "existing_niche",
 });
 const v = validateBlueprint(bp, brief);

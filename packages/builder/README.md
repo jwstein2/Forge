@@ -2,7 +2,7 @@
 
 Turns an approved opportunity's **Audience & Market Brief** into a versioned **Launch Blueprint**, then tracks a build through nine stages until the owner decides whether to launch. **FORGE never launches anything on its own.**
 
-Status: **BUILT and TESTED locally** (60 tests; QA-004 PASS with defects B1–B6, fixed in the next commit and awaiting retest). Not registered in the API yet, not deployed, not independently reviewed.
+Status: **BUILT and TESTED locally** (87 tests; blueprint engine QA-004 PASS; site scaffold awaiting QA). Not registered in the API yet, not deployed, not independently reviewed.
 
 ## What is here
 
@@ -32,7 +32,7 @@ Status: **BUILT and TESTED locally** (60 tests; QA-004 PASS with defects B1–B6
 
 ```bash
 npm install                                  # at repo root
-npm test -w @forge/builder                   # 60 tests, incl. integration with the real migrations + engine
+npm test -w @forge/builder                   # 87 tests, incl. integration with the real migrations + engine
 npm run typecheck -w @forge/builder
 npm run blueprints -w @forge/builder         # regenerate the three committed blueprints
 npm run blueprint -w @forge/builder -- path/to/brief.json --out /tmp/bp [--new-business] [--budget-cents 50000]
@@ -53,3 +53,15 @@ and add `"@forge/builder": "0.1.0"` to `services/api/package.json` dependencies.
 * **Site scaffold generator** (page map + brand tokens → staging site skeleton using shared components). Waits on the shared component library and a brand stage; must not produce a generic layout.
 * **Fourth-business blueprint** (directive M7). Needs a real Scout brief for a new opportunity; the generator and the new-business approval path are ready for it. No synthetic research is ever published as a blueprint.
 * Product generators reuse the existing reproducible builders (e.g. `forge-m1/bidline-kit/build_kit.py`) rather than replacing them.
+
+## Site scaffold (blueprint → reviewable staging site)
+
+`src/site/` turns a validated blueprint, a brand file (`brands/<niche>.brand.json`, PROPOSED, contrast-checked to WCAG AA) and a site config (operator, legal date, live site URL, runtime) into a static staging site: every page in the page map, legal pages, shared components (checkout button, email capture, beacon; all disconnected by default, checkout `off` or `test` only), `robots.txt` disallow-all, `_headers` (noindex + security headers, no inline scripts), product draft outlines, `COPY_GAPS.md`, `GATES.md` (all NOT_RUN), `SOURCES_AND_LICENSES.md` and `STAGING_MANIFEST.json` (file hashes, `deployable_to_production: false`).
+
+Visible text comes only from the blueprint, brand or operator config; everything else is a visible "Copy needed" marker for the website stage (G2). No images, webfonts, testimonials or figures that are not in the blueprint. The internal positioning statement is never rendered. There is no deploy path in this package.
+
+```bash
+npm run scaffold -w @forge/builder -- blueprints/quilt-plan-kit/launch-blueprint.v1.0.1.json \
+  --brand brands/quilt-plan-kit.brand.json --brief test/fixtures/quilt-plan-kit.brief.json \
+  --config site-config.json --out /tmp/qpk-staging
+```

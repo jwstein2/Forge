@@ -1,0 +1,1327 @@
+{
+  "schema_version": "1.0.0",
+  "blueprint_id": "bp_loaf-ledger_v1-0-1",
+  "niche": "loaf-ledger",
+  "display_name": "Loaf Ledger",
+  "version": "1.0.1",
+  "supersedes": "bp_loaf-ledger_v1-0-0",
+  "status": "draft",
+  "implementation_status": "PROPOSED",
+  "created_at": "2026-11-10T02:50:00Z",
+  "approved_by": null,
+  "generated_by": {
+    "tool": "@forge/builder",
+    "tool_version": "1.0.0",
+    "deterministic": true
+  },
+  "business_kind": "existing_niche",
+  "source_brief": {
+    "brief_id": "brief_loaf-ledger_v1-0-2",
+    "version": "1.0.2",
+    "status": "draft",
+    "content_hash": "sha256:600bc5aad78d7f52cca014cb15ef507870d699193cb81977c59b3acad111fce6"
+  },
+  "opportunity_ref": null,
+  "launch_policy": {
+    "auto_launch": false,
+    "owner_approval_required_for": [
+      "Production deploy and launch",
+      "New accounts and credential connections",
+      "Live checkout",
+      "Any spend",
+      "Price changes",
+      "Publishing outside approved campaigns"
+    ]
+  },
+  "go_hold": {
+    "call": "go_with_changes",
+    "subject": "Loaf Ledger paid product",
+    "rationale": "Clear, repeated pain (pricing from ingredients only, fear of losing customers, not knowing the hourly wage) and paid templates at $8-$29. The audience is low-revenue (median $2,000 sales in 2016), so price must stay low and the product must pay for itself on one market day.",
+    "falsifying_test": "If the workbook is live and gets 300+ sessions in 60 days with zero sales, hold Loaf Ledger and fold its traffic into an email list. Owner-adjustable rule."
+  },
+  "positioning": {
+    "one_line": "Home and cottage bakers chronically undercharge and know it; paid pricing spreadsheets sell at $8-$29 but almost all are cake-focused, so a bread and farmers-market pricing and profit workbook at about $15-$19 is an open, cheap-to-build position for Loaf Ledger.",
+    "primary_segment_id": "cottage-bread-seller",
+    "segments": [
+      {
+        "id": "cottage-bread-seller",
+        "name": "Cottage bread and farmers' market seller",
+        "priority": "primary"
+      },
+      {
+        "id": "custom-cake-baker",
+        "name": "Custom cake and cookie baker",
+        "priority": "secondary"
+      },
+      {
+        "id": "aspiring-micro-bakery",
+        "name": "Aspiring micro-bakery",
+        "priority": "exploratory"
+      }
+    ],
+    "desired_outcomes": [
+      {
+        "claim_id": "c_ll_out",
+        "statement": "Earn a fair hourly wage from baking and know it.",
+        "evidence": "INFERRED"
+      }
+    ]
+  },
+  "offer_ladder": [
+    {
+      "tier": "free",
+      "item": "Loaf cost calculator and guides",
+      "price": {
+        "value": 0,
+        "currency": "USD",
+        "evidence": "VERIFIED"
+      },
+      "product_id": null,
+      "playbook": "free-resource"
+    },
+    {
+      "tier": "core",
+      "item": "Bread & Market Pricing Workbook",
+      "price": {
+        "value": 17,
+        "currency": "USD",
+        "evidence": "INFERRED"
+      },
+      "product_id": "prd_loaf-ledger_bread-market-pricing-workbook",
+      "playbook": "spreadsheet-template"
+    },
+    {
+      "tier": "bundle",
+      "item": "Workbook + label and price-sign pack",
+      "price": {
+        "value": 24,
+        "currency": "USD",
+        "evidence": "INFERRED"
+      },
+      "product_id": "prd_loaf-ledger_workbook-label-and-price-sign-pack",
+      "playbook": "bundle"
+    }
+  ],
+  "products": [
+    {
+      "product_id": "prd_loaf-ledger_bread-market-pricing-workbook",
+      "name": "Loaf Ledger Bread & Market Pricing Workbook",
+      "tier": "core",
+      "playbook": "spreadsheet-template",
+      "format": "Google Sheets + Excel workbook, no macros, phone-friendly input tab, one-page quick start",
+      "price": {
+        "value": 17,
+        "currency": "USD",
+        "evidence": "INFERRED"
+      },
+      "target_segment_id": "cottage-bread-seller",
+      "must_include": [
+        "Ingredient library in grams with cost per gram and automatic unit conversion",
+        "Recipe costing by baker's percentage and batch yield",
+        "Packaging, market fee and mileage costs",
+        "'What am I paying myself per hour' readout as the headline",
+        "Price ladder: wholesale, market and pre-order",
+        "Market-day log: loaves baked, sold, wasted, profit per market",
+        "Printable price list for the stall",
+        "Worked example: a sourdough country loaf"
+      ],
+      "must_not": [
+        "Give legal advice on cottage food rules (link to state resources instead)",
+        "Promise income",
+        "Be cake-first like competitors"
+      ],
+      "deliverables": [
+        {
+          "kind": "workbook",
+          "file_format": "xlsx",
+          "spec": "Styled to the brand; inputs unlocked, formulas protected; no macros; opens in Excel and Google Sheets without errors."
+        },
+        {
+          "kind": "quick-start",
+          "file_format": "pdf",
+          "spec": "One page: what it does, how to fill it in, where the answer appears."
+        },
+        {
+          "kind": "worked-example",
+          "file_format": "xlsx",
+          "spec": "Filled example using realistic, labelled sample inputs (never presented as a customer)."
+        },
+        {
+          "kind": "formula-test-cases",
+          "file_format": "json",
+          "spec": "≥5 known input/output cases checked by an independent reviewer (G4)."
+        }
+      ],
+      "gates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G13"
+      ],
+      "status": "PROPOSED",
+      "basis": [
+        {
+          "claim_id": "c_ll_pp_e1",
+          "statement": "Paid comparables at $7.79, $19 and $29 are verified; the bread/market angle is the gap.",
+          "evidence": "VERIFIED"
+        },
+        {
+          "claim_id": "c_ll_pp_e2",
+          "statement": "The hourly-wage framing matches the language bakers use.",
+          "evidence": "VERIFIED"
+        }
+      ],
+      "falsifying_test": "Zero sales from the first 300 sessions on the product page within 60 days of launch.",
+      "registry_product_id": "prd_loaf_paid"
+    },
+    {
+      "product_id": "prd_loaf-ledger_workbook-label-and-price-sign-pack",
+      "name": "Workbook + label and price-sign pack",
+      "tier": "bundle",
+      "playbook": "bundle",
+      "format": "Bundle of products (reused or built in this build)",
+      "price": {
+        "value": 24,
+        "currency": "USD",
+        "evidence": "INFERRED"
+      },
+      "target_segment_id": null,
+      "must_include": [],
+      "must_not": [],
+      "deliverables": [
+        {
+          "kind": "bundle-manifest",
+          "file_format": "json",
+          "spec": "Lists every component (existing products and any new item built for the bundle) with file hashes; every component passes G4 on its own."
+        },
+        {
+          "kind": "bundle-archive",
+          "file_format": "zip",
+          "spec": "Delivered archive equals the reviewed archive (hash match)."
+        }
+      ],
+      "gates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G13"
+      ],
+      "status": "PROPOSED",
+      "basis": [],
+      "falsifying_test": null,
+      "registry_product_id": null
+    }
+  ],
+  "brand": {
+    "direction": [
+      {
+        "claim_id": "c_ll_vis",
+        "statement": "Warm, homey, practical styling; Loaf Ledger's brown and cream palette already fits.",
+        "evidence": "INFERRED"
+      }
+    ],
+    "requirements": [
+      "Designed for this audience, distinct from the other FORGE niches; no generic AI layout",
+      "Licensed or original imagery only, each asset recorded in SOURCES_AND_LICENSES.md",
+      "Accessible type and contrast (WCAG 2.2 AA); readable at 320 px",
+      "Real product previews rendered from the actual files",
+      "Products styled to the same standard as the site that sells them"
+    ],
+    "asset_rights_policy": "Unknown provenance is a G8 FAIL. No asset ships without source URL, author, licence, commercial-use terms and attribution recorded.",
+    "status": "PROPOSED"
+  },
+  "sales_framework": {
+    "promise": {
+      "draft": "Earn a fair hourly wage from baking and know it.",
+      "basis": [
+        {
+          "claim_id": "c_ll_out",
+          "statement": "Earn a fair hourly wage from baking and know it.",
+          "evidence": "INFERRED"
+        }
+      ]
+    },
+    "pain": [
+      {
+        "claim_id": "c_ll_pain_ingredients",
+        "statement": "Pricing from ingredients alone, leaving out labour, packaging and overhead.",
+        "evidence": "VERIFIED"
+      },
+      {
+        "claim_id": "c_ll_pain_anxiety",
+        "statement": "Fear of losing customers leads to underpricing.",
+        "evidence": "VERIFIED"
+      },
+      {
+        "claim_id": "c_ll_pain_wage",
+        "statement": "Low effective hourly wage (median profit $500 a year in 2016).",
+        "evidence": "VERIFIED"
+      },
+      {
+        "claim_id": "c_ll_pain_race",
+        "statement": "Local price competition from other cottage bakers.",
+        "evidence": "VERIFIED"
+      }
+    ],
+    "proof": {
+      "allowed_kinds": [
+        "Previews rendered from the real product files",
+        "Worked example with clearly labelled sample data",
+        "Verified facts from the brief, cited",
+        "Customer feedback only once it exists, with permission"
+      ],
+      "items": [
+        {
+          "claim_id": "c_ll_pp_e1",
+          "statement": "Paid comparables at $7.79, $19 and $29 are verified; the bread/market angle is the gap.",
+          "evidence": "VERIFIED"
+        },
+        {
+          "claim_id": "c_ll_pp_e2",
+          "statement": "The hourly-wage framing matches the language bakers use.",
+          "evidence": "VERIFIED"
+        }
+      ],
+      "status": "has_candidates",
+      "rule": "No testimonials, ratings, sales counts, user numbers or results until they exist and are verified."
+    },
+    "plan": [
+      "Get the Loaf Ledger Bread & Market Pricing Workbook for $17",
+      "Download it straight from the confirmation email",
+      "Start with: Ingredient library in grams with cost per gram and automatic unit conversion"
+    ],
+    "picture": {
+      "draft": "",
+      "basis": []
+    },
+    "cta": {
+      "label": "Get the Loaf Ledger Bread & Market Pricing Workbook",
+      "product_id": "prd_loaf-ledger_bread-market-pricing-workbook"
+    },
+    "objections": [
+      {
+        "claim": {
+          "claim_id": "c_ll_obj_free",
+          "statement": "Free calculators and free workbooks exist.",
+          "evidence": "VERIFIED"
+        },
+        "response": null
+      },
+      {
+        "claim": {
+          "claim_id": "c_ll_obj_budget",
+          "statement": "Low-revenue sellers resist spending on tools.",
+          "evidence": "INFERRED"
+        },
+        "response": null
+      }
+    ],
+    "customer_language": [
+      "What am I really paying myself per hour?",
+      "Coworkers loved it but wouldn't pay that price.",
+      "Cottage bakers are driving prices down.",
+      "Pricing is a mindset problem too."
+    ]
+  },
+  "page_map": [
+    {
+      "path": "/",
+      "purpose": "Home: the promise, the free tools and the paid offer",
+      "template": "home",
+      "sections": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "free-tools",
+        "paid-offer",
+        "email-capture"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G9"
+      ]
+    },
+    {
+      "path": "/tools/",
+      "purpose": "Free calculators, guides and templates (traffic and trust)",
+      "template": "resource",
+      "sections": [
+        "tool",
+        "how-to-use",
+        "worked-example",
+        "related-resources",
+        "email-capture",
+        "paid-upgrade-cta"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G3",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/products/loaf-ledger-bread-market-pricing-workbook/",
+      "purpose": "Sales page for Loaf Ledger Bread & Market Pricing Workbook",
+      "template": "product",
+      "sections": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "whats-inside-previews",
+        "price-and-cta",
+        "faq-objections",
+        "refund-policy-link"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G5",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/products/workbook-label-and-price-sign-pack/",
+      "purpose": "Sales page for Workbook + label and price-sign pack",
+      "template": "product",
+      "sections": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "whats-inside-previews",
+        "price-and-cta",
+        "faq-objections",
+        "refund-policy-link"
+      ],
+      "required_for_launch": false,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G5",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/thank-you/",
+      "purpose": "Post-purchase delivery instructions",
+      "template": "transactional",
+      "sections": [
+        "download-steps",
+        "support-contact"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G5"
+      ]
+    },
+    {
+      "path": "/about/",
+      "purpose": "Who runs this and why (real operator, no invented story)",
+      "template": "content",
+      "sections": [
+        "operator",
+        "mission"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G2"
+      ]
+    },
+    {
+      "path": "/contact/",
+      "purpose": "Support contact",
+      "template": "content",
+      "sections": [
+        "contact"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G7"
+      ]
+    },
+    {
+      "path": "/privacy/",
+      "purpose": "Privacy policy matching actual data flows",
+      "template": "legal",
+      "sections": [
+        "legal"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G7"
+      ]
+    },
+    {
+      "path": "/terms/",
+      "purpose": "Terms of sale",
+      "template": "legal",
+      "sections": [
+        "legal"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G7"
+      ]
+    },
+    {
+      "path": "/refunds/",
+      "purpose": "Refund policy",
+      "template": "legal",
+      "sections": [
+        "legal"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G7"
+      ]
+    }
+  ],
+  "channel_plan": [
+    {
+      "channel": "Organic search",
+      "fit": "moderate",
+      "priority": "launch",
+      "owner_role": "Marketing & Distribution",
+      "integration_required": "Google Search Console",
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_ll_ch_seo",
+        "statement": "Pricing questions are searched, but cake terms are crowded; bread terms look thinner.",
+        "evidence": "INFERRED"
+      }
+    },
+    {
+      "channel": "Pinterest",
+      "fit": "moderate",
+      "priority": "launch",
+      "owner_role": "Marketing & Distribution",
+      "integration_required": "Pinterest",
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_ll_ch_pin",
+        "statement": "Baking content performs on Pinterest generally; reuse QPK's RSS drip.",
+        "evidence": "INFERRED"
+      }
+    },
+    {
+      "channel": "Instagram",
+      "fit": "moderate",
+      "priority": "launch",
+      "owner_role": "Marketing & Distribution",
+      "integration_required": "Instagram",
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_ll_ch_ig",
+        "statement": "Cottage bakers market on Instagram; needs owner account.",
+        "evidence": "INFERRED"
+      }
+    },
+    {
+      "channel": "Communities (Fresh Loaf, Reddit)",
+      "fit": "unknown",
+      "priority": "after_launch",
+      "owner_role": "Owner (personal participation only; no automated posting)",
+      "integration_required": null,
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_ll_ch_comm",
+        "statement": "Where the hourly-wage language came from; no self-promotion.",
+        "evidence": "INFERRED"
+      }
+    }
+  ],
+  "integrations": [
+    {
+      "id": "checkout",
+      "service": "Lemon Squeezy",
+      "purpose": "Checkout and merchant of record",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": "checkout-button",
+      "note": "Store activation and any live checkout need the owner."
+    },
+    {
+      "id": "delivery",
+      "service": "Lemon Squeezy file delivery",
+      "purpose": "Deliver the reviewed file (hash-matched)",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Same account as checkout."
+    },
+    {
+      "id": "ledger",
+      "service": "FORGE ledger (Worker + D1)",
+      "purpose": "Signed sale webhooks and page beacons with vertical \"loaf-ledger\"",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": "ledger-beacon",
+      "note": "Production Worker change."
+    },
+    {
+      "id": "email",
+      "service": "MailerLite",
+      "purpose": "Permission-based email capture and nurture",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": "email-capture",
+      "note": "Connector connection is the owner's."
+    },
+    {
+      "id": "search-console",
+      "service": "Google Search Console",
+      "purpose": "Indexing and query data",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Needs the owner's Google account."
+    },
+    {
+      "id": "hosting",
+      "service": "Cloudflare Pages",
+      "purpose": "Staging previews; production only on owner approval",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Staging preview is allowed; production deploy is not."
+    },
+    {
+      "id": "pinterest",
+      "service": "Pinterest",
+      "purpose": "Publishing for Pinterest",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Official API or platform-sanctioned method only."
+    },
+    {
+      "id": "instagram",
+      "service": "Instagram",
+      "purpose": "Publishing for Instagram",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Official API or platform-sanctioned method only."
+    }
+  ],
+  "measurement": {
+    "ledger_vertical": "loaf-ledger",
+    "beacon_path_prefix": "/loaf-ledger/",
+    "kpis": [
+      {
+        "id": "product_page_sessions",
+        "label": "Sessions on the core product page",
+        "target": null,
+        "unit": "count",
+        "state": "unknown"
+      },
+      {
+        "id": "conversion_rate",
+        "label": "Product page to purchase",
+        "target": null,
+        "unit": "pct",
+        "state": "unknown"
+      },
+      {
+        "id": "orders",
+        "label": "Verified live orders (excludes test and owner-test)",
+        "target": null,
+        "unit": "count",
+        "state": "unknown"
+      },
+      {
+        "id": "gross_revenue",
+        "label": "Verified gross revenue",
+        "target": null,
+        "unit": "usd",
+        "state": "unknown"
+      },
+      {
+        "id": "refund_rate",
+        "label": "Refunds as share of orders",
+        "target": null,
+        "unit": "pct",
+        "state": "unknown"
+      },
+      {
+        "id": "email_signups",
+        "label": "Confirmed email signups",
+        "target": null,
+        "unit": "count",
+        "state": "unknown"
+      },
+      {
+        "id": "contribution",
+        "label": "Estimated contribution (withheld while any cost line is unknown)",
+        "target": null,
+        "unit": "usd",
+        "state": "unknown"
+      }
+    ],
+    "falsifying_tests": [
+      "If the workbook is live and gets 300+ sessions in 60 days with zero sales, hold Loaf Ledger and fold its traffic into an email list. Owner-adjustable rule.",
+      "Zero sales from the first 300 sessions on the product page within 60 days of launch."
+    ]
+  },
+  "economics": {
+    "note": "Scenarios copied from brief 1.0.2. They are hypotheses with the brief's evidence labels, not forecasts.",
+    "scenarios": {
+      "downside": {
+        "monthly_orders": 0,
+        "average_order_value": 17,
+        "monthly_gross": 0,
+        "monthly_contribution": 0,
+        "assumptions": [
+          "No product yet; site has no capture or offer"
+        ],
+        "evidence": "INFERRED"
+      },
+      "base": {
+        "monthly_orders": 6,
+        "average_order_value": 17,
+        "monthly_gross": 102,
+        "monthly_contribution": 93.9,
+        "assumptions": [
+          "Hypothesis only: holiday and spring market seasons drive modest organic sales"
+        ],
+        "evidence": "INFERRED"
+      },
+      "upside": {
+        "monthly_orders": 25,
+        "average_order_value": 20,
+        "monthly_gross": 500,
+        "monthly_contribution": 462.5,
+        "assumptions": [
+          "Hypothesis only: Pinterest + SEO for bread pricing terms; bundle lifts AOV"
+        ],
+        "evidence": "INFERRED"
+      }
+    }
+  },
+  "budget": {
+    "ceiling_cents": null,
+    "state": "owner_to_set",
+    "spend_authorized": false
+  },
+  "permissions": {
+    "allowed": [
+      "Local development and tests",
+      "Generating product files and previews",
+      "Staging preview deploys",
+      "Draft content and copy",
+      "Test-mode checkout once the owner has connected the account",
+      "Writing FORGE database records for this build"
+    ],
+    "requires_owner_approval": [
+      "Production deploy or launch",
+      "New accounts or credential connections",
+      "Any purchase or subscription",
+      "Turning on live checkout",
+      "Price changes",
+      "Publishing outside approved campaigns",
+      "Changes to customer data or permissions"
+    ],
+    "prohibited": [
+      "Fabricated testimonials, reviews, sales counts or results",
+      "Unlicensed images, fonts or text",
+      "Copying another designer's or competitor's work",
+      "Spam, purchased lists or prohibited scraping",
+      "Storing secrets in the repo or dashboard",
+      "Writing sales rows to the ledger",
+      "Touching businesses outside FORGE"
+    ]
+  },
+  "stages": [
+    {
+      "stage": "research",
+      "goal": "Confirm the Audience & Market Brief is fit to build from.",
+      "depends_on": [],
+      "inputs": [
+        "Audience & Market Brief (exact version and content hash)",
+        "Opportunity record, if this build came from the Scout"
+      ],
+      "tasks": [
+        {
+          "id": "research-1",
+          "title": "Check every claim the blueprint relies on has an evidence label and a source",
+          "role": "Market & Opportunity Intelligence",
+          "kind": "deterministic"
+        },
+        {
+          "id": "research-2",
+          "title": "Independent research review of the brief",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "B0 gate receipt"
+      ],
+      "gates": [
+        "B0"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "blueprint",
+      "goal": "Agree the complete plan: offer, products, brand, pages, channels, integrations, gates and budget.",
+      "depends_on": [
+        "research"
+      ],
+      "inputs": [
+        "B0 receipt",
+        "This Launch Blueprint"
+      ],
+      "tasks": [
+        {
+          "id": "blueprint-1",
+          "title": "Generate blueprint deterministically from the brief",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "blueprint-2",
+          "title": "Validate against launch-blueprint.schema.json and semantic rules",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "blueprint-3",
+          "title": "Independent blueprint review",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Approved blueprint version",
+        "B1 gate receipt"
+      ],
+      "gates": [
+        "B1"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "products",
+      "goal": "Build every paid and free product to its spec, reproducibly.",
+      "depends_on": [
+        "blueprint"
+      ],
+      "inputs": [
+        "Product specs in this blueprint",
+        "Brand tokens once available"
+      ],
+      "tasks": [
+        {
+          "id": "products-1",
+          "title": "Loaf Ledger Bread & Market Pricing Workbook: Specify sheets and formulas from must_include",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-2",
+          "title": "Loaf Ledger Bread & Market Pricing Workbook: Build workbook generator script (reproducible build)",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-3",
+          "title": "Loaf Ledger Bread & Market Pricing Workbook: Write test cases and run them",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-4",
+          "title": "Loaf Ledger Bread & Market Pricing Workbook: Render previews of real sheets for the sales page",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-5",
+          "title": "Workbook + label and price-sign pack: Build components first",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-6",
+          "title": "Workbook + label and price-sign pack: Assemble archive with manifest and hashes",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-7",
+          "title": "Workbook + label and price-sign pack: Check bundle price against component prices",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-8",
+          "title": "Record file hashes of reviewed deliverables",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "products-9",
+          "title": "Independent product review (formulas, contents, file integrity)",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Product files with hashes",
+        "Previews rendered from the real files",
+        "G4 receipts"
+      ],
+      "gates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G13"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "brand",
+      "goal": "Create a distinctive, audience-specific brand system with licensed assets.",
+      "depends_on": [
+        "blueprint"
+      ],
+      "inputs": [
+        "Brand direction claims from the brief",
+        "Customer language"
+      ],
+      "tasks": [
+        {
+          "id": "brand-1",
+          "title": "Propose 2 visual directions grounded in the brief",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "brand-2",
+          "title": "Build tokens (type, colour, spacing) and component samples",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "brand-3",
+          "title": "Record every asset in SOURCES_AND_LICENSES.md",
+          "role": "Website, Brand & CX",
+          "kind": "deterministic"
+        },
+        {
+          "id": "brand-4",
+          "title": "Independent visual and licence review",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Brand tokens",
+        "Asset licence ledger",
+        "G2 and G8 receipts"
+      ],
+      "gates": [
+        "G2",
+        "G8"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "website",
+      "goal": "Build every page in the page map on a staging preview.",
+      "depends_on": [
+        "brand",
+        "products"
+      ],
+      "inputs": [
+        "Page map",
+        "Sales framework",
+        "Brand tokens",
+        "Product previews"
+      ],
+      "tasks": [
+        {
+          "id": "website-1",
+          "title": "Build pages from the page map in the site template",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "website-2",
+          "title": "Write copy to the Promise, Pain, Proof, Plan, Picture framework using only genuine proof",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "website-3",
+          "title": "Technical SEO: canonical, sitemap, robots, JSON-LD",
+          "role": "Marketing & Distribution",
+          "kind": "deterministic"
+        },
+        {
+          "id": "website-4",
+          "title": "Deploy to a staging preview (no production)",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "website-5",
+          "title": "Independent rendered-page review at 320, 390 and 1366 px",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Staging preview URL",
+        "Crawl report",
+        "Screenshots",
+        "Gate receipts"
+      ],
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G8",
+        "G9",
+        "G12",
+        "G15"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "integrations",
+      "goal": "Wire checkout, delivery, ledger, email and analytics in test mode.",
+      "depends_on": [
+        "website"
+      ],
+      "inputs": [
+        "Integration list",
+        "Shared components: checkout button, email capture, ledger beacon"
+      ],
+      "tasks": [
+        {
+          "id": "integrations-1",
+          "title": "Place shared checkout, email and beacon components",
+          "role": "Business Operations, Finance & Infrastructure",
+          "kind": "deterministic"
+        },
+        {
+          "id": "integrations-2",
+          "title": "Run a test-mode purchase end to end (webhook, ledger row, delivery email, file opens, refund)",
+          "role": "Business Operations, Finance & Infrastructure",
+          "kind": "deterministic"
+        },
+        {
+          "id": "integrations-3",
+          "title": "Write legal pages with the owner's operator name and jurisdiction",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "integrations-4",
+          "title": "Owner connects or approves: Lemon Squeezy",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-5",
+          "title": "Owner connects or approves: Lemon Squeezy file delivery",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-6",
+          "title": "Owner connects or approves: FORGE ledger (Worker + D1)",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-7",
+          "title": "Owner connects or approves: MailerLite",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-8",
+          "title": "Owner connects or approves: Google Search Console",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-9",
+          "title": "Owner connects or approves: Cloudflare Pages",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-10",
+          "title": "Owner connects or approves: Pinterest",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-11",
+          "title": "Owner connects or approves: Instagram",
+          "role": "Owner",
+          "kind": "owner"
+        }
+      ],
+      "outputs": [
+        "Test-mode order evidence",
+        "Legal pages",
+        "G5, G6, G7, G12 receipts"
+      ],
+      "gates": [
+        "G5",
+        "G6",
+        "G7",
+        "G12"
+      ],
+      "owner_approvals": [
+        "Lemon Squeezy",
+        "Lemon Squeezy file delivery",
+        "FORGE ledger (Worker + D1)",
+        "MailerLite",
+        "Google Search Console",
+        "Cloudflare Pages",
+        "Pinterest",
+        "Instagram"
+      ]
+    },
+    {
+      "stage": "marketing",
+      "goal": "Prepare launch channels with owners, cadences, receipts and heartbeats.",
+      "depends_on": [
+        "website"
+      ],
+      "inputs": [
+        "Channel plan",
+        "Seasonal windows from the brief"
+      ],
+      "tasks": [
+        {
+          "id": "marketing-1",
+          "title": "Prepare first content batch per launch channel from the brief",
+          "role": "Marketing & Distribution",
+          "kind": "model"
+        },
+        {
+          "id": "marketing-2",
+          "title": "Register each scheduled job with owner, cost cap, retry budget, kill switch",
+          "role": "Business Operations, Finance & Infrastructure",
+          "kind": "deterministic"
+        },
+        {
+          "id": "marketing-3",
+          "title": "Force one failure per job and confirm the watchdog raises an alert",
+          "role": "Independent QA",
+          "kind": "deterministic"
+        },
+        {
+          "id": "marketing-4",
+          "title": "Owner approves channel account or publishing: Organic search",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "marketing-5",
+          "title": "Owner approves channel account or publishing: Pinterest",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "marketing-6",
+          "title": "Owner approves channel account or publishing: Instagram",
+          "role": "Owner",
+          "kind": "owner"
+        }
+      ],
+      "outputs": [
+        "Content batch",
+        "Registry entries",
+        "G10, G11, G14 receipts"
+      ],
+      "gates": [
+        "G10",
+        "G11",
+        "G14"
+      ],
+      "owner_approvals": [
+        "Organic search",
+        "Pinterest",
+        "Instagram"
+      ]
+    },
+    {
+      "stage": "testing",
+      "goal": "Prove the whole customer journey works on staging, from first visit to delivered file.",
+      "depends_on": [
+        "integrations",
+        "marketing"
+      ],
+      "inputs": [
+        "Staging preview",
+        "Test-mode checkout"
+      ],
+      "tasks": [
+        {
+          "id": "testing-1",
+          "title": "Full customer-journey walkthrough on phone and desktop",
+          "role": "Independent QA",
+          "kind": "model"
+        },
+        {
+          "id": "testing-2",
+          "title": "Confirm the change is a reviewed commit with a documented rollback",
+          "role": "Independent QA",
+          "kind": "deterministic"
+        }
+      ],
+      "outputs": [
+        "Journey evidence",
+        "G1, G5, G13 receipts"
+      ],
+      "gates": [
+        "G1",
+        "G5",
+        "G13"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "launch_readiness",
+      "goal": "Assemble every gate receipt and present the launch decision to the owner. FORGE never launches on its own.",
+      "depends_on": [
+        "testing"
+      ],
+      "inputs": [
+        "All gate receipts",
+        "Owner test purchase and refund per product (tagged owner test)"
+      ],
+      "tasks": [
+        {
+          "id": "launch_readiness-1",
+          "title": "Compile the launch readiness report from receipts",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "launch_readiness-2",
+          "title": "Owner decides whether to launch",
+          "role": "Owner",
+          "kind": "owner"
+        }
+      ],
+      "outputs": [
+        "Launch readiness report"
+      ],
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15"
+      ],
+      "owner_approvals": [
+        "Production deploy and launch"
+      ]
+    }
+  ],
+  "done_criteria": [
+    "Every required page passes its gates on a staging preview",
+    "Every paid product passes G4 and its delivered file hash equals the reviewed file",
+    "A test-mode purchase reaches the ledger with the right vertical, sends the delivery email, and the file opens; refund recorded",
+    "Measurement live: beacons and sales attributed to this niche",
+    "At least one launch channel prepared with receipts and a heartbeat-covered schedule",
+    "All launch_readiness gates PASS with independent receipts",
+    "Owner has explicitly approved the launch"
+  ],
+  "unknowns": [
+    {
+      "field": "offer_ladder.core.price",
+      "statement": "$17 for \"Bread & Market Pricing Workbook\" is a hypothesis (INFERRED), not a tested price.",
+      "resolve_by": "Owner sets launch price; falsifying test decides changes"
+    },
+    {
+      "field": "products.prd_loaf-ledger_workbook-label-and-price-sign-pack.must_include",
+      "statement": "The brief gives no contents for \"Workbook + label and price-sign pack\".",
+      "resolve_by": "Product & Offer proposes contents; reviewed at B1"
+    },
+    {
+      "field": "offer_ladder.bundle.price",
+      "statement": "$24 for \"Workbook + label and price-sign pack\" is a hypothesis (INFERRED), not a tested price.",
+      "resolve_by": "Owner sets launch price; falsifying test decides changes"
+    },
+    {
+      "field": "channel_plan.communities-fresh-loaf-reddit",
+      "statement": "Fit for Communities (Fresh Loaf, Reddit) is unknown.",
+      "resolve_by": "Measure after launch"
+    },
+    {
+      "field": "source_brief.status",
+      "statement": "Brief 1.0.2 is draft; the research stage needs an independent B0 review.",
+      "resolve_by": "Independent QA"
+    },
+    {
+      "field": "brief.open_questions",
+      "statement": "Does the Loaf Ledger spreadsheet James remembers exist anywhere (not found on PC or Drive on 2026-11-10)?",
+      "resolve_by": "Owner or Intelligence"
+    },
+    {
+      "field": "brief.open_questions",
+      "statement": "Should Loaf Ledger target bread sellers only, or also cakes?",
+      "resolve_by": "Owner or Intelligence"
+    },
+    {
+      "field": "budget.ceiling_cents",
+      "statement": "No budget ceiling set for this build.",
+      "resolve_by": "Owner"
+    }
+  ],
+  "changelog": [
+    {
+      "version": "1.0.1",
+      "date": "2026-11-10",
+      "change": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap)."
+    }
+  ]
+}

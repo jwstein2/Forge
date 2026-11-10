@@ -1,0 +1,27 @@
+{
+  "niche": "bidline",
+  "version": "0.1.0",
+  "status": "PROPOSED",
+  "note": "Brand stage proposal. G2 visual review and G8 licence review NOT RUN. No images or webfonts are used, so there are no third-party assets to license.",
+  "basis_claim_ids": ["c_bl_vis_practical", "c_bl_vis_excel"],
+  "direction": "Job-site practical, not SaaS: graph-paper background, charcoal ink, kraft panels, a carpenter-pencil orange for actions, tabular numbers like a takeoff sheet.",
+  "fonts": {
+    "heading": "\"Roboto Condensed\", \"Arial Narrow\", \"Helvetica Neue Condensed\", \"Liberation Sans Narrow\", sans-serif-condensed, sans-serif",
+    "body": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Liberation Sans\", sans-serif",
+    "numeric": "ui-monospace, \"SF Mono\", \"Cascadia Mono\", Consolas, \"Liberation Mono\", monospace"
+  },
+  "base_size_px": 17,
+  "radius_px": 3,
+  "motif": "graph-paper",
+  "colors": {
+    "bg": "#F5F3EE",
+    "surface": "#FFFFFF",
+    "ink": "#1E2226",
+    "muted": "#4F565D",
+    "line": "#D9D4C8",
+    "accent": "#A84C0B",
+    "accent_ink": "#FFFFFF",
+    "secondary": "#2F3B45",
+    "highlight": "#EADFC9"
+  }
+}

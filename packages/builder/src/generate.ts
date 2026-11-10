@@ -110,7 +110,8 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
   const proofCandidates = (rec.evidence ?? []).filter((c) => c.evidence === "VERIFIED");
   if (!outcomes.length) unknowns.push({ field: "sales_framework.promise", statement: "The brief has no desired outcomes to ground the promise.", resolve_by: "Intelligence adds desired_outcomes" });
   const promiseBasis = outcomes.slice(0, 1);
-  const pictureBasis = outcomes.length > 1 ? outcomes.slice(1, 2) : outcomes.slice(0, 1);
+  // The picture never repeats the promise; with a single outcome it stays a copy gap for the website stage.
+  const pictureBasis = outcomes.slice(1, 2);
 
   // ---------- pages ----------
   const pages: PageSpec[] = [

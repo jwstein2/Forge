@@ -15,7 +15,8 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json",
     "blueprint": "node --disable-warning=ExperimentalWarning --experimental-strip-types bin/blueprint.ts",
-    "blueprints": "for n in bidline quilt-plan-kit loaf-ledger; do node --disable-warning=ExperimentalWarning --experimental-strip-types bin/blueprint.ts test/fixtures/$n.brief.json --registry ../../registry/products.json || exit 1; done"
+    "blueprints": "for n in bidline quilt-plan-kit loaf-ledger; do node --disable-warning=ExperimentalWarning --experimental-strip-types bin/blueprint.ts test/fixtures/$n.brief.json --registry ../../registry/products.json --version 1.0.1 --supersedes-previous || exit 1; done",
+    "scaffold": "node --disable-warning=ExperimentalWarning --experimental-strip-types bin/scaffold.ts"
   },
   "dependencies": {
     "@cfworker/json-schema": "^4.1.6",

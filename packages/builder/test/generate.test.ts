@@ -28,8 +28,11 @@ describe("blueprint generator on the three real v1 briefs", () => {
     });
 
     it(`${niche}: committed blueprint matches a fresh generation (no drift)`, async () => {
-      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.0.json"), "utf8"));
-      const fresh = await generateBlueprint(loadBrief(niche), { registryProducts: registryProducts() });
+      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.1.json"), "utf8"));
+      const fresh = await generateBlueprint(loadBrief(niche), {
+        registryProducts: registryProducts(), version: "1.0.1", supersedes: `bp_${niche}_v1-0-0`,
+        changelog: "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap).",
+      });
       expect(await contentHash(committed)).toBe(await contentHash(fresh));
     });
   }
