@@ -48,6 +48,24 @@ describe("model spend guard", () => {
     expect(a).toEqual({ severity: "warning", needs_owner: 1, state: "open" });
     expect(await tick(env.DB, env, hs, { now })).toEqual([]); // not runnable again this month
   });
+  it("counts caps still reserved by other authorised, unfinished model jobs (QA-006 R1)", async () => {
+    const { env } = await makeEnv(); const hs = new Map([["test.model_job", modelJob(300)]]);
+    await usage(env.DB, "2026-11-05T00:00:00Z", 1000);
+    const other = await enqueue(env.DB, hs, { kind: "test.model_job", createdBy: "t", runAt: "2099-01-01T00:00:00Z" });
+    await env.DB.prepare(`INSERT INTO job_events (id,job_id,at,type,detail) VALUES ('jev_x',?,?,'spend_authorized','{}')`).bind(other.id, now.toISOString()).run();
+    const { id } = await enqueue(env.DB, hs, { kind: "test.model_job", createdBy: "t", runAt: now.toISOString() });
+    // $10 used + $3 reserved + $3 asked > $15
+    expect(await tick(env.DB, env, hs, { now })).toEqual([{ jobId: id, outcome: "deferred_budget" }]);
+  });
+  it("does not run a model job when usage cannot be read, and does not burn an attempt (QA-006 R1)", async () => {
+    const { env } = await makeEnv(); const hs = new Map([["test.model_job", modelJob(300)]]);
+    const { id } = await enqueue(env.DB, hs, { kind: "test.model_job", createdBy: "t", runAt: now.toISOString() });
+    await env.DB.prepare(`ALTER TABLE op_llm_calls RENAME COLUMN cost_cents TO cost_cents_x`).run(); // table present, read fails
+    expect(await tick(env.DB, env, hs, { now })).toEqual([{ jobId: id, outcome: "spend_unverified" }]);
+    expect(await getJob(env.DB, id)).toMatchObject({ status: "queued", attempts: 0 });
+    await env.DB.prepare(`DROP TABLE op_llm_calls`).run(); // table absent: no recorded usage yet, job may run
+    expect((await tick(env.DB, env, hs, { now: new Date(now.getTime() + 6 * 60_000) }))[0]!.outcome).toBe("succeeded");
+  });
   it("fails a model job with no cost cap: unknown spend cannot be shown to fit", async () => {
     const { env } = await makeEnv(); const hs = new Map([["test.model_job", modelJob()]]);
     const { id } = await enqueue(env.DB, hs, { kind: "test.model_job", createdBy: "t", runAt: now.toISOString() });
@@ -76,5 +94,12 @@ describe("ledger.sync runs the data controls", () => {
     await runControlsOnDb(env.DB, [{ id: "order_created:1", event: "order_created", order_id: "1", test_mode: 0, owner_test: 0, currency: "USD", total_cents: 800, tax_cents: 0, refunded_cents: 0, product: "Mystery", created_at: "2026-11-10T00:00:00Z", vertical: "unknown" }], new Date());
     expect((await env.DB.prepare(`SELECT severity FROM alerts WHERE dedupe_key='fin:ledger:unattributed:1'`).first<any>()).severity).toBe("critical");
     expect((await env.DB.prepare(`SELECT state FROM alerts WHERE id='x'`).first<any>()).state).toBe("open");
+  });
+  it("an empty ledger read does not resolve open ledger alerts (QA-006 R1)", async () => {
+    const { env } = await makeEnv();
+    const sale = { id: "order_created:1", event: "order_created", order_id: "1", test_mode: 0, owner_test: 0, currency: "USD", total_cents: 800, tax_cents: 0, refunded_cents: 0, product: "Mystery", created_at: "2026-11-10T00:00:00Z", vertical: "unknown" };
+    await runControlsOnDb(env.DB, [sale], new Date());
+    await runControlsOnDb(env.DB, [], new Date());
+    expect((await env.DB.prepare(`SELECT state FROM alerts WHERE dedupe_key='fin:ledger:unattributed:1'`).first<any>()).state).toBe("open");
   });
 });

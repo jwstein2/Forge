@@ -17,7 +17,7 @@
  */
 import type { Env } from "../lib/env.ts";
 import { newId, nowIso, parseJson } from "../lib/util.ts";
-import { API_ENVELOPE_BUDGET_ID, authorizeSpend, defaultCapFor, monthWindow, resolveJobPolicy } from "@forge/controls/engine";
+import { API_ENVELOPE_BUDGET_ID, authorizeSpend, defaultCapFor, isMissingTable, monthWindow, resolveJobPolicy } from "@forge/controls/engine";
 
 export interface StepContext {
   db: D1Database; env: Env; jobId: string; input: Record<string, unknown>;
@@ -203,14 +203,47 @@ export async function runJob(db: D1Database, env: Env, handlers: Map<string, Han
 interface BudgetRow { id: string; scope: string; ceiling_cents: number; approved_cents: number; spent_cents: number; evidence: string; notes: string | null }
 
 /** Returns "ok", or the outcome after deferring/failing the job. Envelope exhaustion defers to next month; anything unprovable fails. */
-async function modelSpendCheck(db: D1Database, job: JobRow, now: Date): Promise<"ok" | "deferred_budget" | "failed"> {
+/**
+ * Month-to-date model spend from op_llm_calls. A missing table (operator migration not applied) means no recorded
+ * usage yet; any other read error is thrown so callers fail closed (QA-006 R1).
+ */
+export async function modelUsageMonthToDate(db: D1Database, now: Date): Promise<number> {
+  const w = monthWindow(now);
+  try {
+    return Math.ceil(Number((await db.prepare(`SELECT COALESCE(SUM(cost_cents),0) AS c FROM op_llm_calls WHERE at >= ? AND at < ?`).bind(w.start, w.end).first<{ c: number }>())?.c ?? 0));
+  } catch (e) { if (isMissingTable(e)) return 0; throw e; }
+}
+
+/**
+ * Cents still reserved by other model jobs that passed the spend guard and have not finished: their cap minus what
+ * they have already recorded in op_llm_calls. Without this, jobs authorised together could jointly exceed the envelope.
+ */
+export async function reservedModelCents(db: D1Database, excludeJobId: string): Promise<number> {
+  const unfinished = `j.status IN ('queued','running','waiting_approval') AND j.id <> ? AND j.cost_cap_cents IS NOT NULL
+    AND EXISTS (SELECT 1 FROM job_events e WHERE e.job_id = j.id AND e.type = 'spend_authorized')`;
+  try {
+    return Math.ceil(Number((await db.prepare(`SELECT COALESCE(SUM(MAX(0, j.cost_cap_cents - COALESCE((SELECT SUM(c.cost_cents) FROM op_llm_calls c WHERE c.job_id = j.id), 0))), 0) AS r
+      FROM jobs j WHERE ${unfinished}`).bind(excludeJobId).first<{ r: number }>())?.r ?? 0));
+  } catch (e) {
+    if (!isMissingTable(e)) throw e;
+    return Math.ceil(Number((await db.prepare(`SELECT COALESCE(SUM(j.cost_cap_cents), 0) AS r FROM jobs j WHERE ${unfinished}`).bind(excludeJobId).first<{ r: number }>())?.r ?? 0));
+  }
+}
+
+async function modelSpendCheck(db: D1Database, job: JobRow, now: Date): Promise<"ok" | "deferred_budget" | "spend_unverified" | "failed"> {
   const b = await db.prepare(`SELECT * FROM budgets WHERE id = ?`).bind(API_ENVELOPE_BUDGET_ID).first<BudgetRow>();
   const budgets = b ? [{ id: b.id, scope: b.scope, ceilingCents: b.ceiling_cents, approvedCents: b.approved_cents, spentCents: b.spent_cents, evidence: b.evidence as "VERIFIED", notes: b.notes }] : [];
   const w = monthWindow(now);
-  let mtd = 0;
+  let mtd: number;
   try {
-    mtd = Math.ceil(Number((await db.prepare(`SELECT COALESCE(SUM(cost_cents),0) AS c FROM op_llm_calls WHERE at >= ? AND at < ?`).bind(w.start, w.end).first<{ c: number }>())?.c ?? 0));
-  } catch { mtd = 0; } // op_llm_calls absent (operator migration not applied): no recorded usage yet
+    mtd = (await modelUsageMonthToDate(db, now)) + (await reservedModelCents(db, job.id));
+  } catch (e) {
+    // Usage could not be read: do not run (fail closed); try again in 5 minutes without spending an attempt.
+    const retryAt = new Date(now.getTime() + 5 * 60_000).toISOString(); const msg = `spend guard: model usage unreadable (${String((e as Error)?.message ?? e).slice(0, 120)})`;
+    await db.prepare(`UPDATE jobs SET status='queued', next_run_at=?, attempts=attempts-1, lease_owner=NULL, lease_expires_at=NULL, error=?, updated_at=? WHERE id=?`).bind(retryAt, msg, nowIso(), job.id).run();
+    await event(db, job.id, "spend_unverified", { until: retryAt, error: msg });
+    return "spend_unverified";
+  }
   const d = authorizeSpend({ kind: "model_usage", budgetId: API_ENVELOPE_BUDGET_ID, vendor: "model", amountCents: job.cost_cap_cents, jobId: job.id }, budgets, [], now, mtd);
   if (d.allowed) { await event(db, job.id, "spend_authorized", { code: d.code, remainingCents: d.remainingCents }); return "ok"; }
   const at = nowIso();

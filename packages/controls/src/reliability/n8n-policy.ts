@@ -98,7 +98,8 @@ const reachable = (wf: N8nWorkflow, start: string): Set<string> => {
 
 const SAFE_TYPES = /\.(code|crypto|if|filter|switch|set|respondToWebhook|noOp|merge|stopAndError|dateTime)$/i;
 function isSideEffect(n: N8nNode): boolean {
-  if (/\.dataTable$/i.test(n.type)) return !["get", "rowExists", "rowNotExists", undefined].includes(n.parameters?.operation);
+  // Only explicit read operations are safe; a missing operation is treated as a write (QA-006 R1: fail closed).
+  if (/\.dataTable$/i.test(n.type)) return !["get", "rowExists", "rowNotExists"].includes(n.parameters?.operation);
   return !SAFE_TYPES.test(n.type);
 }
 /** A gate verifies a signature if it compares the output of an upstream HMAC node (by its dataPropertyName), or is a Code node that computes an HMAC and throws/returns nothing on mismatch. */

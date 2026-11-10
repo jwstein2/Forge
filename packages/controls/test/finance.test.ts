@@ -103,12 +103,13 @@ describe("spend guard: default deny, ceiling is not authorization", () => {
     expect(authorizeSpend(cash, budgets, [], now)).toMatchObject({ allowed: false, code: "approval_required" });
   });
   it("allows a bounded, matching, owner-decided, unexpired approval once", () => {
-    expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [appr({})], now).allowed).toBe(true);
+    expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [appr({})], now, 0, {}).allowed).toBe(true);
   });
   it.each([
     ["pending", appr({ status: "pending", decidedBy: null }), "approval_not_granted"],
     ["expired", appr({ expiresAt: "2026-11-01T00:00:00Z" }), "approval_expired"],
     ["without expiry (QA-006 S4)", appr({ expiresAt: null }), "approval_no_expiry"],
+    ["without a decision time (QA-006 R1 S6)", appr({ decidedAt: null, expiresAt: "2099-01-01T00:00:00Z" }), "approval_undated"],
     ["longer than 90 days", appr({ expiresAt: "2027-03-01T00:00:00Z" }), "approval_too_long"],
     ["for another vendor", appr({ boundary: { budgetId: "bud_forge", vendor: "Namecheap", maxCents: 1100 } }), "approval_scope"],
     ["missing vendor (QA-006 S3)", appr({ boundary: { budgetId: "bud_forge", maxCents: 5000 } }), "approval_unbounded"],
@@ -116,24 +117,27 @@ describe("spend guard: default deny, ceiling is not authorization", () => {
     ["without an amount", appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar" } }), "approval_unbounded"],
     ["too small", appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1000 } }), "approval_amount"],
   ])("denies when the approval is %s", (_n, a, code) => {
-    expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [a], now).code).toBe(code);
+    expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [a], now, 0, {}).code).toBe(code);
   });
   it("a one-off approval is consumed after one purchase (QA-006 S2)", () => {
     expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [appr({})], now, 0, { apr_1: { count: 1, cents: 1100 } }).code).toBe("approval_used");
+  });
+  it("cash is denied when prior use is not supplied, so a one-off cannot be reused by omission (QA-006 R1 S5)", () => {
+    expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [appr({})], now).code).toBe("usage_unknown");
   });
   it("recurring approvals cap each charge and the running total", () => {
     const a = appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100, recurring: true, maxTotalCents: 3300 } });
     const r = { ...cash, recurring: true, approvalId: "apr_1" };
     expect(authorizeSpend(r, budgets, [a], now, 0, { apr_1: { count: 2, cents: 2200 } }).allowed).toBe(true);
     expect(authorizeSpend(r, budgets, [a], now, 0, { apr_1: { count: 3, cents: 3300 } }).code).toBe("approval_amount");
-    expect(authorizeSpend(r, budgets, [appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100, recurring: true } })], now).code).toBe("approval_unbounded");
+    expect(authorizeSpend(r, budgets, [appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100, recurring: true } })], now, 0, {}).code).toBe("approval_unbounded");
   });
   it("an approval cannot lift the ceiling", () => {
     const big = { ...cash, amountCents: 200000, approvalId: "apr_1" };
-    expect(authorizeSpend(big, budgets, [appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 300000 } })], now).code).toBe("ceiling");
+    expect(authorizeSpend(big, budgets, [appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 300000 } })], now, 0, {}).code).toBe("ceiling");
   });
   it("recurring charges need a recurring approval; unknown amounts are denied", () => {
-    expect(authorizeSpend({ ...cash, recurring: true, approvalId: "apr_1" }, budgets, [appr({})], now).code).toBe("approval_recurring");
+    expect(authorizeSpend({ ...cash, recurring: true, approvalId: "apr_1" }, budgets, [appr({})], now, 0, {}).code).toBe("approval_recurring");
     expect(authorizeSpend({ ...cash, amountCents: null, approvalId: "apr_1" }, budgets, [appr({})], now).code).toBe("unknown_amount");
   });
   it("model usage runs inside the $15 monthly envelope and stops at it", () => {

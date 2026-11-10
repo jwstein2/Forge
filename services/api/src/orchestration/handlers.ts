@@ -1,8 +1,8 @@
 /**
  * Built-in job handlers. Each is deterministic; none spends money or writes outside the FORGE database.
  */
-import { NonRetryableError, type HandlerDef, type StepDef } from "./engine.ts";
-import { monthWindow, runDataControls, toAlertRow, type ProductPrice, type RawSale } from "@forge/controls/engine";
+import { NonRetryableError, modelUsageMonthToDate, type HandlerDef, type StepDef } from "./engine.ts";
+import { runDataControls, toAlertRow, type ProductPrice, type RawSale } from "@forge/controls/engine";
 import { builderHandlers } from "@forge/builder/handlers";
 import { d1Ledger, d1RestLedger, importLedger, snapshotLedger, type LedgerSnapshot } from "../adapters/ledger.ts";
 import { importN8n, liveN8n, snapshotN8n, type N8nSnapshot } from "../adapters/n8n.ts";
@@ -50,9 +50,7 @@ export async function runControlsOnDb(db: D1Database, sales: RawSale[], now: Dat
     .map((p): ProductPrice => ({ id: p.id, nicheId: p.niche_id, name: p.name, tier: p.tier, sitePriceCents: p.site_price_cents, checkoutPriceCents: p.checkout_price_cents, ledgerProductName: p.ledger_product_name, checkoutStatus: p.checkout_status }));
   const budgets = (await db.prepare(`SELECT * FROM budgets`).all<Record<string, any>>()).results
     .map((b) => ({ id: b.id, scope: b.scope, ceilingCents: b.ceiling_cents, approvedCents: b.approved_cents, spentCents: b.spent_cents, evidence: b.evidence, notes: b.notes }));
-  const w = monthWindow(now);
-  let mtd = 0;
-  try { mtd = Math.ceil(Number((await db.prepare(`SELECT COALESCE(SUM(cost_cents),0) AS c FROM op_llm_calls WHERE at >= ? AND at < ?`).bind(w.start, w.end).first<{ c: number }>())?.c ?? 0)); } catch { mtd = 0; }
+  const mtd = await modelUsageMonthToDate(db, now); // throws on a read error (not a missing table): the step retries instead of reporting $0
   const findings = runDataControls({ sales, products, budgets, modelUsageMonthToDateCents: mtd });
   const at = nowIso();
   const stmts = findings.map((f) => { const r = toAlertRow(f, at);
@@ -60,9 +58,11 @@ export async function runControlsOnDb(db: D1Database, sales: RawSale[], now: Dat
       VALUES (?,?,?,?,?,?,'open',?,?,?,?,?) ON CONFLICT(dedupe_key) DO UPDATE SET last_seen=excluded.last_seen, detail=excluded.detail, severity=excluded.severity, needs_owner=excluded.needs_owner,
       state=CASE WHEN alerts.state='acknowledged' THEN 'acknowledged' ELSE 'open' END`)
       .bind(newId("al"), r.severity, r.niche_id, r.source, r.title, r.detail, r.dedupe_key, at, at, r.next_action, r.needs_owner); });
-  // Controls owned by this step (fin:ledger / fin:price / fin:budget) that no longer fire are resolved.
+  // Controls owned by this step (fin:ledger / fin:price / fin:budget) that no longer fire are resolved. An empty ledger
+  // read is not evidence that ledger problems cleared (QA-006 R1), so fin:ledger alerts are left as they are then.
   const keys = findings.map((f) => f.dedupeKey);
-  stmts.push(db.prepare(`UPDATE alerts SET state='resolved', last_seen=? WHERE state <> 'resolved' AND source LIKE 'controls:FIN-%' AND (dedupe_key LIKE 'fin:ledger:%' OR dedupe_key LIKE 'fin:price:%' OR dedupe_key LIKE 'fin:budget:%')
+  const owned = sales.length ? `dedupe_key LIKE 'fin:ledger:%' OR dedupe_key LIKE 'fin:price:%' OR dedupe_key LIKE 'fin:budget:%'` : `dedupe_key LIKE 'fin:price:%' OR dedupe_key LIKE 'fin:budget:%'`;
+  stmts.push(db.prepare(`UPDATE alerts SET state='resolved', last_seen=? WHERE state <> 'resolved' AND source LIKE 'controls:FIN-%' AND (${owned})
     AND dedupe_key NOT IN (SELECT value FROM json_each(?))`).bind(at, JSON.stringify(keys)));
   await db.batch(stmts);
   return { findings: findings.length, critical: findings.filter((f) => f.severity === "critical").length, codes: [...new Set(findings.map((f) => f.code))] };

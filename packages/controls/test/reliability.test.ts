@@ -36,6 +36,13 @@ describe("n8n policy checks on the real workflows (read 2026-11-10)", () => {
     ], connections: { Hook: { main: [[{ node: "H" }]] }, H: { main: [[{ node: "If" }]] }, If: { main: [[{ node: "Mail" }]] } } };
     expect(checkWorkflow(ifUnrelated).map((x) => x.code)).toContain("N8N-P3");
   });
+  it("QA-006 R1: a data-table node with no operation counts as a write, not a read", () => {
+    const wf = (op?: string): N8nWorkflow => ({ id: "dt", name: "Table", nodes: [
+      { name: "Hook", type: "n8n-nodes-base.webhook" }, { name: "Table", type: "n8n-nodes-base.dataTable", parameters: op ? { operation: op } : {} },
+    ], connections: { Hook: { main: [[{ node: "Table" }]] } } });
+    expect(checkWorkflow(wf()).map((x) => x.code)).toContain("N8N-P3");
+    expect(checkWorkflow(wf("get")).map((x) => x.code)).not.toContain("N8N-P3");
+  });
   it("QA-006 N1: cron lists and ranges are counted", () => {
     const wf = (expr: string): N8nWorkflow => ({ id: "c", name: "Cron", nodes: [
       { name: "T", type: "n8n-nodes-base.scheduleTrigger", parameters: { rule: { interval: [{ field: "cronExpression", expression: expr }] } } },

@@ -23,6 +23,9 @@ export interface ApprovalRecord {
 export type ApprovalUsage = Record<string, { count: number; cents: number }>;
 export const MAX_APPROVAL_DAYS = 90;
 export const API_ENVELOPE_ID = "bud_api_month";
+
+/** True when a database error means the table does not exist (as opposed to a read failure, which must fail closed). */
+export const isMissingTable = (e: unknown): boolean => /no such table/i.test(String((e as { message?: string })?.message ?? e));
 export interface SpendRequest {
   kind: "cash" | "model_usage";
   budgetId: string;
@@ -40,7 +43,7 @@ export function utilisation(b: Pick<Budget, "ceilingCents" | "spentCents">): num
   return b.ceilingCents > 0 ? b.spentCents / b.ceilingCents : 1;
 }
 
-export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: ApprovalRecord[], now: Date, monthToDateUsageCents = 0, usage: ApprovalUsage = {}): SpendDecision {
+export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: ApprovalRecord[], now: Date, monthToDateUsageCents = 0, usage?: ApprovalUsage): SpendDecision {
   const deny = (code: string, reason: string, remainingCents: number | null = null): SpendDecision => ({ allowed: false, code, reason, remainingCents });
   const b = budgets.find((x) => x.id === req.budgetId);
   if (!b) return deny("no_budget", `No budget ${req.budgetId}; spend must belong to a recorded budget.`);
@@ -64,13 +67,17 @@ export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: 
   if (a.status !== "approved" || a.decidedBy !== "owner") return deny("approval_not_granted", `Approval ${a.id} is ${a.status}.`, remaining);
   if (!a.expiresAt || !Number.isFinite(Date.parse(a.expiresAt))) return deny("approval_no_expiry", `Approval ${a.id} has no expiry; cash approvals must expire (at most ${MAX_APPROVAL_DAYS} days).`, remaining);
   if (Date.parse(a.expiresAt) <= now.getTime()) return deny("approval_expired", `Approval ${a.id} expired ${a.expiresAt}.`, remaining);
-  if (a.decidedAt && Date.parse(a.expiresAt) - Date.parse(a.decidedAt) > MAX_APPROVAL_DAYS * 864e5) return deny("approval_too_long", `Approval ${a.id} lasts more than ${MAX_APPROVAL_DAYS} days.`, remaining);
+  // QA-006 R1 S6: without a decision time the 90-day limit cannot be checked, so the approval does not count.
+  if (!a.decidedAt || !Number.isFinite(Date.parse(a.decidedAt))) return deny("approval_undated", `Approval ${a.id} has no decision time, so its ${MAX_APPROVAL_DAYS}-day limit cannot be checked.`, remaining);
+  if (Date.parse(a.expiresAt) - Date.parse(a.decidedAt) > MAX_APPROVAL_DAYS * 864e5) return deny("approval_too_long", `Approval ${a.id} lasts more than ${MAX_APPROVAL_DAYS} days.`, remaining);
   const bd = a.boundary ?? {};
   if (!bd.budgetId || !bd.vendor || bd.maxCents == null) return deny("approval_unbounded", `Approval ${a.id} must name a budget, a vendor and a maximum amount.`, remaining);
   if (bd.budgetId !== b.id) return deny("approval_scope", `Approval ${a.id} covers budget ${bd.budgetId}, not ${b.id}.`, remaining);
   if (bd.vendor.toLowerCase() !== req.vendor.toLowerCase()) return deny("approval_scope", `Approval ${a.id} covers ${bd.vendor}, not ${req.vendor}.`, remaining);
   if (req.amountCents > bd.maxCents) return deny("approval_amount", `${fmtUsd(req.amountCents)} exceeds the approved ${fmtUsd(bd.maxCents)}.`, remaining);
   if (req.recurring && !bd.recurring) return deny("approval_recurring", "This is a recurring charge but the approval was for a one-off purchase.", remaining);
+  // QA-006 R1 S5: prior use must be supplied (even as {}); an omitted usage map would let a one-off approval be reused.
+  if (!usage) return deny("usage_unknown", `Prior charges under approval ${a.id} were not supplied, so single use and totals cannot be checked.`, remaining);
   const used = usage[a.id] ?? { count: 0, cents: 0 };
   if (!bd.recurring && used.count > 0) return deny("approval_used", `Approval ${a.id} was for one purchase and has already been used.`, remaining);
   if (bd.recurring) {
