@@ -1,0 +1,1182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.local/schemas/builder/launch-blueprint.schema.json",
+  "title": "FORGE Launch Blueprint",
+  "description": "Versioned plan that turns an Audience & Market Brief into a complete commercial ecosystem. Owned by workstream C (Ecosystem Builder). A blueprint is always PROPOSED; it never launches anything.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "blueprint_id",
+    "niche",
+    "display_name",
+    "version",
+    "supersedes",
+    "status",
+    "implementation_status",
+    "created_at",
+    "approved_by",
+    "generated_by",
+    "business_kind",
+    "source_brief",
+    "opportunity_ref",
+    "launch_policy",
+    "go_hold",
+    "positioning",
+    "offer_ladder",
+    "products",
+    "brand",
+    "sales_framework",
+    "page_map",
+    "channel_plan",
+    "integrations",
+    "measurement",
+    "economics",
+    "budget",
+    "permissions",
+    "stages",
+    "done_criteria",
+    "unknowns",
+    "changelog"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "blueprint_id": {
+      "type": "string",
+      "pattern": "^bp_[a-z0-9-]+_v\\d+-\\d+-\\d+$"
+    },
+    "niche": {
+      "$ref": "#/$defs/slug"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "$ref": "#/$defs/semver"
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "approved",
+        "superseded"
+      ]
+    },
+    "implementation_status": {
+      "const": "PROPOSED",
+      "description": "A blueprint is a plan. Build progress lives in builds/build_stages, never here."
+    },
+    "created_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "approved_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "generated_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tool",
+        "tool_version",
+        "deterministic"
+      ],
+      "properties": {
+        "tool": {
+          "const": "@forge/builder"
+        },
+        "tool_version": {
+          "$ref": "#/$defs/semver"
+        },
+        "deterministic": {
+          "const": true
+        }
+      }
+    },
+    "business_kind": {
+      "enum": [
+        "existing_niche",
+        "new_business"
+      ]
+    },
+    "source_brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "brief_id",
+        "version",
+        "status",
+        "content_hash"
+      ],
+      "properties": {
+        "brief_id": {
+          "type": "string",
+          "pattern": "^brief_"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "status": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "opportunity_ref": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "opportunity_id",
+            "rank",
+            "recommended"
+          ],
+          "properties": {
+            "opportunity_id": {
+              "type": "string",
+              "pattern": "^opp_"
+            },
+            "rank": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "recommended": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
+    "launch_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "auto_launch",
+        "owner_approval_required_for"
+      ],
+      "properties": {
+        "auto_launch": {
+          "const": false,
+          "description": "FORGE never launches a business on its own."
+        },
+        "owner_approval_required_for": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "go_hold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "call",
+        "subject",
+        "rationale",
+        "falsifying_test"
+      ],
+      "properties": {
+        "call": {
+          "enum": [
+            "go",
+            "go_with_changes",
+            "hold",
+            "stop"
+          ]
+        },
+        "subject": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "falsifying_test": {
+          "type": "string"
+        }
+      }
+    },
+    "positioning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "one_line",
+        "primary_segment_id",
+        "segments",
+        "desired_outcomes"
+      ],
+      "properties": {
+        "one_line": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primary_segment_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "priority"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "desired_outcomes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claimRef"
+          }
+        }
+      }
+    },
+    "offer_ladder": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tier",
+          "item",
+          "price",
+          "product_id",
+          "playbook"
+        ],
+        "properties": {
+          "tier": {
+            "type": "string"
+          },
+          "item": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/$defs/price"
+          },
+          "product_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "playbook": {
+            "$ref": "#/$defs/playbook"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "product_id",
+          "name",
+          "tier",
+          "playbook",
+          "format",
+          "price",
+          "target_segment_id",
+          "must_include",
+          "must_not",
+          "deliverables",
+          "gates",
+          "status",
+          "basis",
+          "falsifying_test",
+          "registry_product_id"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "pattern": "^prd_"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "tier": {
+            "type": "string"
+          },
+          "playbook": {
+            "$ref": "#/$defs/playbook"
+          },
+          "format": {
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/$defs/price"
+          },
+          "target_segment_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "must_include": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "must_not": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "file_format",
+                "spec"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string"
+                },
+                "file_format": {
+                  "type": "string"
+                },
+                "spec": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/gateId"
+            },
+            "minItems": 1
+          },
+          "status": {
+            "$ref": "#/$defs/implStatus"
+          },
+          "basis": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/claimRef"
+            }
+          },
+          "falsifying_test": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "registry_product_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Existing registry product this spec builds or replaces (registry/products.json), when exactly one matches."
+          }
+        }
+      }
+    },
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "direction",
+        "requirements",
+        "asset_rights_policy",
+        "status"
+      ],
+      "properties": {
+        "direction": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claimRef"
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "asset_rights_policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "$ref": "#/$defs/implStatus"
+        }
+      }
+    },
+    "sales_framework": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "cta",
+        "objections",
+        "customer_language"
+      ],
+      "properties": {
+        "promise": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "draft",
+            "basis"
+          ],
+          "properties": {
+            "draft": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/claimRef"
+              }
+            }
+          }
+        },
+        "pain": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claimRef"
+          }
+        },
+        "proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allowed_kinds",
+            "items",
+            "status",
+            "rule"
+          ],
+          "properties": {
+            "allowed_kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/claimRef"
+              }
+            },
+            "status": {
+              "enum": [
+                "needs_genuine_proof",
+                "has_candidates"
+              ]
+            },
+            "rule": {
+              "type": "string"
+            }
+          }
+        },
+        "plan": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "picture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "draft",
+            "basis"
+          ],
+          "properties": {
+            "draft": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/claimRef"
+              }
+            }
+          }
+        },
+        "cta": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "label",
+            "product_id"
+          ],
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "product_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "objections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "claim",
+              "response"
+            ],
+            "properties": {
+              "claim": {
+                "$ref": "#/$defs/claimRef"
+              },
+              "response": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "customer_language": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "page_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "purpose",
+          "template",
+          "sections",
+          "required_for_launch",
+          "gates"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "template": {
+            "type": "string"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_for_launch": {
+            "type": "boolean"
+          },
+          "gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/gateId"
+            }
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "channel_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "channel",
+          "fit",
+          "priority",
+          "owner_role",
+          "integration_required",
+          "owner_approval_required",
+          "cadence",
+          "basis"
+        ],
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "fit": {
+            "enum": [
+              "strong",
+              "moderate",
+              "weak",
+              "unknown"
+            ]
+          },
+          "priority": {
+            "enum": [
+              "launch",
+              "after_launch",
+              "hold"
+            ]
+          },
+          "owner_role": {
+            "type": "string"
+          },
+          "integration_required": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner_approval_required": {
+            "type": "boolean"
+          },
+          "cadence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "basis": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/$defs/claimRef"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "integrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "service",
+          "purpose",
+          "status",
+          "owner_approval_required",
+          "shared_component",
+          "note"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/slug"
+          },
+          "service": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "unconnected",
+              "connected",
+              "not_applicable"
+            ]
+          },
+          "owner_approval_required": {
+            "type": "boolean"
+          },
+          "shared_component": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ledger_vertical",
+        "beacon_path_prefix",
+        "kpis",
+        "falsifying_tests"
+      ],
+      "properties": {
+        "ledger_vertical": {
+          "$ref": "#/$defs/slug"
+        },
+        "beacon_path_prefix": {
+          "type": "string",
+          "pattern": "^/"
+        },
+        "kpis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "target",
+              "unit",
+              "state"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "target": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "unit": {
+                "type": "string"
+              },
+              "state": {
+                "const": "unknown"
+              }
+            }
+          }
+        },
+        "falsifying_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "economics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "note",
+        "scenarios"
+      ],
+      "properties": {
+        "note": {
+          "type": "string"
+        },
+        "scenarios": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ceiling_cents",
+        "state",
+        "spend_authorized"
+      ],
+      "properties": {
+        "ceiling_cents": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "state": {
+          "enum": [
+            "owner_to_set",
+            "set"
+          ]
+        },
+        "spend_authorized": {
+          "const": false,
+          "description": "A budget ceiling is a limit, never purchase authorization."
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed",
+        "requires_owner_approval",
+        "prohibited"
+      ],
+      "properties": {
+        "allowed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requires_owner_approval": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "prohibited": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stage",
+          "goal",
+          "depends_on",
+          "inputs",
+          "tasks",
+          "outputs",
+          "gates",
+          "owner_approvals"
+        ],
+        "properties": {
+          "stage": {
+            "$ref": "#/$defs/stage"
+          },
+          "goal": {
+            "type": "string"
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/stage"
+            }
+          },
+          "inputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "title",
+                "role",
+                "kind"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "deterministic",
+                    "model",
+                    "owner"
+                  ]
+                }
+              }
+            }
+          },
+          "outputs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/gateId"
+            },
+            "minItems": 1
+          },
+          "owner_approvals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "minItems": 9,
+      "maxItems": 9
+    },
+    "done_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "statement",
+          "resolve_by"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "resolve_by": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "changelog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "date",
+          "change"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/$defs/semver"
+          },
+          "date": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string"
+          }
+        }
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence": {
+      "enum": [
+        "VERIFIED",
+        "ESTIMATED",
+        "INFERRED",
+        "UNKNOWN"
+      ]
+    },
+    "implStatus": {
+      "enum": [
+        "PROPOSED",
+        "BUILT",
+        "TESTED",
+        "LIVE",
+        "FAILED",
+        "UNVERIFIED"
+      ]
+    },
+    "gateId": {
+      "enum": [
+        "B0",
+        "B1",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "research",
+        "blueprint",
+        "products",
+        "brand",
+        "website",
+        "integrations",
+        "marketing",
+        "testing",
+        "launch_readiness"
+      ]
+    },
+    "playbook": {
+      "enum": [
+        "free-resource",
+        "spreadsheet-template",
+        "printable-pdf",
+        "bundle",
+        "kdp-book",
+        "affiliate-content",
+        "unsupported"
+      ]
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "currency",
+        "evidence"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currency": {
+          "const": "USD"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "const": "UNKNOWN"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "claimRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "statement",
+        "evidence"
+      ],
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    }
+  }
+}
