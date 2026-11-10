@@ -141,7 +141,7 @@ describe("site scaffold generator", () => {
   it("writes a product draft per product that reuses existing registry products", async () => {
     const { r, bp } = await build("quilt-plan-kit");
     for (const p of bp.products) expect(r.files[`_drafts/${p.product_id}/PRODUCT_DRAFT.md`]).toContain("status **PROPOSED**");
-    expect(r.files["_drafts/prd_quilt-plan-kit_quilt-planner-pdf/PRODUCT_DRAFT.md"]).toContain("Builds on existing registry product `prd_qpk_planner`");
+    expect(r.files["_drafts/prd_quilt-plan-kit_the-quilt-planner-printable-pdf/PRODUCT_DRAFT.md"]).toContain("Builds on existing registry product `prd_qpk_planner`");
   });
 
   it("refuses live checkout, a mismatched brand, and an inaccessible palette", async () => {

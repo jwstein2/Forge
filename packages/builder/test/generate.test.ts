@@ -28,14 +28,33 @@ describe("blueprint generator on the three real v1 briefs", () => {
     });
 
     it(`${niche}: committed blueprint matches a fresh generation (no drift)`, async () => {
-      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.2.json"), "utf8"));
+      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.3.json"), "utf8"));
       const fresh = await generateBlueprint(loadBrief(niche), {
-        registryProducts: registryProducts(), version: "1.0.2", supersedes: `bp_${niche}_v1-0-1`,
-        changelog: "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
+        registryProducts: registryProducts(), version: "1.0.3", supersedes: `bp_${niche}_v1-0-2`,
+        changelog: "Existing products use their registry name (what the live site and file call them) instead of the brief's working name; any difference is listed as an unknown (QA-014 B7-1).",
       });
       expect(await contentHash(committed)).toBe(await contentHash(fresh));
     });
   }
+
+  it("names products already on sale by their registry name, keeps the brief name otherwise (QA-014 B7-1)", async () => {
+    const names = async (n: string, o = {}) => (await generateBlueprint(loadBrief(n), { registryProducts: registryProducts(), ...o })).products.map((p) => p.name);
+    const bid = await generateBlueprint(loadBrief("bidline"), { registryProducts: registryProducts() });
+    expect(bid.products[0]!.name).toBe("Bidline Estimating Kit");
+    expect(bid.products[0]!.registry_product_id).toBe("prd_bidline_kit");
+    expect(bid.unknowns.some((u) => u.field.endsWith(".name"))).toBe(false); // brief v1.0.1 already uses the sold name
+    // A brief whose working name differs from the sold product: registry name wins, difference listed.
+    const old = loadBrief("quilt-plan-kit");
+    old.premium_product_recommendation.offer_ladder = old.premium_product_recommendation.offer_ladder.map((t) => t.tier === "entry" ? { ...t, item: "Quilt Planner PDF" } : t);
+    const qpk = await generateBlueprint(old, { registryProducts: registryProducts() });
+    expect(qpk.products.map((p) => p.name)).toContain("The Quilt Planner — Printable PDF");
+    expect(qpk.unknowns.some((u) => u.field.endsWith(".name") && u.statement.includes("Quilt Planner PDF"))).toBe(true);
+    const cur = await generateBlueprint(loadBrief("quilt-plan-kit"), { registryProducts: registryProducts() });
+    expect(cur.unknowns.some((u) => u.field.endsWith(".name"))).toBe(false); // brief v1.0.2 uses the sold name
+    expect(bid.sales_framework.cta.label).toBe("Get the Bidline Estimating Kit");
+    expect(await names("loaf-ledger")).not.toContain("Paid baking spreadsheet"); // registry entry is PROPOSED, not on sale
+    expect((await generateBlueprint(old, { registryProducts: [] })).products.map((p) => p.name)).toContain("Quilt Planner PDF");
+  });
 
   it("classifies the real offer ladders into the right playbooks", async () => {
     const pb = async (n: string) => (await generateBlueprint(loadBrief(n))).offer_ladder.map((t) => `${t.tier}:${t.playbook}`);
