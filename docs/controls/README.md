@@ -9,7 +9,7 @@ Status labels follow the constitution: PROPOSED / BUILT / TESTED / LIVE / FAILED
 
 ```
 npm install
-npm test -w @forge/controls            # 50 tests
+npm test -w @forge/controls            # 86 tests
 npm run typecheck -w @forge/controls
 npm run scan-secrets -w @forge/controls            # tracked + untracked + full git history, redacted output
 npm run backup:plan -w @forge/controls             # prints D1 export commands; changes nothing
@@ -25,7 +25,10 @@ npm run backup:plan -w @forge/controls             # prints D1 export commands; 
 | FIN-RC-01 | Monthly payout reconciliation to the provider export within $0.01; missed webhooks; amount mismatches | G6 | `finance/reconcile.ts` | TESTED (synthetic CSV) | Runs on the owner's Lemon Squeezy CSV until the API is connected |
 | FIN-SPEND | Spend guard: default deny; cash needs a bounded, unexpired owner approval matching budget and vendor; an approval never lifts a ceiling; model usage only inside the $15/month envelope | G14 | `finance/budget.ts` `authorizeSpend` | TESTED | Uses real `registry/budgets.json` |
 | FIN-BG-01..04 | Budget health: 80% warn, 100% block (owner), approved > ceiling, unknown-cost usage rows | G14, G16 | `budgetFindings`, `monthToDate` | TESTED | |
-| FIN-CAP | Default per-run cost caps by run type from the cost model (no default for long-lived Opus wakes) | G11 | `capForRunType` | BUILT | Not yet wired into `enqueue` (platform patch pending) |
+| FIN-CAP | Default per-run cost caps by job kind/run type from the cost model; explicit caps win; unknown kinds uncapped | G11 | `finance/job-policy.ts`; platform `enqueue` | TESTED | Patch 0003: wired into `enqueue` |
+| FIN-SPEND-ENGINE | Model-using jobs run only if their cap fits the remaining $15 envelope (month-to-date from `op_llm_calls`, or the budget's recorded spend if higher); otherwise deferred to next month with an owner alert; uncapped model jobs fail | G14 | platform `runJob` via `@forge/controls/engine` | TESTED | Patch 0003 |
+| CTL-RUN | `ledger.sync` second step runs ledger, price and budget controls and upserts/resolves `controls:FIN-*` alerts | G5, G6, G14 | `controls-run.ts`; platform `handlers.ts` | TESTED | Patch 0003; raises the Bidline price alert from the real registry |
+| QA-REV | Registry of authorised gate-receipt reviewers (independent QA, owner); refuses unknown reviewers, same-workstream review, inactive reviewers, out-of-scope gates and PASS without evidence | G1-G16 | `assurance/reviewers.ts` + `reviewers.json` | TESTED | For the builder and any receipt writer to call |
 | SEC-HDR-API | API headers + audit | G12 | `security/headers.ts` | TESTED | Platform already ships its own middleware (QA-002 R6); this audit function checks it |
 | SEC-HDR-SITE | Cloudflare Pages `_headers` generator: strict CSP from the site's real third parties, inline-script sha256 hashes, embed paths frameable | G12 | `pagesHeadersFile`, `inlineScriptHashes`, `inlineHandlers` | TESTED | Handed to the live-dollar thread (owns the sites) |
 | SEC-SIG | Signed calls v2: timestamp inside the MAC, ±5 min window, ≥32-char secrets, rotation, replay guard | G6, G12 | `security/signing.ts` | TESTED | Patch to platform `/ingest/heartbeat` |
@@ -47,6 +50,12 @@ npm run backup:plan -w @forge/controls             # prints D1 export commands; 
 | Health check emails every 3 h while an outage lasts (up to 8/day) | warning | n8n "QPK · Health check" | live-dollar thread |
 | No n8n workflow sends a heartbeat to FORGE | warning | all scheduled workflows | operations engine (M3) once the FORGE API has a staging URL |
 | Daily report now gated (activity, Monday, failure) and webhook verifies a signature | resolved | same workflow | already fixed by the live-dollar thread |
+
+## QA-006 (2026-11-10) fixed in patch 0003
+L1 owner_test NULL/absent now excluded (matches platform 63cf3d6) with FIN-LI-06/07; L2 test_mode other than exactly 0 excluded and flagged; L3 refunds inherit the order's class; unreadable timestamps (FIN-LI-08) and cumulative over-refunds flagged. S1 model usage only against `bud_api_month`, using max(recorded spend, month-to-date); S2 one-off approvals single-use, recurring ones need `maxTotalCents`; S3 cash approvals must name budget, vendor and amount; S4 approvals must expire within 90 days. K1 scanner now catches camelCase/unquoted/YAML/header assignments, Bearer tokens, bare 64-hex values and Stripe test keys; K2 "test"/"local" excuse values only in test files. N1 cron lists/ranges counted; N2 webhook verification must happen before any side effect, via an IF that compares the HMAC output or a throwing Code check. H1 audit flags scheme-only sources, 'unsafe-eval', default-src *; H2 `_headers` lines over 2,000 characters are refused. Known minor left: history hits report diff-hunk line numbers.
+
+## Weekly summary ownership
+One weekly summary only: the operations engine's `ops.weekly_summary` (stored in `op_summaries`, never emailed) is the owner. Controls findings reach it as alerts. `composeWeekly()` here stays a library function and is not scheduled.
 
 ## Not done here (and why)
 

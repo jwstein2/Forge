@@ -40,16 +40,37 @@ export function scheduleMinutes(n: N8nNode): number | null {
   }
   return best;
 }
+/** How many values a cron field takes within its range (handles *, lists, ranges, steps). */
+function fieldCount(field: string, size: number, lo: number): number {
+  let n = 0;
+  for (const part of field.split(",")) {
+    const [rangeRaw, stepRaw] = part.split("/");
+    const step = stepRaw ? Math.max(1, Number(stepRaw)) : 1;
+    let a = lo, b = lo + size - 1;
+    if (rangeRaw && rangeRaw !== "*") {
+      const [x, y] = rangeRaw.split("-").map(Number);
+      a = x!; b = y ?? (stepRaw ? lo + size - 1 : x!);
+    }
+    if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return NaN;
+    n += Math.floor((b - a) / step) + 1;
+  }
+  return n;
+}
+/** Average minutes between runs for a 5- or 6-field cron expression. */
 function cronMinutes(expr: string): number | null {
   const f = expr.trim().split(/\s+/); if (f.length < 5) return null;
-  const [min, hr, dom, , dow] = f.length === 6 ? f.slice(1) : f;
-  if (min?.startsWith("*/")) return Number(min.slice(2));
-  if (min === "*") return 1;
-  if (hr?.startsWith("*/")) return 60 * Number(hr.slice(2));
-  if (hr === "*") return 60;
-  if (dow && dow !== "*" && dom === "*") return 10080 / Math.max(1, dow.split(",").length);
-  if (dom && dom !== "*") return 43200;
-  return 1440;
+  const [min, hr, dom, mon, dow] = (f.length === 6 ? f.slice(1) : f) as string[];
+  const perHour = fieldCount(min!, 60, 0); const hours = fieldCount(hr!, 24, 0);
+  if (!Number.isFinite(perHour) || !Number.isFinite(hours)) return null;
+  const perDay = perHour * hours;
+  const months = mon === "*" ? 12 : fieldCount(mon!, 12, 1);
+  let daysPerYear: number;
+  if (dom !== "*" && dow === "*") daysPerYear = fieldCount(dom!, 31, 1) * months;
+  else if (dow !== "*" && dom === "*") daysPerYear = (fieldCount(dow!, 7, 0) * 365 / 7) * (months / 12);
+  else daysPerYear = 365 * (months / 12);
+  const runsPerYear = perDay * daysPerYear;
+  if (!Number.isFinite(runsPerYear) || runsPerYear <= 0) return null;
+  return Math.round((365 * 1440) / runsPerYear);
 }
 
 function successors(wf: N8nWorkflow, name: string): string[] {
@@ -74,6 +95,39 @@ const reachable = (wf: N8nWorkflow, start: string): Set<string> => {
   while (q.length) { const x = q.shift()!; if (out.has(x)) continue; out.add(x); q.push(...successors(wf, x)); }
   return out;
 };
+
+const SAFE_TYPES = /\.(code|crypto|if|filter|switch|set|respondToWebhook|noOp|merge|stopAndError|dateTime)$/i;
+function isSideEffect(n: N8nNode): boolean {
+  if (/\.dataTable$/i.test(n.type)) return !["get", "rowExists", "rowNotExists", undefined].includes(n.parameters?.operation);
+  return !SAFE_TYPES.test(n.type);
+}
+/** A gate verifies a signature if it compares the output of an upstream HMAC node (by its dataPropertyName), or is a Code node that computes an HMAC and throws/returns nothing on mismatch. */
+function verifyingGate(wf: N8nWorkflow, n: N8nNode, seenHmacProps: string[]): boolean {
+  if (GATE_TYPES.test(n.type)) return seenHmacProps.some((p) => JSON.stringify(n.parameters ?? {}).includes(p));
+  if (/\.code$/i.test(n.type)) { const js = String(n.parameters?.jsCode ?? ""); return /createHmac|crypto\.subtle/.test(js) && /\bthrow\b|return\s*\[\s*\]/.test(js); }
+  return false;
+}
+/** Side-effect nodes reachable from a webhook on a path that has not yet passed the TRUE branch of a verifying gate. */
+function sideEffectsBeforeVerification(wf: N8nWorkflow, start: string): string[] {
+  const byName = new Map(wf.nodes.map((n) => [n.name, n]));
+  const hits = new Set<string>(); const seen = new Set<string>();
+  const walk = (name: string, props: string[]) => {
+    const k = `${name}|${props.join(",")}`; if (seen.has(k)) return; seen.add(k);
+    const n = byName.get(name); if (!n || n.disabled) return;
+    if (name !== start && isSideEffect(n)) { hits.add(name); return; }
+    const p = /\.crypto$/i.test(n.type) && n.parameters?.action === "hmac" ? [...props, String(n.parameters?.dataPropertyName ?? "data")] : props;
+    const outs = wf.connections[name]?.main ?? [];
+    if (name !== start && verifyingGate(wf, n, p)) {
+      // Only the first (true) output is verified; other outputs continue unverified. A verifying Code node verifies all outputs.
+      if (/\.code$/i.test(n.type)) return;
+      outs.slice(1).forEach((o) => (o ?? []).forEach((c) => walk(c.node, p)));
+      return;
+    }
+    outs.forEach((o) => (o ?? []).forEach((c) => walk(c.node, p)));
+  };
+  walk(start, []);
+  return [...hits];
+}
 
 export function checkWorkflow(wf: N8nWorkflow, opts: { heartbeatUrlPattern?: RegExp } = {}): Finding[] {
   const f: Finding[] = [];
@@ -102,10 +156,9 @@ export function checkWorkflow(wf: N8nWorkflow, opts: { heartbeatUrlPattern?: Reg
     const auth = String(w.parameters?.authentication ?? "none");
     const down = [...reachable(wf, w.name)].map((n) => wf.nodes.find((x) => x.name === n)).filter(Boolean) as N8nNode[];
     const hmacNodes = down.filter((n) => /\.crypto$/i.test(n.type) && n.parameters?.action === "hmac");
-    const codeVerifies = down.some((n) => /\.code$/i.test(n.type) && /createHmac|crypto\.subtle/.test(String(n.parameters?.jsCode ?? "")));
-    const gateAfterHmac = hmacNodes.some((h) => successors(wf, h.name).some((s) => GATE_TYPES.test(wf.nodes.find((x) => x.name === s)?.type ?? "")));
-    if (auth === "none" && !gateAfterHmac && !codeVerifies) f.push({ ...base, code: "N8N-P3", gate: "G12", severity: "critical",
-      title: `${wf.name}: webhook "${w.name}" accepts unauthenticated requests`, detail: "Anyone who learns the URL can trigger it. Verify an HMAC signature (or header auth) and stop before any side effect when it fails.",
+    const exposed = auth === "none" ? sideEffectsBeforeVerification(wf, w.name) : [];
+    if (exposed.length) f.push({ ...base, code: "N8N-P3", gate: "G12", severity: "critical",
+      title: `${wf.name}: webhook "${w.name}" reaches side effects without a signature check`, detail: `Unverified requests can reach: ${exposed.slice(0, 5).join(", ")}. Verify an HMAC signature (or header auth) and stop before any side effect when it fails.`,
       dedupeKey: key(`p3:${w.name}`) });
     for (const h of hmacNodes) {
       const v = String(h.parameters?.value ?? "");

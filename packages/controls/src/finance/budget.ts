@@ -14,10 +14,15 @@ import { fmtUsd, monthWindow } from "./money.ts";
 
 export interface ApprovalRecord {
   id: string; scope: string; status: "pending" | "approved" | "denied" | "expired";
-  decidedBy: string | null; expiresAt: string | null;
-  /** boundary_json: what the owner approved. */
-  boundary: { budgetId?: string; vendor?: string; maxCents?: number; recurring?: boolean } | null;
+  decidedBy: string | null; decidedAt?: string | null; expiresAt: string | null;
+  /** boundary_json: what the owner approved. Cash approvals must name budgetId, vendor and maxCents. One-off approvals are
+   *  single-use; recurring approvals cap each charge at maxCents and all charges at maxTotalCents. */
+  boundary: { budgetId?: string; vendor?: string; maxCents?: number; recurring?: boolean; maxTotalCents?: number } | null;
 }
+/** What has already been spent against each approval (from the platform's spend records). */
+export type ApprovalUsage = Record<string, { count: number; cents: number }>;
+export const MAX_APPROVAL_DAYS = 90;
+export const API_ENVELOPE_ID = "bud_api_month";
 export interface SpendRequest {
   kind: "cash" | "model_usage";
   budgetId: string;
@@ -35,16 +40,19 @@ export function utilisation(b: Pick<Budget, "ceilingCents" | "spentCents">): num
   return b.ceilingCents > 0 ? b.spentCents / b.ceilingCents : 1;
 }
 
-export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: ApprovalRecord[], now: Date, monthToDateUsageCents = 0): SpendDecision {
+export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: ApprovalRecord[], now: Date, monthToDateUsageCents = 0, usage: ApprovalUsage = {}): SpendDecision {
   const deny = (code: string, reason: string, remainingCents: number | null = null): SpendDecision => ({ allowed: false, code, reason, remainingCents });
   const b = budgets.find((x) => x.id === req.budgetId);
   if (!b) return deny("no_budget", `No budget ${req.budgetId}; spend must belong to a recorded budget.`);
   if (req.amountCents == null || !Number.isFinite(req.amountCents) || req.amountCents < 0) return deny("unknown_amount", "Spend without a known amount cannot be shown to fit the budget.");
 
   if (req.kind === "model_usage") {
-    const remaining = b.ceilingCents - monthToDateUsageCents;
-    if (monthToDateUsageCents + req.amountCents > b.ceilingCents)
-      return deny("envelope_exceeded", `Model usage would reach ${fmtUsd(monthToDateUsageCents + req.amountCents)} against the ${fmtUsd(b.ceilingCents)} monthly envelope.`, remaining);
+    // Only the monthly model envelope pre-approves usage. Any other budget needs the cash path (owner approval).
+    if (b.id !== API_ENVELOPE_ID) return deny("wrong_budget", `Model usage is pre-approved only inside ${API_ENVELOPE_ID}, not ${b.id}.`);
+    const used = Math.max(b.spentCents, monthToDateUsageCents);
+    const remaining = b.ceilingCents - used;
+    if (used + req.amountCents > b.ceilingCents)
+      return deny("envelope_exceeded", `Model usage would reach ${fmtUsd(used + req.amountCents)} against the ${fmtUsd(b.ceilingCents)} monthly envelope.`, remaining);
     return { allowed: true, code: "within_envelope", reason: `Inside the pre-approved monthly envelope (${fmtUsd(remaining - req.amountCents)} left).`, remainingCents: remaining - req.amountCents };
   }
 
@@ -54,13 +62,21 @@ export function authorizeSpend(req: SpendRequest, budgets: Budget[], approvals: 
   const a = approvals.find((x) => x.id === req.approvalId);
   if (!a) return deny("approval_missing", `Approval ${req.approvalId} not found.`, remaining);
   if (a.status !== "approved" || a.decidedBy !== "owner") return deny("approval_not_granted", `Approval ${a.id} is ${a.status}.`, remaining);
-  if (a.expiresAt && Date.parse(a.expiresAt) <= now.getTime()) return deny("approval_expired", `Approval ${a.id} expired ${a.expiresAt}.`, remaining);
+  if (!a.expiresAt || !Number.isFinite(Date.parse(a.expiresAt))) return deny("approval_no_expiry", `Approval ${a.id} has no expiry; cash approvals must expire (at most ${MAX_APPROVAL_DAYS} days).`, remaining);
+  if (Date.parse(a.expiresAt) <= now.getTime()) return deny("approval_expired", `Approval ${a.id} expired ${a.expiresAt}.`, remaining);
+  if (a.decidedAt && Date.parse(a.expiresAt) - Date.parse(a.decidedAt) > MAX_APPROVAL_DAYS * 864e5) return deny("approval_too_long", `Approval ${a.id} lasts more than ${MAX_APPROVAL_DAYS} days.`, remaining);
   const bd = a.boundary ?? {};
-  if (bd.budgetId && bd.budgetId !== b.id) return deny("approval_scope", `Approval ${a.id} covers budget ${bd.budgetId}, not ${b.id}.`, remaining);
-  if (bd.vendor && bd.vendor.toLowerCase() !== req.vendor.toLowerCase()) return deny("approval_scope", `Approval ${a.id} covers ${bd.vendor}, not ${req.vendor}.`, remaining);
-  if (bd.maxCents == null) return deny("approval_unbounded", `Approval ${a.id} has no amount limit; FORGE only acts on bounded approvals.`, remaining);
+  if (!bd.budgetId || !bd.vendor || bd.maxCents == null) return deny("approval_unbounded", `Approval ${a.id} must name a budget, a vendor and a maximum amount.`, remaining);
+  if (bd.budgetId !== b.id) return deny("approval_scope", `Approval ${a.id} covers budget ${bd.budgetId}, not ${b.id}.`, remaining);
+  if (bd.vendor.toLowerCase() !== req.vendor.toLowerCase()) return deny("approval_scope", `Approval ${a.id} covers ${bd.vendor}, not ${req.vendor}.`, remaining);
   if (req.amountCents > bd.maxCents) return deny("approval_amount", `${fmtUsd(req.amountCents)} exceeds the approved ${fmtUsd(bd.maxCents)}.`, remaining);
   if (req.recurring && !bd.recurring) return deny("approval_recurring", "This is a recurring charge but the approval was for a one-off purchase.", remaining);
+  const used = usage[a.id] ?? { count: 0, cents: 0 };
+  if (!bd.recurring && used.count > 0) return deny("approval_used", `Approval ${a.id} was for one purchase and has already been used.`, remaining);
+  if (bd.recurring) {
+    if (bd.maxTotalCents == null) return deny("approval_unbounded", `Recurring approval ${a.id} needs a total limit (maxTotalCents).`, remaining);
+    if (used.cents + req.amountCents > bd.maxTotalCents) return deny("approval_amount", `Charges under ${a.id} would total ${fmtUsd(used.cents + req.amountCents)}, over the approved ${fmtUsd(bd.maxTotalCents)}.`, remaining);
+  }
   if (b.spentCents + req.amountCents > b.ceilingCents) return deny("ceiling", `Would take ${b.scope} to ${fmtUsd(b.spentCents + req.amountCents)}, over its ${fmtUsd(b.ceilingCents)} ceiling. An approval does not raise a ceiling.`, remaining);
   return { allowed: true, code: "approved", reason: `Owner approval ${a.id}; ${fmtUsd(remaining - req.amountCents)} left under the ceiling.`, remainingCents: remaining - req.amountCents };
 }

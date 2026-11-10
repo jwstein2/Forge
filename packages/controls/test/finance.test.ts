@@ -95,27 +95,42 @@ describe("payout reconciliation", () => {
 describe("spend guard: default deny, ceiling is not authorization", () => {
   const budgets: Budget[] = JSON.parse(readFileSync(new URL("../../../registry/budgets.json", import.meta.url), "utf8")).budgets;
   const now = new Date("2026-11-10T03:00:00Z");
-  const appr = (o: Partial<ApprovalRecord>): ApprovalRecord => ({ id: "apr_1", scope: "spend", status: "approved", decidedBy: "owner", expiresAt: null, boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100 }, ...o });
+  const appr = (o: Partial<ApprovalRecord>): ApprovalRecord => ({ id: "apr_1", scope: "spend", status: "approved", decidedBy: "owner", decidedAt: "2026-11-10T02:00:00Z", expiresAt: "2026-12-10T00:00:00Z",
+    boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100 }, ...o });
   const cash = { kind: "cash" as const, budgetId: "bud_forge", vendor: "Cloudflare Registrar", amountCents: 1100 };
 
   it("denies cash spend with no approval even though the ceiling has room", () => {
     expect(authorizeSpend(cash, budgets, [], now)).toMatchObject({ allowed: false, code: "approval_required" });
   });
-  it("allows bounded, matching, owner-decided approval", () => {
+  it("allows a bounded, matching, owner-decided, unexpired approval once", () => {
     expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [appr({})], now).allowed).toBe(true);
   });
   it.each([
     ["pending", appr({ status: "pending", decidedBy: null }), "approval_not_granted"],
     ["expired", appr({ expiresAt: "2026-11-01T00:00:00Z" }), "approval_expired"],
-    ["other vendor", appr({ boundary: { budgetId: "bud_forge", vendor: "Namecheap", maxCents: 1100 } }), "approval_scope"],
-    ["unbounded", appr({ boundary: { budgetId: "bud_forge" } }), "approval_unbounded"],
-    ["too small", appr({ boundary: { budgetId: "bud_forge", maxCents: 1000 } }), "approval_amount"],
-  ])("denies when approval is %s", (_n, a, code) => {
+    ["without expiry (QA-006 S4)", appr({ expiresAt: null }), "approval_no_expiry"],
+    ["longer than 90 days", appr({ expiresAt: "2027-03-01T00:00:00Z" }), "approval_too_long"],
+    ["for another vendor", appr({ boundary: { budgetId: "bud_forge", vendor: "Namecheap", maxCents: 1100 } }), "approval_scope"],
+    ["missing vendor (QA-006 S3)", appr({ boundary: { budgetId: "bud_forge", maxCents: 5000 } }), "approval_unbounded"],
+    ["missing budget (QA-006 S3)", appr({ boundary: { vendor: "Cloudflare Registrar", maxCents: 5000 } }), "approval_unbounded"],
+    ["without an amount", appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar" } }), "approval_unbounded"],
+    ["too small", appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1000 } }), "approval_amount"],
+  ])("denies when the approval is %s", (_n, a, code) => {
     expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [a], now).code).toBe(code);
+  });
+  it("a one-off approval is consumed after one purchase (QA-006 S2)", () => {
+    expect(authorizeSpend({ ...cash, approvalId: "apr_1" }, budgets, [appr({})], now, 0, { apr_1: { count: 1, cents: 1100 } }).code).toBe("approval_used");
+  });
+  it("recurring approvals cap each charge and the running total", () => {
+    const a = appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100, recurring: true, maxTotalCents: 3300 } });
+    const r = { ...cash, recurring: true, approvalId: "apr_1" };
+    expect(authorizeSpend(r, budgets, [a], now, 0, { apr_1: { count: 2, cents: 2200 } }).allowed).toBe(true);
+    expect(authorizeSpend(r, budgets, [a], now, 0, { apr_1: { count: 3, cents: 3300 } }).code).toBe("approval_amount");
+    expect(authorizeSpend(r, budgets, [appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 1100, recurring: true } })], now).code).toBe("approval_unbounded");
   });
   it("an approval cannot lift the ceiling", () => {
     const big = { ...cash, amountCents: 200000, approvalId: "apr_1" };
-    expect(authorizeSpend(big, budgets, [appr({ boundary: { maxCents: 300000 } })], now).code).toBe("ceiling");
+    expect(authorizeSpend(big, budgets, [appr({ boundary: { budgetId: "bud_forge", vendor: "Cloudflare Registrar", maxCents: 300000 } })], now).code).toBe("ceiling");
   });
   it("recurring charges need a recurring approval; unknown amounts are denied", () => {
     expect(authorizeSpend({ ...cash, recurring: true, approvalId: "apr_1" }, budgets, [appr({})], now).code).toBe("approval_recurring");
@@ -125,6 +140,13 @@ describe("spend guard: default deny, ceiling is not authorization", () => {
     const req = { kind: "model_usage" as const, budgetId: "bud_api_month", vendor: "Anthropic", amountCents: 300 };
     expect(authorizeSpend(req, budgets, [], now, 1100).allowed).toBe(true);
     expect(authorizeSpend(req, budgets, [], now, 1300)).toMatchObject({ allowed: false, code: "envelope_exceeded" });
+  });
+  it("model usage cannot draw on any other budget (QA-006 S1)", () => {
+    expect(authorizeSpend({ kind: "model_usage", budgetId: "bud_forge", vendor: "Anthropic", amountCents: 100000 }, budgets, [], now)).toMatchObject({ allowed: false, code: "wrong_budget" });
+  });
+  it("model usage counts the budget's recorded spend when it exceeds month-to-date (QA-006 S1)", () => {
+    const full = budgets.map((b) => (b.id === "bud_api_month" ? { ...b, spentCents: 1500 } : b));
+    expect(authorizeSpend({ kind: "model_usage", budgetId: "bud_api_month", vendor: "Anthropic", amountCents: 1000 }, full, [], now, 0).code).toBe("envelope_exceeded");
   });
   it("budget findings warn at 80%, block at 100%, and count unknown usage", () => {
     const f = budgetFindings(budgets, { budgetId: "bud_api_month", cents: 1250, unknownRows: 2 });
@@ -141,5 +163,41 @@ describe("spend guard: default deny, ceiling is not authorization", () => {
     expect(capForRunType("opus_thread_wake")).toBeNull();
     expect(estimateLsFeeCents(800)).toBe(90);
     expect(estimateLsFeeCents(1900)).toBe(145);
+  });
+});
+
+describe("QA-006 ledger regressions", () => {
+  it("L1: owner_test NULL or column absent is not revenue", () => {
+    const { owner_test: _drop, ...noCol } = sale({ order_id: "a" });
+    const r = recomputeRevenue([sale({ order_id: "n", owner_test: null }), noCol as RawSale], ALL);
+    expect(r.liveTotal.orders).toBe(0);
+    expect(r.ownerTest.orders).toBe(2);
+    const codes = checkLedger([sale({ order_id: "n", owner_test: null }), noCol as RawSale], []).map((x) => x.code);
+    expect(codes).toEqual(expect.arrayContaining(["FIN-LI-06", "FIN-LI-07"]));
+  });
+  it("L2: test_mode NULL or 'true' is not revenue and is flagged", () => {
+    const rows = [sale({ order_id: "x", test_mode: null as any }), sale({ order_id: "y", test_mode: "true" as any })];
+    expect(recomputeRevenue(rows, ALL).liveTotal.orders).toBe(0);
+    expect(checkLedger(rows, []).map((x) => x.code)).toContain("FIN-LI-07");
+  });
+  it("L3: a refund inherits the class of the order it refunds", () => {
+    const rows = [sale({ order_id: "o", owner_test: 1, total_cents: 1900 }), { ...sale({ order_id: "o", owner_test: 0 }), id: "r:o", event: "order_refunded", refunded_cents: 1900 }];
+    const r = recomputeRevenue(rows, ALL);
+    expect(r.liveTotal).toEqual({ orders: 0, grossCents: 0, refundsCents: 0, taxCents: 0 });
+    expect(r.ownerTest.refundsCents).toBe(1900);
+  });
+  it("unreadable timestamps and cumulative over-refunds are flagged", () => {
+    const rows = [sale({ order_id: "t", created_at: "not a date" }), sale({ order_id: "p", total_cents: 1000 }),
+      { ...sale({ order_id: "p" }), id: "r1", event: "order_refunded", refunded_cents: 600 }, { ...sale({ order_id: "p" }), id: "r2", event: "order_refunded", refunded_cents: 600 }];
+    expect(checkLedger(rows, []).map((x) => x.code)).toEqual(expect.arrayContaining(["FIN-LI-08", "FIN-LI-03"]));
+  });
+});
+
+describe("owner_test NULL handling matches the platform rule", () => {
+  it("excludes live rows with owner_test NULL from revenue and flags them", () => {
+    const r = recomputeRevenue([sale({ order_id: "n", owner_test: null })], ALL);
+    expect(r.liveTotal.orders).toBe(0);
+    expect(r.ownerTest.orders).toBe(1);
+    expect(checkLedger([sale({ order_id: "n", owner_test: null })], []).map((x) => x.code)).toContain("FIN-LI-07");
   });
 });

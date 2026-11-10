@@ -71,6 +71,17 @@ describe("signed calls with replay window", () => {
   });
 });
 
+describe("QA-006 header audit additions", () => {
+  it("H1: flags scheme-only sources, unsafe-eval and default-src *", () => {
+    const a = auditHeaders({ "content-security-policy": "default-src *; script-src https: 'unsafe-eval'; frame-ancestors 'none'", "strict-transport-security": "max-age=31536000", "x-content-type-options": "nosniff", "referrer-policy": "no-referrer" }, "site");
+    expect(a.weak).toEqual(expect.arrayContaining(["script-src allows a whole scheme", "script-src allows 'unsafe-eval'", "default-src allows any origin"]));
+  });
+  it("H2: refuses to emit a header line over Cloudflare's 2,000-character limit", () => {
+    const hashes = Array.from({ length: 40 }, (_, i) => `sha256-${createHash("sha256").update(String(i)).digest("base64")}`);
+    expect(() => pagesHeadersFile({ site: "x", beaconOrigin: "https://w.example", thirdParties: ["lemonSqueezy", "mailerLite", "googleFonts", "pinterestTag", "cloudflareAnalytics"], inlineScriptHashes: hashes })).toThrow(/2000/);
+  });
+});
+
 describe("secret scanner", () => {
   // Built at runtime so this file never contains a literal token.
   const fake = (prefix: string, n: number) => prefix + "Q7x9Lm2Pz4Rt8Kw1".repeat(8).slice(0, n);
@@ -82,6 +93,14 @@ describe("secret scanner", () => {
     ["url-credentials", `https://admin:${fake("", 12)}@example.com/x`],
     ["n8n-webhook", `fetch("https://james1854.app.n8n.cloud/webhook/qpk-sale-abc")`],
     ["assigned-literal", `password = "${fake("", 20)}"`],
+    ["assigned-literal", `const apiToken = "${fake("", 24)}"`],
+    ["assigned-literal", `clientSecret: '${fake("", 24)}'`],
+    ["assigned-literal", `DEV_AUTH_TOKEN=${"9f".repeat(4)}${fake("", 40)}`],
+    ["assigned-literal", `  secret: ${fake("", 24)}`],
+    ["assigned-literal", `x-forge-dev-token: ${fake("", 32)}`],
+    ["bearer", `Authorization: Bearer ${fake("", 32)}`],
+    ["bare-hex64", `const k = "${createHash("sha256").update("k").digest("hex")}";`],
+    ["stripe-test", `${fake("sk_test_", 24)}`],
   ])("detects %s without printing it", (rule, text) => {
     const hits = scanText("x.ts", text);
     expect(hits.map((h) => h.rule)).toContain(rule);
@@ -90,6 +109,11 @@ describe("secret scanner", () => {
   it("ignores placeholders and low-entropy literals, honours the fingerprint allowlist", () => {
     expect(scanText("x", `api_key = "<your-api-key-here-xxxx>"`)).toEqual([]);
     expect(scanText("x", `password = "aaaaaaaaaaaaaaaaaaaa"`)).toEqual([]);
+    expect(scanText("docs/r.md", `sha256: ${createHash("sha256").update("k").digest("hex")}`)).toEqual([]);
+    expect(scanText("src/app.ts", `const tokenName = "session_token_header_name";`)).toEqual([]);
+    // "test" excuses a value only inside test files (QA-006 K2)
+    expect(scanText("src/config.ts", `apiKey = "testQ7x9Lm2Pz4Rt8Kw1Q7x9"`).length).toBe(1);
+    expect(scanText("src/config.test.ts", `apiKey = "testQ7x9Lm2Pz4Rt8Kw1Q7x9"`).length).toBe(0);
     const t = `LEMONSQUEEZY_API_KEY=${fake("", 24)}`;
     expect(scanText("x", t, new Set([fingerprint(fake("", 24))]))).toEqual([]);
   });

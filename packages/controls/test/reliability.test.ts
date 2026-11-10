@@ -17,8 +17,32 @@ describe("n8n policy checks on the real workflows (read 2026-11-10)", () => {
     expect(codes).not.toContain("N8N-P1:critical");   // daily email is now gated (fixed by the live-dollar thread)
     expect(codes).not.toContain("N8N-P3:critical");   // webhook verifies an HMAC before side effects
     expect(codes).toContain("N8N-P4:warning");
-    expect(codes).toContain("N8N-P5:warning");        // n8n_forward_secret is both HMAC key and /report bearer token
+    expect(codes).not.toContain("N8N-P5:warning");    // key reuse fixed live at 03:20 (report_token split out)
+    expect(codes).toContain("N8N-P5:info");           // secrets still in a data table
     expect(codes).toContain("N8N-P6:warning");
+  });
+  it("03:15 version of the sales workflow: key reuse is detected (regression)", () => {
+    expect(checkWorkflow(load("n8n-sales-report.0315.json")).map((x) => `${x.code}:${x.severity}`)).toContain("N8N-P5:warning");
+  });
+  it("QA-006 N2: an HMAC check that runs after the side effect does not count", () => {
+    const wf: N8nWorkflow = { id: "w3", name: "Late check", nodes: [
+      { name: "Hook", type: "n8n-nodes-base.webhook" }, { name: "Mail", type: "n8n-nodes-base.gmail" },
+      { name: "Check", type: "n8n-nodes-base.code", parameters: { jsCode: "const h = crypto.createHmac('sha256', k); if (bad) throw new Error('x');" } },
+    ], connections: { Hook: { main: [[{ node: "Mail" }]] }, Mail: { main: [[{ node: "Check" }]] } } };
+    expect(checkWorkflow(wf).map((x) => x.code)).toContain("N8N-P3");
+    const ifUnrelated: N8nWorkflow = { id: "w4", name: "Wrong IF", nodes: [
+      { name: "Hook", type: "n8n-nodes-base.webhook" }, { name: "H", type: "n8n-nodes-base.crypto", parameters: { action: "hmac", dataPropertyName: "sig" } },
+      { name: "If", type: "n8n-nodes-base.if", parameters: { conditions: { leftValue: "={{ $json.amount > 0 }}" } } }, { name: "Mail", type: "n8n-nodes-base.gmail" },
+    ], connections: { Hook: { main: [[{ node: "H" }]] }, H: { main: [[{ node: "If" }]] }, If: { main: [[{ node: "Mail" }]] } } };
+    expect(checkWorkflow(ifUnrelated).map((x) => x.code)).toContain("N8N-P3");
+  });
+  it("QA-006 N1: cron lists and ranges are counted", () => {
+    const wf = (expr: string): N8nWorkflow => ({ id: "c", name: "Cron", nodes: [
+      { name: "T", type: "n8n-nodes-base.scheduleTrigger", parameters: { rule: { interval: [{ field: "cronExpression", expression: expr }] } } },
+      { name: "If", type: "n8n-nodes-base.if" }, { name: "Mail", type: "n8n-nodes-base.gmail" },
+    ], connections: { T: { main: [[{ node: "If" }]] }, If: { main: [[{ node: "Mail" }]] } } });
+    expect(checkWorkflow(wf("0 9,17 * * *")).find((x) => x.code === "N8N-P2")?.title).toMatch(/2 times a day/);
+    expect(checkWorkflow(wf("0 9-17 * * *")).find((x) => x.code === "N8N-P2")?.title).toMatch(/9 times a day/);
   });
   it("health check: failure-only email, but repeats every 3h during an outage and has no heartbeat", () => {
     const f = checkWorkflow(load("n8n-health-check.json"));
@@ -50,7 +74,8 @@ describe("n8n policy checks on the real workflows (read 2026-11-10)", () => {
     expect(s({ field: "hours", hoursInterval: 6 })).toBe(360);
     expect(s({ triggerAtHour: 7, triggerAtMinute: 30 })).toBe(1440);
     expect(s({ field: "cronExpression", expression: "*/15 * * * *" })).toBe(15);
-    expect(s({ field: "cronExpression", expression: "17 14 1 * *" })).toBe(43200);
+    expect(s({ field: "cronExpression", expression: "17 14 1 * *" })).toBe(43800);
+    expect(s({ field: "cronExpression", expression: "0 8 * * 1" })).toBe(10080);
   });
 });
 

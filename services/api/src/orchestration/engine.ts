@@ -17,6 +17,7 @@
  */
 import type { Env } from "../lib/env.ts";
 import { newId, nowIso, parseJson } from "../lib/util.ts";
+import { API_ENVELOPE_BUDGET_ID, authorizeSpend, defaultCapFor, monthWindow, resolveJobPolicy } from "@forge/controls/engine";
 
 export interface StepContext {
   db: D1Database; env: Env; jobId: string; input: Record<string, unknown>;
@@ -32,6 +33,9 @@ export interface HandlerDef {
   requiresApproval?(input: Record<string, unknown>): string | null;
   /** Registry entry that this handler's runs are recorded against (heartbeat evidence). */
   registryId?: string;
+  /** Cost policy (@forge/controls): run type sets the default cost cap; usesModel puts the job under the monthly model envelope. */
+  runType?: string;
+  usesModel?: boolean;
 }
 export class NonRetryableError extends Error {}
 export class EnqueueError extends Error {}
@@ -59,9 +63,10 @@ export async function enqueue(db: D1Database, handlers: Map<string, HandlerDef>,
     throw new EnqueueError(`registry entry ${registryId} is not loaded; run the registry.seed job first`);
   }
   const id = newId("job"); const at = nowIso();
+  const costCap = defaultCapFor(o.kind, o.costCapCents, { runType: h.runType, usesModel: h.usesModel });
   const stmts = [db.prepare(`INSERT INTO jobs (id,kind,niche_id,registry_id,status,priority,idempotency_key,input_json,max_attempts,next_run_at,cost_cap_cents,parent_id,created_by,created_at,updated_at)
     VALUES (?,?,?,?,'queued',?,?,?,?,?,?,?,?,?,?)`).bind(id, o.kind, o.nicheId ?? null, registryId, o.priority ?? 100,
-    o.idempotencyKey ?? null, JSON.stringify(o.input ?? {}), o.maxAttempts ?? 3, o.runAt ?? at, o.costCapCents ?? null, o.parentId ?? null, o.createdBy, at, at)];
+    o.idempotencyKey ?? null, JSON.stringify(o.input ?? {}), o.maxAttempts ?? 3, o.runAt ?? at, costCap, o.parentId ?? null, o.createdBy, at, at)];
   h.steps.forEach((s, i) => stmts.push(db.prepare(`INSERT INTO job_steps (job_id,seq,name,status) VALUES (?,?,?,'pending')`).bind(id, i, s.name)));
   for (const d of o.dependsOn ?? []) stmts.push(db.prepare(`INSERT INTO job_dependencies (job_id,depends_on_id) VALUES (?,?)`).bind(id, d));
   await db.batch(stmts);
@@ -137,6 +142,17 @@ export async function runJob(db: D1Database, env: Env, handlers: Map<string, Han
     }
   }
 
+  // Spend guard (@forge/controls): a job that calls a model runs only if its cost cap fits the remaining monthly
+  // model envelope (budget bud_api_month), measured from op_llm_calls. Checked once, before the first step runs.
+  const policy = resolveJobPolicy(job.kind, { runType: h.runType, usesModel: h.usesModel });
+  if (policy?.usesModel) {
+    const started = await db.prepare(`SELECT COUNT(*) AS n FROM job_steps WHERE job_id = ? AND status = 'succeeded'`).bind(job.id).first<{ n: number }>();
+    if (Number(started?.n ?? 0) === 0) {
+      const verdict = await modelSpendCheck(db, job, now);
+      if (verdict !== "ok") return verdict;
+    }
+  }
+
   const steps = (await db.prepare(`SELECT seq, name, status, checkpoint_json FROM job_steps WHERE job_id = ? ORDER BY seq`).bind(job.id).all<{ seq: number; name: string; status: string; checkpoint_json: string | null }>()).results;
   const outputs: Record<string, unknown> = {};
   let cost = Number(job.cost_cents || 0);
@@ -182,6 +198,33 @@ export async function runJob(db: D1Database, env: Env, handlers: Map<string, Han
     await raiseJobAlert(db, job, msg);
     return "failed";
   }
+}
+
+interface BudgetRow { id: string; scope: string; ceiling_cents: number; approved_cents: number; spent_cents: number; evidence: string; notes: string | null }
+
+/** Returns "ok", or the outcome after deferring/failing the job. Envelope exhaustion defers to next month; anything unprovable fails. */
+async function modelSpendCheck(db: D1Database, job: JobRow, now: Date): Promise<"ok" | "deferred_budget" | "failed"> {
+  const b = await db.prepare(`SELECT * FROM budgets WHERE id = ?`).bind(API_ENVELOPE_BUDGET_ID).first<BudgetRow>();
+  const budgets = b ? [{ id: b.id, scope: b.scope, ceilingCents: b.ceiling_cents, approvedCents: b.approved_cents, spentCents: b.spent_cents, evidence: b.evidence as "VERIFIED", notes: b.notes }] : [];
+  const w = monthWindow(now);
+  let mtd = 0;
+  try {
+    mtd = Math.ceil(Number((await db.prepare(`SELECT COALESCE(SUM(cost_cents),0) AS c FROM op_llm_calls WHERE at >= ? AND at < ?`).bind(w.start, w.end).first<{ c: number }>())?.c ?? 0));
+  } catch { mtd = 0; } // op_llm_calls absent (operator migration not applied): no recorded usage yet
+  const d = authorizeSpend({ kind: "model_usage", budgetId: API_ENVELOPE_BUDGET_ID, vendor: "model", amountCents: job.cost_cap_cents, jobId: job.id }, budgets, [], now, mtd);
+  if (d.allowed) { await event(db, job.id, "spend_authorized", { code: d.code, remainingCents: d.remainingCents }); return "ok"; }
+  const at = nowIso();
+  if (d.code === "envelope_exceeded") {
+    await db.prepare(`UPDATE jobs SET status='queued', next_run_at=?, attempts=attempts-1, lease_owner=NULL, lease_expires_at=NULL, error=?, updated_at=? WHERE id=?`).bind(w.end, d.reason, at, job.id).run();
+    await event(db, job.id, "deferred_budget", { code: d.code, until: w.end, reason: d.reason });
+    await db.prepare(`INSERT INTO alerts (id,severity,niche_id,source,title,detail,state,dedupe_key,first_seen,last_seen,next_action,needs_owner)
+      VALUES (?,?,?,?,?,?,'open',?,?,?,?,1) ON CONFLICT(dedupe_key) DO UPDATE SET last_seen=excluded.last_seen, detail=excluded.detail, state='open'`)
+      .bind(newId("al"), "warning", job.niche_id, "controls:FIN-SPEND", `Model budget for ${w.label} is used up; model jobs wait until next month`, d.reason, `fin:spend:envelope:${w.label}`, at, at, "Raise the monthly model budget (owner decision) or let jobs resume next month.").run();
+    return "deferred_budget";
+  }
+  await finish(db, job, "failed", `spend guard: ${d.reason}`);
+  await raiseJobAlert(db, job, `spend guard (${d.code}): ${d.reason}`);
+  return "failed";
 }
 
 async function finish(db: D1Database, job: JobRow, status: "succeeded" | "failed", error: string | null): Promise<void> {

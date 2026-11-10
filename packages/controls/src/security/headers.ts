@@ -91,8 +91,12 @@ export function pagesHeadersFile(cfg: SiteHeaderConfig): string {
   for (const p of cfg.embedPaths ?? []) {
     base.push("", p, "  ! X-Frame-Options", `  ! ${cspName}`, `  ${cspName}: ${siteCsp(cfg, "*")}`);
   }
+  const tooLong = base.find((l) => l.length > PAGES_HEADER_LINE_LIMIT);
+  if (tooLong) throw new Error(`_headers line is ${tooLong.length} characters; Cloudflare Pages allows ${PAGES_HEADER_LINE_LIMIT}. Move inline scripts to files to reduce hashes.`);
   return base.join("\n") + "\n";
 }
+/** Cloudflare Pages limit per header line (docs: "Headers" limits). */
+export const PAGES_HEADER_LINE_LIMIT = 2000;
 
 /** sha256 CSP hashes for every inline <script> (no src) in an HTML document. */
 export function inlineScriptHashes(html: string): string[] {
@@ -121,7 +125,11 @@ export function auditHeaders(headers: Headers | Record<string, string>, kind: "a
   if (!csp) missing.push("content-security-policy");
   else {
     if (/script-src[^;]*'unsafe-inline'/.test(csp) && !/script-src[^;]*'(sha256|nonce)-/.test(csp)) weak.push("script-src allows 'unsafe-inline'");
-    if (/script-src[^;]*\*(?!\.)/.test(csp)) weak.push("script-src allows any origin");
+    const scriptSrc = /(?:^|;)\s*script-src([^;]*)/.exec(csp)?.[1] ?? /(?:^|;)\s*default-src([^;]*)/.exec(csp)?.[1] ?? "";
+    if (/(^|\s)\*(\s|$)/.test(scriptSrc)) weak.push("script-src allows any origin");
+    if (/(^|\s)(https?:|data:|blob:)(\s|$)/.test(scriptSrc)) weak.push("script-src allows a whole scheme");
+    if (/'unsafe-eval'/.test(scriptSrc)) weak.push("script-src allows 'unsafe-eval'");
+    if (/(?:^|;)\s*default-src[^;]*(\s|^)\*(\s|;|$)/.test(csp)) weak.push("default-src allows any origin");
     if (!/frame-ancestors/.test(csp) && !get("x-frame-options")) weak.push("no framing rule");
     if (kind === "api" && !/default-src 'none'/.test(csp)) weak.push("API CSP should be default-src 'none'");
   }

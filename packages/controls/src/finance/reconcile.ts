@@ -17,7 +17,7 @@ export interface Reconciliation {
 }
 
 export function reconcile(ledger: RawSale[], provider: ProviderOrder[], toleranceCents = 1): Reconciliation {
-  const live = ledger.filter((s) => Number(s.test_mode) === 0);
+  const live = ledger.filter((s) => s.test_mode === 0 || (s.test_mode as unknown) === "0");
   const lSales = new Map(live.filter((s) => s.event === "order_created").map((s) => [s.order_id, s]));
   const lRefunds = new Map<string, number>();
   for (const s of live.filter((x) => x.event === "order_refunded")) lRefunds.set(s.order_id, (lRefunds.get(s.order_id) ?? 0) + Number(s.refunded_cents));

@@ -1,0 +1,20 @@
+{
+  "_meta": {
+    "version": 1,
+    "updated": "2026-11-10",
+    "rule": "Only identities listed here as reviewers may sign gate receipts, and never for work produced by their own workstream. Identities are compared after lower-casing and removing spaces, dots, dashes and underscores. Changing this file is a change-controlled release (G13) reviewed by someone other than the editor."
+  },
+  "reviewers": [
+    { "id": "qa-forge-builds", "aliases": ["Review FORGE builds independently", "workstream-g", "forge-assurance"], "role": "independent_qa", "workstream": "G", "gates": ["*"], "activeFrom": "2026-11-10", "activeUntil": null },
+    { "id": "owner", "aliases": ["James", "owner:james"], "role": "owner", "workstream": "owner", "gates": ["*"], "activeFrom": "2026-11-10", "activeUntil": null }
+  ],
+  "producers": [
+    { "id": "platform-foundation", "aliases": ["Build FORGE platform foundation", "workstream-a", "platform"], "workstream": "A" },
+    { "id": "intelligence", "aliases": ["Build audience and market briefs", "workstream-b"], "workstream": "B" },
+    { "id": "builder", "aliases": ["Ecosystem Builder", "workstream-c", "forge-builder"], "workstream": "C" },
+    { "id": "command-ui", "aliases": ["Design FORGE Command interface", "workstream-d"], "workstream": "D" },
+    { "id": "operator", "aliases": ["operations engine", "workstream-e", "forge-operator"], "workstream": "E" },
+    { "id": "controls", "aliases": ["Build finance, security and reliability controls", "workstream-f", "forge-controls"], "workstream": "F" },
+    { "id": "live-dollar", "aliases": ["Reach first verified live dollar", "milestone-1"], "workstream": "M1" }
+  ]
+}

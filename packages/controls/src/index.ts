@@ -10,3 +10,6 @@ export * from "./security/leak-scan.ts";
 export * from "./reliability/n8n-policy.ts";
 export * from "./reliability/weekly-summary.ts";
 export * from "./reliability/pipeline-probe.ts";
+export * from "./finance/job-policy.ts";
+export * from "./assurance/reviewers.ts";
+export * from "./controls-run.ts";

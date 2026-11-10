@@ -26,7 +26,11 @@ export const RULES: SecretRule[] = [
   { id: "named-env", label: "credential assigned to a provider variable", re: /\b(?:CLOUDFLARE_API_TOKEN|CF_API_TOKEN|LEMONSQUEEZY_API_KEY|LS_API_KEY|LS_SIGNING_SECRET\w*|MAILERLITE_API_KEY|N8N_API_KEY|HEARTBEAT_SECRET|N8N_FORWARD_SECRET|REPORT_TOKEN|ANTHROPIC_API_KEY)\s*[:=]\s*["']?([^\s"'#]{12,})/g, severity: "critical", group: 1 },
   { id: "url-credentials", label: "credentials embedded in a URL", re: /\bhttps?:\/\/[^\s/:@"']+:[^\s/@"']{6,}@[^\s"']+/g, severity: "critical" },
   { id: "n8n-webhook", label: "n8n webhook URL (treat as a secret unless the workflow verifies a signature)", re: /\bhttps:\/\/[a-z0-9-]+\.app\.n8n\.cloud\/webhook(?:-test)?\/[A-Za-z0-9_\/-]+/g, severity: "warning" },
-  { id: "assigned-literal", label: "secret-like literal", re: /\b(?:api[_-]?key|secret|password|passwd|token|auth)\w*["']?\s*[:=]\s*["']([A-Za-z0-9_\-+/=.]{16,})["']/gi, severity: "critical", group: 1 },
+  { id: "stripe-test", label: "Stripe test key", re: /\b(?:sk|rk)_test_[A-Za-z0-9]{20,}/g, severity: "warning" },
+  { id: "bearer", label: "bearer token in a header", re: /\bBearer\s+([A-Za-z0-9_\-.=+/]{20,})/g, severity: "critical", group: 1 },
+  // Secret-looking name (camelCase, snake_case, kebab-case, env, YAML, header) followed by : or = and a value, quoted or not.
+  { id: "assigned-literal", label: "secret-like value assigned to a secret-looking name", re: /(?<![A-Za-z0-9])[A-Za-z0-9_-]*?(?:api[_-]?key|apikey|secret|password|passwd|pwd|token|auth[_-]?key|private[_-]?key)[A-Za-z0-9_-]*["']?\s*[:=]\s*["'`]?([A-Za-z0-9_\-+/=.]{16,})/gi, severity: "critical", group: 1 },
+  { id: "bare-hex64", label: "bare 64-hex value (token or HMAC key?)", re: /(?<![A-Za-z0-9])([0-9a-f]{64})(?![A-Za-z0-9])/g, severity: "warning", group: 1 },
 ];
 
 /** File paths that must never be tracked, whatever their content. */
@@ -43,8 +47,13 @@ export const SENSITIVE_FILES: { re: RegExp; label: string }[] = [
 /** Values that look like placeholders, not secrets. */
 const PLACEHOLDER = /^(x+|\*+|<[^>]+>|\$\{[^}]+\}|changeme|example|placeholder|redacted|test[-_]?secret.*|dummy.*|your[-_].*|replace[-_]?me|0+|(.)\2+)$/i;
 
-/** Generic-rule values that announce themselves as fixtures. Provider-shaped tokens are never excused this way. */
-const SAMPLE_WORD = /(test|example|dummy|fake|sample|placeholder|local|dev-only)/i;
+/** Generic-rule values that announce themselves as fixtures. Provider-shaped tokens are never excused this way.
+ *  "test"/"local" excuse a value only inside test or fixture files; elsewhere only unmistakable placeholder words do. */
+const SAMPLE_WORD_ANYWHERE = /(example|dummy|fake|placeholder|changeme|redacted)/i;
+const SAMPLE_WORD_IN_TESTS = /(test|sample|local|dev-only)/i;
+const isTestPath = (f: string) => /(^|[/:])(test|tests|__tests__|fixtures?|e2e)\/|\.(test|spec)\.[cm]?[jt]sx?$/.test(f.replace(/\\/g, "/"));
+/** Lines that are evidently about hashes, not secrets (sha256 manifests, file hashes, commit ids). */
+const HASH_CONTEXT = /(sha-?256|sha1|hash|digest|checksum|integrity|fingerprint|commit|tree)/i;
 
 export function entropy(s: string): number {
   const f = new Map<string, number>(); for (const c of s) f.set(c, (f.get(c) ?? 0) + 1);
@@ -65,8 +74,10 @@ export function scanText(file: string, text: string, allow: Set<string> = new Se
       for (let m; (m = r.re.exec(ln)); ) {
         const value = (r.group ? m[r.group] : m[0]) ?? m[0];
         if (PLACEHOLDER.test(value)) continue;
-        if ((r.id === "assigned-literal" || r.id === "named-env") && (SAMPLE_WORD.test(value) || value.includes("${") || value.includes("process.env") || value.includes("env."))) continue;
-        if (r.id === "assigned-literal" && entropy(value) < 3.5) continue;
+        const generic = r.id === "assigned-literal" || r.id === "named-env";
+        if (generic && (SAMPLE_WORD_ANYWHERE.test(value) || (isTestPath(file) && SAMPLE_WORD_IN_TESTS.test(value)) || value.includes("${") || /^(process\.)?env\./.test(value))) continue;
+        if (r.id === "assigned-literal" && (entropy(value) < 3.3 || /^[a-z]+([._-][a-z]+)*$/i.test(value))) continue; // words/identifiers, not secrets
+        if (r.id === "bare-hex64" && (HASH_CONTEXT.test(ln) || /^[0-9a-f]{64}$/.test(value) === false)) continue;
         const fp = fingerprint(value);
         if (allow.has(fp)) continue;
         hits.push({ file, line: i + 1, rule: r.id, label: r.label, severity: r.severity, preview: redact(value), fingerprint: fp });
