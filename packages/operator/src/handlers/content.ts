@@ -111,19 +111,54 @@ export function contentPlan(): HandlerDef {
 }
 
 // ---------------------------------------------------------------- claims lint
+// Invented proof and outcome promises are refused at draft, owner approval and publish time (QA-005 V2).
+// Figures: a money amount must be one of the niche's real product prices; any percentage is refused
+// (FORGE has no verified outcome data to support one). Measurements such as "2 1/2 in" are allowed.
 const CLAIM_RULES: [RegExp, string][] = [
-  [/\b(guarantee[ds]?|risk[- ]free)\b/i, "guarantee claim"],
-  [/#\s?1\b|\bnumber one\b|\bbest[- ]selling\b|\bmost popular\b/i, "unsupported superlative"],
-  [/\b(thousands|hundreds|millions) of\b/i, "unsupported volume claim"],
-  [/\b\d[\d,]*\+?\s+(customers|users|quilters|bakers|contractors|downloads|buyers|happy)\b/i, "unsupported customer count"],
-  [/\b(testimonial|customers (say|love)|rated \d|\d(\.\d)? stars?|five[- ]star)\b/i, "social proof that FORGE cannot verify"],
-  [/\bas seen (on|in)\b/i, "unsupported press claim"],
-  [/\bproven to\b|\bclinically\b|\bscientifically\b/i, "unsupported proof claim"],
-  [/\b(double|triple|10x) (your|the)\b/i, "unsupported performance claim"],
-  [/\b(earn|make|save) \$\d/i, "unsupported financial outcome"],
+  [/\b(guarantee[ds]?|risk[- ]free|money[- ]back|satisfaction|no[- ]questions[- ]asked)\b/i, "guarantee claim"],
+  [/#\s?1\b|\bnumber one\b|\bbest[- ]selling\b|\bmost popular\b|\b(the|our) best\b|\bbest\s+\w+\s+(spreadsheet|template|calculator|planner|tool|kit|workbook)\b|\btop[- ]rated\b|\bleading\b|\bultimate\b|\bworld[- ]class\b|\bunbeatable\b/i, "unsupported superlative"],
+  [/\b(thousands|hundreds|millions|tons|lots) of\b/i, "unsupported volume claim"],
+  [/\b\d[\d,.]*\s*k?\+?\s+(customers|users|quilters|bakers|contractors|downloads|buyers|happy|people|businesses|makers|members|subscribers)\b/i, "unsupported customer count"],
+  [/\b(loved|trusted|used|chosen|preferred|recommended|relied on)\s+by\b|\b(fan|crowd|customer)[- ]favou?rite\b|\beveryone('s| is)\b/i, "social proof that FORGE cannot verify"],
+  [/\b(testimonials?|reviews?|customers? (say|love|rave)|rated \d|\d(\.\d)?\s*(stars?|\/\s*5|out of (5|five)))\b|★|☆|⭐|\bfive[- ]star\b/i, "rating or review FORGE cannot verify"],
+  [/["“”][^"“”]{3,200}["“”]\s*[—–-]\s*[A-Z]/u, "quoted testimonial with attribution"],
+  [/\bas seen (on|in)\b|\bfeatured (on|in)\b/i, "unsupported press claim"],
+  [/\bproven\b|\bclinically\b|\bscientifically\b|\bexperts? (agree|say)\b/i, "unsupported proof claim"],
+  [/\b(double|triple|10x|2x|3x)\b|\b(raise|boost|increase|grow|cut|slash|reduce)\b[^.\n]{0,40}\b(margins?|profits?|revenue|sales|income|costs?|time)\b[^.\n]{0,20}\d/i, "unsupported performance claim"],
+  [/\b(earn|make|save|extra|additional)\b[^.\n]{0,20}\$\s?\d/i, "unsupported financial outcome"],
+  [/\d+(\.\d+)?\s*%|\bpercent\b/i, "percentage claim FORGE cannot verify"],
 ];
-export function claimsLint(text: string): string[] {
-  return CLAIM_RULES.filter(([re]) => re.test(text)).map(([, why]) => why);
+export function claimsLint(text: string, allowedPriceCents: number[] = []): string[] {
+  const out = CLAIM_RULES.filter(([re]) => re.test(text)).map(([, why]) => why);
+  const allowed = new Set(allowedPriceCents.map((c) => Math.round(c)));
+  for (const m of text.matchAll(/\$\s?(\d[\d,]*(?:\.\d{1,2})?)/g)) {
+    const cents = Math.round(Number(m[1]!.replace(/,/g, "")) * 100);
+    if (!allowed.has(cents)) { out.push(`price $${m[1]} is not a current product price`); break; }
+  }
+  return [...new Set(out)];
+}
+export async function nichePrices(db: D1Database, nicheId: string): Promise<number[]> {
+  const rows = (await db.prepare(`SELECT site_price_cents AS a, checkout_price_cents AS b FROM products WHERE niche_id = ?`).bind(nicheId).all<{ a: number | null; b: number | null }>()).results;
+  return rows.flatMap((r) => [r.a, r.b]).filter((x): x is number => typeof x === "number" && x > 0);
+}
+export const lintDraft = (d: { headline: string; body: string; cta: string }, prices: number[] = []) => claimsLint(`${d.headline}\n${d.body}\n${d.cta}`, prices);
+
+// ---------------------------------------------------------------- receipts
+// What counts as proof that a post is live on its platform (QA-005 V1). Hosts are parsed, never substring-matched,
+// and the niche's own site is never a platform receipt, except for that site's own SEO articles.
+export function receiptRule(platform: string, url: string, siteUrl: string | null): { ok: true } | { ok: false; reason: string } {
+  let u: URL; try { u = new URL(url); } catch { return { ok: false, reason: "not a URL" }; }
+  if (u.protocol !== "https:") return { ok: false, reason: "receipt must be https" };
+  const host = u.hostname.toLowerCase();
+  let own: string | null = null; try { own = siteUrl ? new URL(siteUrl).hostname.toLowerCase() : null; } catch { own = null; }
+  const under = (domain: string) => host === domain || host.endsWith(`.${domain}`);
+  if (platform === "seo") return own && host === own && u.pathname !== "/" ? { ok: true } : { ok: false, reason: "SEO receipt must be an article page on the niche's own site" };
+  if (own && host === own) return { ok: false, reason: "the niche's own site is not a platform receipt" };
+  if (platform === "pinterest") return /^(www\.|[a-z]{2}\.)?pinterest\.(com|co\.uk|ca|com\.au|de|fr|es|it|jp|com\.mx|nz|ie|at|ch|pt|se|dk|nl|be)$/.test(host) && /^\/pin\/\d+\/?$/.test(u.pathname) ? { ok: true } : { ok: false, reason: "Pinterest receipt must be https://pinterest.<tld>/pin/<id>/" };
+  if (platform === "youtube") return (under("youtube.com") && ((u.pathname === "/watch" && /^[\w-]{11}$/.test(u.searchParams.get("v") ?? "")) || /^\/shorts\/[\w-]{11}$/.test(u.pathname))) || (host === "youtu.be" && /^\/[\w-]{11}$/.test(u.pathname)) ? { ok: true } : { ok: false, reason: "YouTube receipt must be a watch, shorts or youtu.be video URL" };
+  if (platform === "email") return (under("mailerlite.com") || under("mailerlite.io") || under("mlsend.com")) && u.pathname.length > 1 ? { ok: true } : { ok: false, reason: "email receipt must be a MailerLite campaign or web-version URL" };
+  if (platform === "instagram") return under("instagram.com") && /^\/(p|reel)\/[\w-]+\/?$/.test(u.pathname) ? { ok: true } : { ok: false, reason: "Instagram receipt must be a /p/ or /reel/ URL" };
+  return { ok: false, reason: `no receipt rule for platform ${platform}` };
 }
 
 // ---------------------------------------------------------------- drafting
@@ -132,14 +167,14 @@ const LIMITS: Record<string, { headline: number; body: number }> = {
   pinterest: { headline: 100, body: 500 }, email: { headline: 90, body: 2500 }, seo: { headline: 65, body: 4000 },
   instagram: { headline: 120, body: 2000 }, youtube: { headline: 100, body: 4000 },
 };
-export const draftValidator = (platform: string): Validator<Draft> => (v) => {
+export const draftValidator = (platform: string, prices: number[] = []): Validator<Draft> => (v) => {
   const o = v as Record<string, unknown>;
   for (const k of ["headline", "body", "cta", "linkPath"]) if (typeof o?.[k] !== "string" || !(o[k] as string).trim()) return { ok: false, error: `field "${k}" must be a non-empty string` };
   const d = o as unknown as Draft; const lim = LIMITS[platform] ?? { headline: 120, body: 3000 };
   if (d.headline.length > lim.headline) return { ok: false, error: `headline is ${d.headline.length} chars; limit ${lim.headline}` };
   if (d.body.length > lim.body) return { ok: false, error: `body is ${d.body.length} chars; limit ${lim.body}` };
   if (!d.linkPath.startsWith("/") || /\s|:\/\//.test(d.linkPath)) return { ok: false, error: "linkPath must be a site-relative path starting with /" };
-  const lint = claimsLint(`${d.headline}\n${d.body}\n${d.cta}`);
+  const lint = lintDraft(d, prices);
   if (lint.length) return { ok: false, error: `copy makes claims FORGE cannot support: ${lint.join(", ")}. Remove them; describe only what the product does.` };
   return { ok: true, value: d };
 };
@@ -178,7 +213,7 @@ export function contentDraft(provider: (env: Record<string, unknown>) => LlmProv
         for (const it of items) {
           const b = briefs.get(it.niche_id); if (!b) continue;
           const paths = (await db.prepare(`SELECT DISTINCT target FROM op_checks WHERE check_kind='seo_page' AND niche_id=? ORDER BY target LIMIT 60`).bind(it.niche_id).all<{ target: string }>()).results.map((r) => { try { return new URL(r.target).pathname; } catch { return ""; } }).filter(Boolean);
-          const r = await boundedJsonCall(db, p, { jobId, purpose: `draft:${it.id}`, system: SYSTEM, prompt: draftPrompt(b, it as any, paths), validate: draftValidator(it.platform), costCapCents: capPerItem, maxTokens: 1500 });
+          const r = await boundedJsonCall(db, p, { jobId, purpose: `draft:${it.id}`, system: SYSTEM, prompt: draftPrompt(b, it as any, paths), validate: draftValidator(it.platform, await nichePrices(db, it.niche_id)), costCapCents: capPerItem, maxTokens: 1500 });
           cost += r.costCents;
           if (r.ok) { drafted++; await db.prepare(`UPDATE op_content_items SET status='drafted', body_json=?, lint_json='[]', note=NULL, updated_at=? WHERE id=?`).bind(JSON.stringify(r.value), nowIso(), it.id).run(); }
           else { failed++; await db.prepare(`UPDATE op_content_items SET status='needs_revision', note=?, updated_at=? WHERE id=?`).bind(`Draft rejected: ${r.reason}`, nowIso(), it.id).run(); }
@@ -212,7 +247,8 @@ export async function policyFor(db: D1Database, channelId: string, now: Date): P
   if (p.mode === "standing") {
     const ap = p.approval_id ? await db.prepare(`SELECT status FROM approvals WHERE id = ?`).bind(p.approval_id).first<{ status: string }>() : null;
     if (ap?.status !== "approved") return { mode: "draft_only", publisher: p.publisher, dailyCap: 0, reason: "standing approval not approved by owner" };
-    if (p.window_end && p.window_end < now.toISOString()) return { mode: "draft_only", publisher: p.publisher, dailyCap: 0, reason: "standing approval window ended" };
+    if (!p.window_end) return { mode: "draft_only", publisher: p.publisher, dailyCap: 0, reason: "standing approval has no end date" };
+    if (p.window_end < now.toISOString()) return { mode: "draft_only", publisher: p.publisher, dailyCap: 0, reason: "standing approval window ended" };
   }
   return { mode: p.mode, publisher: p.publisher, dailyCap: p.daily_cap };
 }
@@ -241,9 +277,15 @@ export function contentPublish(publishers: Map<string, Publisher>): HandlerDef {
           for (const it of items) {
             if (budget <= 0) break;
             const draft = JSON.parse(it.body_json) as Draft;
-            if (claimsLint(`${draft.headline}\n${draft.body}\n${draft.cta}`).length) { await db.prepare(`UPDATE op_content_items SET status='needs_revision', note='claims lint failed at publish time', updated_at=? WHERE id=?`).bind(nowIso(), it.id).run(); continue; }
+            if (lintDraft(draft, await nichePrices(db, it.niche_id)).length) { await db.prepare(`UPDATE op_content_items SET status='needs_revision', note='claims lint failed at publish time', updated_at=? WHERE id=?`).bind(nowIso(), it.id).run(); continue; }
             const r = await pub.publish(it, draft, ch.site_url);
             budget--;
+            const rule = r.published && r.externalUrl ? receiptRule(it.platform, r.externalUrl, ch.site_url) : null;
+            if (rule && !rule.ok) {
+              await db.prepare(`UPDATE op_content_items SET publisher=?, note=?, updated_at=? WHERE id=?`).bind(pub.id, `publisher returned an invalid receipt (${rule.reason})`, nowIso(), it.id).run();
+              await raiseAlert(db, { key: `ops:publish:receipt:${it.id}`, severity: "warning", nicheId: it.niche_id, source: "ops.content_publish", title: `Publisher ${pub.id} returned an unusable receipt`, detail: `${r.externalUrl}: ${rule.reason}` });
+              continue;
+            }
             if (r.published && r.externalUrl) {
               published++;
               await db.prepare(`UPDATE op_content_items SET status='published', publisher=?, external_url=?, published_at=?, note=?, updated_at=? WHERE id=?`).bind(pub.id, r.externalUrl, nowIso(), r.note, nowIso(), it.id).run();
@@ -269,12 +311,23 @@ export function contentVerify(fetcher: Fetcher): HandlerDef {
       name: "verify",
       async run({ db, now }) {
         const graceHours = 72;
-        const items = (await db.prepare(`SELECT * FROM op_content_items WHERE status='published' AND external_url IS NOT NULL LIMIT 50`).all<Record<string, any>>()).results;
+        const items = (await db.prepare(`SELECT i.*, n.site_url FROM op_content_items i JOIN niches n ON n.id = i.niche_id WHERE i.status='published' AND i.external_url IS NOT NULL LIMIT 50`).all<Record<string, any>>()).results;
         let verified = 0; let pending = 0; let failed = 0;
         for (const it of items) {
-          const r = await fetcher(it.external_url, { timeoutMs: 15000, maxBytes: 800_000 });
           const draft = it.body_json ? (JSON.parse(it.body_json) as Draft) : null;
-          const present = r.ok && (!draft || r.text.includes(draft.headline.slice(0, 40)) || /pinterest\.|mailerlite|youtube\./.test(it.external_url));
+          const rule = receiptRule(it.platform, it.external_url, it.site_url);
+          let present = false; let status: number | null = null;
+          if (rule.ok) {
+            // Platform-side content evidence: the URL seen in the platform's own feed, or the platform page shows the headline.
+            const inFeed = await db.prepare(`SELECT 1 AS x FROM op_publications WHERE external_url = ? AND source IN ('platform_feed','platform_api')`).bind(it.external_url).first();
+            if (inFeed) present = true;
+            else {
+              const r = await fetcher(it.external_url, { timeoutMs: 15000, maxBytes: 800_000 });
+              status = r.status;
+              const head = (draft?.headline ?? String(it.title)).trim().slice(0, 40);
+              present = r.ok && head.length >= 8 && r.text.includes(head);
+            }
+          }
           const key = `ops:verify:${it.id}`;
           if (present) {
             verified++;
@@ -284,10 +337,10 @@ export function contentVerify(fetcher: Fetcher): HandlerDef {
             await db.prepare(`UPDATE channels SET status='verified', last_verified_at=?, last_verified_url=?, updated_at=? WHERE id=?`).bind(nowIso(), it.external_url, nowIso(), it.channel_id).run();
             await addEvidence(db, { subjectType: "channel", subjectId: it.channel_id, claim: `Publication confirmed at its platform URL: ${draft?.headline ?? it.title}`, label: "VERIFIED", source: "ops.content_verify", url: it.external_url, collectedBy: "ops.content_verify" });
             await resolveAlert(db, key);
-          } else if (now.getTime() - Date.parse(it.published_at) > graceHours * 3600000) {
+          } else if (!rule.ok || now.getTime() - Date.parse(it.published_at) > graceHours * 3600000) {
             failed++;
-            await db.prepare(`UPDATE op_content_items SET status='failed', note=?, updated_at=? WHERE id=?`).bind(`Not confirmed at ${it.external_url} within ${graceHours} h (HTTP ${r.status ?? "none"})`, nowIso(), it.id).run();
-            await raiseAlert(db, { key, severity: "warning", nicheId: it.niche_id, source: "ops.content_verify", title: `Published item could not be confirmed: ${it.title}`, detail: `HTTP ${r.status ?? "none"} at ${it.external_url} after ${graceHours} h.`, evidenceUrl: it.external_url });
+            await db.prepare(`UPDATE op_content_items SET status='failed', note=?, updated_at=? WHERE id=?`).bind(rule.ok ? `Not confirmed at ${it.external_url} within ${graceHours} h (HTTP ${status ?? "none"})` : `Receipt rejected: ${rule.reason}`, nowIso(), it.id).run();
+            await raiseAlert(db, { key, severity: "warning", nicheId: it.niche_id, source: "ops.content_verify", title: `Published item could not be confirmed: ${it.title}`, detail: rule.ok ? `HTTP ${status ?? "none"} at ${it.external_url} after ${graceHours} h; headline not found and URL not in the platform feed.` : `Receipt rejected: ${rule.reason}.`, evidenceUrl: it.external_url });
           } else pending++;
         }
         return { output: { checked: items.length, verified, pending, failed } };

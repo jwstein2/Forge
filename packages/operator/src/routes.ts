@@ -5,7 +5,7 @@
  */
 import { Hono, type Context } from "hono";
 import { newId, nowIso } from "./lib.ts";
-import { claimsLint, type Draft } from "./handlers/content.ts";
+import { lintDraft, nichePrices, receiptRule, type Draft } from "./handlers/content.ts";
 
 type Env = { DB: D1Database };
 type Vars = { me?: { email: string; role: string } };
@@ -53,11 +53,11 @@ export function operatorRoutes() {
     if (!Array.isArray(b.ids) || !b.ids.length || typeof b.approve !== "boolean") return fail(c, 400, "bad_request", "ids[] and approve required");
     const results: { id: string; status: string }[] = [];
     for (const id of b.ids.slice(0, 100)) {
-      const it = await c.env.DB.prepare(`SELECT status, body_json FROM op_content_items WHERE id = ?`).bind(id).first<{ status: string; body_json: string | null }>();
+      const it = await c.env.DB.prepare(`SELECT status, body_json, niche_id FROM op_content_items WHERE id = ?`).bind(id).first<{ status: string; body_json: string | null; niche_id: string }>();
       if (!it) { results.push({ id, status: "not_found" }); continue; }
       if (!["drafted", "needs_revision"].includes(it.status) || !it.body_json) { results.push({ id, status: `skipped (${it.status})` }); continue; }
       if (b.approve) {
-        const d = parse(it.body_json) as Draft; const lint = claimsLint(`${d.headline}\n${d.body}\n${d.cta}`);
+        const d = parse(it.body_json) as Draft; const lint = lintDraft(d, await nichePrices(c.env.DB, it.niche_id));
         if (lint.length) { results.push({ id, status: `refused: ${lint.join(", ")}` }); continue; }
       }
       const ap = newId("apr"); const at = nowIso();
@@ -75,6 +75,10 @@ export function operatorRoutes() {
     if (!owner(c)) return fail(c, 403, "forbidden", "owner only");
     const b = await c.req.json<{ externalUrl?: string }>().catch(() => ({} as { externalUrl?: string }));
     if (!b.externalUrl || !/^https:\/\/[^\s]+$/.test(b.externalUrl)) return fail(c, 400, "bad_request", "externalUrl (https) required");
+    const item = await c.env.DB.prepare(`SELECT i.platform, n.site_url FROM op_content_items i JOIN niches n ON n.id = i.niche_id WHERE i.id = ?`).bind(c.req.param("id")).first<{ platform: string; site_url: string | null }>();
+    if (!item) return fail(c, 404, "not_found", "no such item");
+    const rule = receiptRule(item.platform, b.externalUrl, item.site_url);
+    if (!rule.ok) return fail(c, 422, "evidence_required", rule.reason);
     const res = await c.env.DB.prepare(`UPDATE op_content_items SET status='published', publisher=COALESCE(publisher,'manual'), external_url=?, published_at=?, updated_at=? WHERE id=? AND status IN ('approved','drafted')`).bind(b.externalUrl, nowIso(), nowIso(), c.req.param("id")).run();
     if (!Number(res.meta.changes)) return fail(c, 409, "conflict", "item not found or not in a publishable state");
     return c.json({ ok: true, data: { id: c.req.param("id"), status: "published", note: "Will be marked verified only after FORGE confirms the URL." } });
@@ -93,6 +97,10 @@ export function operatorRoutes() {
     if (!["off", "draft_only", "approval_each", "standing"].includes(String(b.mode))) return fail(c, 400, "bad_request", "mode must be off|draft_only|approval_each|standing");
     const cap = Number(b.dailyCap ?? 1); if (!Number.isInteger(cap) || cap < 0 || cap > 50) return fail(c, 400, "bad_request", "dailyCap 0..50");
     if (b.windowEnd != null && Number.isNaN(Date.parse(b.windowEnd))) return fail(c, 400, "bad_request", "windowEnd must be ISO");
+    if (b.mode === "standing") {
+      const end = b.windowEnd ? Date.parse(b.windowEnd) : NaN;
+      if (!Number.isFinite(end) || end <= Date.now() || end > Date.now() + 90 * 86400000) return fail(c, 400, "bad_request", "standing requires windowEnd in the future and at most 90 days away");
+    }
     if (!(await c.env.DB.prepare(`SELECT 1 AS x FROM channels WHERE id = ?`).bind(id).first())) return fail(c, 404, "not_found", "no such channel");
     const at = nowIso(); let approvalId: string | null = null;
     const stmts = [];

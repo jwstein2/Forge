@@ -139,6 +139,10 @@ describe("Pinterest runway and receipts", () => {
     expect(ch).toEqual({ status: "verified", last_verified_url: "https://www.pinterest.com/pin/123/" });
     expect((await q(db, `SELECT label FROM evidence WHERE subject_id='ch_qpk_pinterest' AND collected_by='ops.pin_runway'`))[0]!.label).toBe("VERIFIED");
     expect(await q(db, `SELECT * FROM alerts WHERE dedupe_key LIKE 'ops:pins:%' AND state='open'`)).toHaveLength(0);
+    // ten days later with no new pin: no longer "verified"
+    await enqueue(db, h, { runAt: PAST, kind: "ops.pin_runway", createdBy: "t2" });
+    await run(env, h, T("2026-11-19T12:00:00Z"));
+    expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).toBe("running");
   });
 });
 
@@ -208,10 +212,22 @@ describe("bounded model step and claims lint", () => {
   it("lints unsupported claims", () => {
     expect(claimsLint("Join 5,000 quilters who love it")).toContain("unsupported customer count");
     expect(claimsLint("Guaranteed to save you time")).toContain("guarantee claim");
-    expect(claimsLint("Customers say it's the best")).toContain("social proof that FORGE cannot verify");
+    expect(claimsLint("Customers say it's the best")).toContain("rating or review FORGE cannot verify");
     expect(claimsLint("Work out how much binding fabric to buy before you cut.")).toEqual([]);
     expect(costCents("claude-opus-5-5", 1_000_000, 0)).toBe(400);
     expect(extractJson('```json\n{"a":1}\n```')).toEqual({ a: 1 });
+  });
+
+  it("blocks every phrase QA-005 V2 got through, and allows real prices and measurements", () => {
+    const bad = [
+      "Loved by quilters everywhere", "Trusted by contractors", "4.9★ from our buyers", "★★★★★",
+      "\u201cSaved my business\u201d \u2014 Mike R., roofer", "raise margins 23%", "Make an extra $1,000 a month",
+      "The best estimating spreadsheet", "100% satisfaction or your money back",
+    ];
+    for (const b of bad) expect(claimsLint(b), b).not.toEqual([]);
+    expect(claimsLint("The kit is $19.99 and includes a markup sheet.", [1999])).toEqual([]);
+    expect(claimsLint("The kit is $9.99 today.", [1999])).toEqual(["price $9.99 is not a current product price"]);
+    expect(claimsLint("Cut 2 1/2 in strips; a 60 x 72 in quilt needs 7 strips.")).toEqual([]);
   });
 
   const fake = (outs: string[]): LlmProvider & { prompts: string[] } => {
@@ -291,7 +307,7 @@ describe("publishing and verification", () => {
     const { db } = await drafted();
     await expect(db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','fake_live',1,'x',?)`).bind(new Date().toISOString()).run()).rejects.toThrow();
     await db.prepare(`INSERT INTO approvals (id,scope,action,status,requested_by,created_at) VALUES ('apr_p','channel:ch_qpk_pinterest','x','pending','agent',?)`).bind(new Date().toISOString()).run();
-    await db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','fake_live',1,'apr_p','x',?)`).bind(new Date().toISOString()).run();
+    await db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,window_end,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','fake_live',1,'apr_p','2099-01-01T00:00:00Z','x',?)`).bind(new Date().toISOString()).run();
     expect(await policyFor(db, "ch_qpk_pinterest", new Date())).toMatchObject({ mode: "draft_only", reason: "standing approval not approved by owner" });
   });
 
@@ -299,8 +315,8 @@ describe("publishing and verification", () => {
     const { env, db, draft } = await drafted();
     const at = new Date().toISOString();
     await db.prepare(`INSERT INTO approvals (id,scope,action,status,requested_by,decided_by,decided_at,created_at) VALUES ('apr_s','channel:ch_qpk_pinterest','x','approved','owner','owner',?,?)`).bind(at, at).run();
-    await db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','fake_live',1,'apr_s','owner',?)`).bind(at).run();
-    const url = "https://example-platform.test/post/1";
+    await db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,window_end,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','fake_live',1,'apr_s','2099-01-01T00:00:00Z','owner',?)`).bind(at).run();
+    const url = "https://www.pinterest.com/pin/4455667788/";
     const h = handlersWith({ fetcher: fakeFetcher({ [url]: `<html>${draft.headline}</html>` }), publishers: [live(url)] });
     await enqueue(db, h, { runAt: PAST, kind: "ops.content_publish", createdBy: "p" });
     await run(env, h);
@@ -312,14 +328,39 @@ describe("publishing and verification", () => {
     expect((await q(db, `SELECT last_verified_url FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.last_verified_url).toBe(url);
   });
 
+  it("rejects the receipts QA-005 V1 got verified, and stale or open-ended standing policies", async () => {
+    const { env, db, draft } = await drafted();
+    const bogus = ["https://notpinterest.example.com/anything", "https://www.pinterest.com/", "https://quiltplankit.pages.dev/"];
+    const ids = (await q(db, `SELECT id FROM op_content_items WHERE channel_id='ch_qpk_pinterest' LIMIT 3`)).map((r) => r.id);
+    for (let i = 0; i < 3; i++) await db.prepare(`UPDATE op_content_items SET status='published', external_url=?, published_at=? WHERE id=?`).bind(bogus[i], new Date().toISOString(), ids[i]).run();
+    const pages: Record<string, string> = Object.fromEntries(bogus.map((u) => [u, `<html>${draft.headline}</html>`]));
+    const h = handlersWith({ fetcher: fakeFetcher(pages) });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.content_verify", createdBy: "v" });
+    await run(env, h);
+    expect((await q(db, `SELECT status FROM op_content_items WHERE external_url IN (?,?,?)`, ...bogus)).map((r) => r.status)).toEqual(["failed", "failed", "failed"]);
+    const [ch] = await q(db, `SELECT last_verified_url FROM channels WHERE id='ch_qpk_pinterest'`);
+    expect(bogus).not.toContain(ch!.last_verified_url);
+    // a real pin URL whose page does not show the headline is not enough either
+    const { receiptRule } = await import("../src/handlers/content.ts");
+    expect(receiptRule("pinterest", "https://www.pinterest.com/pin/123/", "https://quiltplankit.pages.dev").ok).toBe(true);
+    expect(receiptRule("seo", "https://quiltplankit.pages.dev/guides/borders", "https://quiltplankit.pages.dev").ok).toBe(true);
+    expect(receiptRule("email", "https://quiltplankit.pages.dev/x", "https://quiltplankit.pages.dev").ok).toBe(false);
+    // standing with no end date is treated as draft_only
+    const at = new Date().toISOString();
+    await db.prepare(`INSERT INTO approvals (id,scope,action,status,requested_by,decided_by,decided_at,created_at) VALUES ('apr_o','c','x','approved','owner','owner',?,?)`).bind(at, at).run();
+    await expect(db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','dry_run',1,'apr_o','owner',?)`).bind(at).run()).rejects.toThrow(/window_end/);
+    await db.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,window_end,updated_by,updated_at) VALUES ('ch_qpk_pinterest','standing','dry_run',1,'apr_o','2026-12-01T00:00:00Z','owner',?)`).bind(at).run();
+    expect(await policyFor(db, "ch_qpk_pinterest", new Date("2030-01-01T00:00:00Z"))).toMatchObject({ mode: "draft_only", reason: "standing approval window ended" });
+  });
+
   it("fails and alerts when a publication cannot be confirmed within 72 hours", async () => {
     const { env, db } = await drafted();
     const old = "2026-11-01T00:00:00Z";
-    await db.prepare(`UPDATE op_content_items SET status='published', external_url='https://example-platform.test/missing', published_at=? WHERE id IN (SELECT id FROM op_content_items WHERE channel_id='ch_qpk_pinterest' LIMIT 1)`).bind(old).run();
+    await db.prepare(`UPDATE op_content_items SET status='published', external_url='https://www.pinterest.com/pin/999000111/', published_at=? WHERE id IN (SELECT id FROM op_content_items WHERE channel_id='ch_qpk_pinterest' LIMIT 1)`).bind(old).run();
     const h = handlersWith({ fetcher: fakeFetcher({}) });
     await enqueue(db, h, { runAt: PAST, kind: "ops.content_verify", createdBy: "v" });
     await run(env, h, T("2026-11-10T00:00:00Z"));
-    expect((await q(db, `SELECT status FROM op_content_items WHERE external_url='https://example-platform.test/missing'`))[0]!.status).toBe("failed");
+    expect((await q(db, `SELECT status FROM op_content_items WHERE external_url='https://www.pinterest.com/pin/999000111/'`))[0]!.status).toBe("failed");
     expect(await q(db, `SELECT * FROM alerts WHERE source='ops.content_verify' AND state='open'`)).toHaveLength(1);
     expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).not.toBe("failing"); // channel record untouched by a single failure
   });

@@ -42,10 +42,13 @@ describe("operator routes", () => {
   it("records a standing policy with the owner's approval and a manual publication URL", async () => {
     const { env, db } = await withItem({ headline: "h", body: "b", cta: "c", linkPath: "/" });
     const call = app("owner");
-    const p = await call(env, "PUT", "/policies/ch_qpk_pinterest", { mode: "standing", publisher: "dry_run", dailyCap: 1, windowEnd: "2026-12-31T00:00:00Z" });
+    const p = await call(env, "PUT", "/policies/ch_qpk_pinterest", { mode: "standing", publisher: "dry_run", dailyCap: 1, windowEnd: new Date(Date.now() + 30 * 86400000).toISOString() });
     expect(p.status).toBe(200);
     expect(((await db.prepare(`SELECT status FROM approvals WHERE id=?`).bind(p.json.data.approvalId).first()) as any).status).toBe("approved");
     expect((await call(env, "PUT", "/policies/ch_qpk_pinterest", { mode: "yolo" })).status).toBe(400);
+    expect((await call(env, "PUT", "/policies/ch_qpk_pinterest", { mode: "standing" })).status).toBe(400);           // no end date
+    expect((await call(env, "PUT", "/policies/ch_qpk_pinterest", { mode: "standing", windowEnd: "2030-01-01T00:00:00Z" })).status).toBe(400); // > 90 days
+    expect((await call(env, "POST", "/content/ci_1/published", { externalUrl: "https://notpinterest.example.com/x" })).status).toBe(422);
     expect((await call(env, "POST", "/content/ci_1/published", { externalUrl: "javascript:alert(1)" })).status).toBe(400);
     const ok = await call(env, "POST", "/content/ci_1/published", { externalUrl: "https://www.pinterest.com/pin/9/" });
     expect(ok.json.data.status).toBe("published");

@@ -82,10 +82,11 @@ export function pinRunway(fetcher: Fetcher): HandlerDef {
 
         // 3. platform receipts
         const pf = profileFeed(ch.account_url);
+        const pinOnly = (items: ReturnType<typeof parseRssItems>) => items.filter((i) => /^https:\/\/(www\.|[a-z]{2}\.)?pinterest\.[a-z.]+\/pin\/\d+\/?$/.test(i.link));
         if (!pf) out.platform = { state: "unconnected", reason: "No Pinterest profile URL on the channel record; publication on Pinterest cannot be verified by FORGE." };
         else {
           const p = await fetcher(pf, { timeoutMs: 15000 });
-          const items = p.ok ? parseRssItems(p.text) : [];
+          const items = p.ok ? pinOnly(parseRssItems(p.text)) : [];
           for (const it of items) await db.prepare(`INSERT INTO op_publications (id,channel_id,niche_id,external_url,title,published_at,observed_at,source) VALUES (?,?,?,?,?,?,?,'platform_feed') ON CONFLICT(channel_id, external_url) DO NOTHING`)
             .bind(newId("pub"), channelId, ch.niche_id, it.link, it.title, it.pubDate, nowIso()).run();
           const newest = items.filter((i) => i.pubDate).sort((a, b) => (b.pubDate! > a.pubDate! ? 1 : -1))[0];
@@ -94,6 +95,8 @@ export function pinRunway(fetcher: Fetcher): HandlerDef {
             await db.prepare(`UPDATE channels SET status='verified', last_verified_at=?, last_verified_url=?, updated_at=? WHERE id=?`).bind(newest.pubDate, newest.link, nowIso(), channelId).run();
             await addEvidence(db, { subjectType: "channel", subjectId: channelId, claim: `Newest Pinterest pin observed in the public profile feed: ${newest.title ?? newest.link}`, label: "VERIFIED", source: "pinterest.profile_rss", url: newest.link, collectedBy: "ops.pin_runway" });
             const ageDays = (now.getTime() - Date.parse(newest.pubDate!)) / DAY;
+            // A channel is only "verified" while receipts are fresh (QA-005 V4): after 7 days without a new pin it drops to "running".
+            if (ageDays > 7) await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=?`).bind(nowIso(), channelId).run();
             if (ageDays > 3) await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `No new ${ch.name} pin on Pinterest for ${Math.floor(ageDays)} days`, detail: `Newest pin ${newest.pubDate}. The drip publishes daily when the queue has items.`, evidenceUrl: newest.link });
             else await resolveAlert(db, skey);
           } else if (p.status !== null) {

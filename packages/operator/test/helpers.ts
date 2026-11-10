@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { NodeD1, applyMigrations } from "../../../services/api/src/lib/node-d1.ts";
 import type { Env } from "../../../services/api/src/lib/env.ts";
 import { seedRegistry } from "../../../services/api/src/domain/seed.ts";
@@ -12,8 +12,11 @@ import type { Fetcher, FetchResult } from "../src/lib.ts";
 export async function makeEnv(): Promise<{ env: Env; db: D1Database; d1: NodeD1 }> {
   const d1 = new NodeD1(":memory:");
   applyMigrations(d1, join(import.meta.dirname, "..", "..", "..", "services", "api", "migrations"));
-  // The platform copies our migrations into services/api/migrations; apply ours only when it has not yet.
-  if (!d1.db.prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='op_schedules'`).get()) applyMigrations(d1, join(import.meta.dirname, "..", "migrations"));
+  // The platform copies our migrations into services/api/migrations; apply any of ours it does not have yet.
+  const platformDir = join(import.meta.dirname, "..", "..", "..", "services", "api", "migrations");
+  const have = new Set(readdirSync(platformDir));
+  const mine = join(import.meta.dirname, "..", "migrations");
+  for (const f of readdirSync(mine).filter((f) => f.endsWith(".sql")).sort()) if (!have.has(f)) d1.db.exec(readFileSync(join(mine, f), "utf8"));
   const env = { DB: d1.asD1(), ENVIRONMENT: "test", OWNER_EMAILS: "owner@forge.test" } as Env;
   await seedRegistry(env.DB, REGISTRY_DATA);
   await seedOperatorRegistry(env.DB);
