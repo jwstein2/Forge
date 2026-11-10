@@ -116,15 +116,15 @@ export function contentPlan(): HandlerDef {
 // (FORGE has no verified outcome data to support one). Measurements such as "2 1/2 in" are allowed.
 const CLAIM_RULES: [RegExp, string][] = [
   [/\b(guarantee[ds]?|risk[- ]free|money[- ]back|satisfaction|no[- ]questions[- ]asked)\b/i, "guarantee claim"],
-  [/#\s?1\b|\bnumber one\b|\bbest[- ]selling\b|\bmost popular\b|\b(the|our) best\b|\bbest\s+\w+\s+(spreadsheet|template|calculator|planner|tool|kit|workbook)\b|\btop[- ]rated\b|\bleading\b|\bultimate\b|\bworld[- ]class\b|\bunbeatable\b/i, "unsupported superlative"],
-  [/\b(thousands|hundreds|millions|tons|lots) of\b/i, "unsupported volume claim"],
+  [/#\s?1\b|\bnumber one\b|\bbest[- ]selling\b|\bmost popular\b|\b(the|our) best\b|\bbest\s+\w+\s+(spreadsheet|template|calculator|planner|tool|kit|workbook)\b|\btop[- ]rated\b|\bleading (?!to\b)\w+|\bindustry[- ]leading\b|\bultimate\b|\bworld[- ]class\b|\bunbeatable\b/i, "unsupported superlative"],
+  [/\b(thousands|hundreds|millions|tons|lots) of\b|\ba (thousand|hundred|million)\b/i, "unsupported volume claim"],
   [/\b\d[\d,.]*\s*k?\+?\s+(customers|users|quilters|bakers|contractors|downloads|buyers|happy|people|businesses|makers|members|subscribers)\b/i, "unsupported customer count"],
-  [/\b(loved|trusted|used|chosen|preferred|recommended|relied on)\s+by\b|\b(fan|crowd|customer)[- ]favou?rite\b|\beveryone('s| is)\b/i, "social proof that FORGE cannot verify"],
-  [/\b(testimonials?|reviews?|customers? (say|love|rave)|rated \d|\d(\.\d)?\s*(stars?|\/\s*5|out of (5|five)))\b|★|☆|⭐|\bfive[- ]star\b/i, "rating or review FORGE cannot verify"],
-  [/["“”][^"“”]{3,200}["“”]\s*[—–-]\s*[A-Z]/u, "quoted testimonial with attribution"],
+  [/\b(loved|trusted|used|chosen|preferred|recommended|relied on)\s+by\b|\b(fan|crowd|customer)[- ]favou?rite\b|\beveryone('s| is)\b|\bswears? by\b|\braving\b|\brave reviews?\b|\bgame[- ]changer\b/i, "social proof that FORGE cannot verify"],
+  [/\b(testimonials?|reviews?|customers? (say|love|rave)|rated \d|\d(\.\d)?\s*(stars?|\/\s*5|out of (5|five)))\b|★|☆|⭐|\b(five|5)[- ]star\b/i, "rating or review FORGE cannot verify"],
+  [/(["“”'‘’])[^"“”'‘’\n]{3,200}["“”'‘’]\s*[—–-]+\s*[A-Z]/u, "quoted testimonial with attribution"],
   [/\bas seen (on|in)\b|\bfeatured (on|in)\b/i, "unsupported press claim"],
   [/\bproven\b|\bclinically\b|\bscientifically\b|\bexperts? (agree|say)\b/i, "unsupported proof claim"],
-  [/\b(double|triple|10x|2x|3x)\b|\b(raise|boost|increase|grow|cut|slash|reduce)\b[^.\n]{0,40}\b(margins?|profits?|revenue|sales|income|costs?|time)\b[^.\n]{0,20}\d/i, "unsupported performance claim"],
+  [/\b(double|triple|10x|2x|3x)\b|\b\d+\s*(x|times) (faster|quicker|more|better|easier)\b|\bin half\b|\bhalve\b|\bpays? for itself\b|\b(raise|boost|increase|grow|cut|slash|reduce)\b[^.\n]{0,40}\b(margins?|profits?|revenue|sales|income|costs?|time)\b[^.\n]{0,20}\d/i, "unsupported performance claim"],
   [/\b(earn|make|save|extra|additional)\b[^.\n]{0,20}\$\s?\d/i, "unsupported financial outcome"],
   [/\d+(\.\d+)?\s*%|\bpercent\b/i, "percentage claim FORGE cannot verify"],
 ];
@@ -156,7 +156,11 @@ export function receiptRule(platform: string, url: string, siteUrl: string | nul
   if (own && host === own) return { ok: false, reason: "the niche's own site is not a platform receipt" };
   if (platform === "pinterest") return /^(www\.|[a-z]{2}\.)?pinterest\.(com|co\.uk|ca|com\.au|de|fr|es|it|jp|com\.mx|nz|ie|at|ch|pt|se|dk|nl|be)$/.test(host) && /^\/pin\/\d+\/?$/.test(u.pathname) ? { ok: true } : { ok: false, reason: "Pinterest receipt must be https://pinterest.<tld>/pin/<id>/" };
   if (platform === "youtube") return (under("youtube.com") && ((u.pathname === "/watch" && /^[\w-]{11}$/.test(u.searchParams.get("v") ?? "")) || /^\/shorts\/[\w-]{11}$/.test(u.pathname))) || (host === "youtu.be" && /^\/[\w-]{11}$/.test(u.pathname)) ? { ok: true } : { ok: false, reason: "YouTube receipt must be a watch, shorts or youtu.be video URL" };
-  if (platform === "email") return (under("mailerlite.com") || under("mailerlite.io") || under("mlsend.com")) && u.pathname.length > 1 ? { ok: true } : { ok: false, reason: "email receipt must be a MailerLite campaign or web-version URL" };
+  if (platform === "email") {
+    const webVersion = (under("mailerlite.com") || under("mailerlite.io")) && /^\/(webview|campaign|campaigns|newsletter|p)\/[\w-]+/.test(u.pathname) && !/^(www\.)?mailerlite\.(com|io)$/.test(host) ? true : false;
+    const mlsend = under("mlsend.com") && u.pathname.length > 1;
+    return webVersion || mlsend ? { ok: true } : { ok: false, reason: "email receipt must be a MailerLite campaign web-version URL" };
+  }
   if (platform === "instagram") return under("instagram.com") && /^\/(p|reel)\/[\w-]+\/?$/.test(u.pathname) ? { ok: true } : { ok: false, reason: "Instagram receipt must be a /p/ or /reel/ URL" };
   return { ok: false, reason: `no receipt rule for platform ${platform}` };
 }

@@ -144,6 +144,17 @@ describe("Pinterest runway and receipts", () => {
     await run(env, h, T("2026-11-19T12:00:00Z"));
     expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).toBe("running");
   });
+
+  it("drops a verified channel to running when the profile feed cannot be read", async () => {
+    const { env, db } = await makeEnv();
+    await db.prepare(`UPDATE channels SET account_url='https://www.pinterest.com/quiltplankit/' WHERE id='ch_qpk_pinterest'`).run();
+    expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).toBe("verified");
+    const h = handlersWith({ fetcher: fakeFetcher(healthySites({ "https://www.pinterest.com/quiltplankit/feed.rss": { ok: false, status: 503 } })) });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.pin_runway", createdBy: "t" });
+    await run(env, h, T("2026-11-10T03:00:00Z"));
+    expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).toBe("running");
+    expect(await q(db, `SELECT * FROM alerts WHERE dedupe_key='ops:pins:stale:ch_qpk_pinterest' AND state='open'`)).toHaveLength(1);
+  });
 });
 
 describe("SEO audit", () => {
@@ -224,7 +235,10 @@ describe("bounded model step and claims lint", () => {
       "\u201cSaved my business\u201d \u2014 Mike R., roofer", "raise margins 23%", "Make an extra $1,000 a month",
       "The best estimating spreadsheet", "100% satisfaction or your money back",
     ];
+    bad.push("Quilters can't stop raving", "Bakers swear by it", "5-star rated", "It pays for itself", "Over a thousand downloads",
+      "Cut your quoting time in half", "10 times faster than pen and paper", "'Game changer' - Sarah");
     for (const b of bad) expect(claimsLint(b), b).not.toEqual([]);
+    expect(claimsLint("Skipping the seam allowance, leading to short borders, is the most common mistake.")).toEqual([]);
     expect(claimsLint("The kit is $19.99 and includes a markup sheet.", [1999])).toEqual([]);
     expect(claimsLint("The kit is $9.99 today.", [1999])).toEqual(["price $9.99 is not a current product price"]);
     expect(claimsLint("Cut 2 1/2 in strips; a 60 x 72 in quilt needs 7 strips.")).toEqual([]);
@@ -345,6 +359,8 @@ describe("publishing and verification", () => {
     expect(receiptRule("pinterest", "https://www.pinterest.com/pin/123/", "https://quiltplankit.pages.dev").ok).toBe(true);
     expect(receiptRule("seo", "https://quiltplankit.pages.dev/guides/borders", "https://quiltplankit.pages.dev").ok).toBe(true);
     expect(receiptRule("email", "https://quiltplankit.pages.dev/x", "https://quiltplankit.pages.dev").ok).toBe(false);
+    expect(receiptRule("email", "https://www.mailerlite.com/pricing", null).ok).toBe(false);
+    expect(receiptRule("email", "https://preview.mailerlite.io/webview/123abc", null).ok).toBe(true);
     // standing with no end date is treated as draft_only
     const at = new Date().toISOString();
     await db.prepare(`INSERT INTO approvals (id,scope,action,status,requested_by,decided_by,decided_at,created_at) VALUES ('apr_o','c','x','approved','owner','owner',?,?)`).bind(at, at).run();

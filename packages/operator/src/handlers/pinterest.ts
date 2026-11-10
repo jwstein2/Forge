@@ -99,7 +99,12 @@ export function pinRunway(fetcher: Fetcher): HandlerDef {
             if (ageDays > 7) await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=?`).bind(nowIso(), channelId).run();
             if (ageDays > 3) await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `No new ${ch.name} pin on Pinterest for ${Math.floor(ageDays)} days`, detail: `Newest pin ${newest.pubDate}. The drip publishes daily when the queue has items.`, evidenceUrl: newest.link });
             else await resolveAlert(db, skey);
+          } else if (!p.ok) {
+            // Feed unreadable: FORGE can no longer confirm publication, so the channel is not "verified" (QA-005 V7).
+            await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=? AND status='verified'`).bind(nowIso(), channelId).run();
+            await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `${ch.name} Pinterest profile feed could not be read`, detail: `Fetched ${pf}: ${p.status === null ? p.error ?? "no response" : `HTTP ${p.status}`}. Publication cannot be confirmed.` });
           } else if (p.status !== null) {
+            await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=? AND status='verified'`).bind(nowIso(), channelId).run();
             await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `${ch.name} Pinterest profile feed shows no pins`, detail: `Fetched ${pf}: HTTP ${p.status}, 0 items.` });
           }
           out.platform = { state: p.ok ? "read" : "error", status: p.status, items: items.length, newest: newest?.link ?? null };
