@@ -36,7 +36,7 @@ export function operatorRoutes() {
     const kind = c.req.query("kind"); const niche = c.req.query("niche");
     const rows = (await c.env.DB.prepare(`SELECT * FROM op_checks WHERE (? IS NULL OR check_kind = ?) AND (? IS NULL OR niche_id = ?) ORDER BY checked_at DESC LIMIT ?`)
       .bind(kind ?? null, kind ?? null, niche ?? null, niche ?? null, Math.min(Number(c.req.query("limit") ?? 100), 500)).all<Record<string, any>>()).results;
-    return c.json({ ok: true, data: rows.map((x) => ({ id: x.id, kind: x.check_kind, nicheId: x.niche_id, target: x.target, ok: !!x.ok, statusCode: x.status_code, latencyMs: x.latency_ms, findings: parse(x.findings_json) ?? [], checkedAt: x.checked_at })) });
+    return c.json({ ok: true, data: rows.map((x) => ({ id: x.id, kind: x.check_kind, nicheId: x.niche_id, target: x.target, ok: x.ok === null ? null : !!x.ok, unknown: x.ok === null, statusCode: x.status_code, latencyMs: x.latency_ms, findings: parse(x.findings_json) ?? [], checkedAt: x.checked_at })) });
   });
 
   r.get("/content", async (c) => {

@@ -30,7 +30,7 @@ export async function buildSummary(db: D1Database, start: Date, end: Date) {
       (SELECT COUNT(*) FROM op_publications p WHERE p.channel_id = c.id AND p.source = 'site_feed' AND p.observed_at >= ? AND p.observed_at < ?) AS feed_items
     FROM channels c ORDER BY c.niche_id, c.platform`).bind(s, e, s, e).all<Record<string, any>>()).results;
   const pipeline = (await db.prepare(`SELECT status, COUNT(*) AS n, SUM(late) AS late FROM op_content_items GROUP BY status`).all<{ status: string; n: number; late: number }>()).results;
-  const health = (await db.prepare(`SELECT target, niche_id, COUNT(*) AS checks, SUM(ok) AS ok FROM op_checks WHERE check_kind = 'site_health' AND checked_at >= ? AND checked_at < ? GROUP BY target ORDER BY target`).bind(s, e).all<Record<string, any>>()).results;
+  const health = (await db.prepare(`SELECT target, niche_id, COUNT(ok) AS checks, SUM(ok) AS ok, SUM(CASE WHEN ok IS NULL THEN 1 ELSE 0 END) AS unknown FROM op_checks WHERE check_kind = 'site_health' AND checked_at >= ? AND checked_at < ? GROUP BY target ORDER BY target`).bind(s, e).all<Record<string, any>>()).results;
   const llm = await db.prepare(`SELECT COUNT(*) AS calls, SUM(cost_cents) AS cost FROM op_llm_calls WHERE at >= ? AND at < ?`).bind(s, e).first<{ calls: number; cost: number | null }>();
 
   const sources = await listSources(db);
@@ -50,7 +50,7 @@ export async function buildSummary(db: D1Database, start: Date, end: Date) {
   const verifiedCh = channels.filter((c) => c.status === "verified");
   const crit = openNow.filter((a) => a.severity === "critical");
   const headline: string[] = [];
-  headline.push(revenue.state === "unconnected" ? "Revenue: unknown (ledger not connected)." : `Revenue: ${money(Number(revenue.grossCents))} gross from ${revenue.orders} live order(s)${revenue.state === "partial" ? " (partial week of data)" : ""}.`);
+  headline.push(revenue.state === "unconnected" ? "Revenue: unknown (ledger not connected)." : `Revenue: ${money(Number(revenue.grossCents))} gross from ${revenue.orders} live order(s)${revenue.state === "partial" ? " (partial week of data)" : ""}, from ${ledger!.mode === "snapshot" ? `a ledger snapshot dated ${ledger!.asOf ?? "unknown"}` : `the live ledger as of ${ledger!.asOf ?? "unknown"}`}.`);
   headline.push(`Jobs: ${okRuns} successful and ${badRuns} failed run(s) reported to FORGE; ${silent.length} LIVE job(s) reported nothing.`);
   headline.push(`Channels: ${verifiedCh.length} of ${channels.length} verified; ${channels.reduce((a, c) => a + Number(c.platform_receipts), 0)} platform-confirmed publication(s) this week.`);
   headline.push(crit.length ? `${crit.length} critical alert(s) open: ${crit.slice(0, 3).map((a) => a.title).join("; ")}.` : `No critical alerts open; ${openNow.length} other alert(s) open.`);

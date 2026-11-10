@@ -6,6 +6,7 @@ import { runway, profileFeed } from "../src/handlers/pinterest.ts";
 import { auditPage } from "../src/handlers/seo.ts";
 import { previousWeek } from "../src/handlers/summary.ts";
 import { boundedJsonCall, costCents, extractJson, type LlmProvider } from "../src/llm.ts";
+import { isProbeError, type Fetcher } from "../src/lib.ts";
 import { brief, fakeFetcher, handlersWith, healthySites, makeEnv, page, run } from "./helpers.ts";
 import { enqueue, tick } from "../../../services/api/src/orchestration/engine.ts";
 
@@ -52,6 +53,51 @@ describe("schedules", () => {
 });
 
 describe("site health", () => {
+  const LIMIT = "Too many subrequests by single Worker invocation";
+  it("classifies Worker runtime and limit errors as probe errors, not site failures (QA-008)", () => {
+    expect(isProbeError(LIMIT)).toBe(true);
+    expect(isProbeError("Worker exceeded CPU time limit.")).toBe(true);
+    expect(isProbeError("The operation was aborted due to timeout")).toBe(false);
+    expect(isProbeError("getaddrinfo ENOTFOUND bidline.pages.dev")).toBe(false);
+  });
+
+  it("records UNKNOWN and raises no alert when FORGE itself cannot make the request (QA-008)", async () => {
+    const { env, db } = await makeEnv();
+    await db.prepare(`INSERT INTO alerts (id,severity,source,title,state,dedupe_key,first_seen,last_seen) VALUES ('al_x','critical','ops.site_health','Bidline home check failing','open','ops:health:https://bidline.pages.dev/','2026-11-10T03:45:00Z','2026-11-10T03:45:00Z')`).run();
+    const f = Object.assign(async () => ({ ok: false, status: null, text: "", latencyMs: 1, error: LIMIT, probeError: true }), { calls: [] as string[] }) as unknown as Fetcher;
+    let calls = 0; const counting: Fetcher = async (u, o) => { calls++; return f(u, o); };
+    const h = handlersWith({ fetcher: counting });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.site_health", createdBy: "t" });
+    expect((await run(env, h))[0]!.outcome).toBe("succeeded");
+    const checks = await q(db, `SELECT ok, findings_json FROM op_checks WHERE check_kind='site_health'`);
+    expect(checks).toHaveLength(11);
+    expect(checks.every((c) => c.ok === null && c.findings_json.includes("checker_error"))).toBe(true);
+    expect(calls).toBe(1); // stops after the first runtime error instead of burning more subrequests
+    expect(await q(db, `SELECT * FROM alerts WHERE source='ops.site_health' AND dedupe_key<>'ops:health:https://bidline.pages.dev/'`)).toHaveLength(0);
+    expect((await q(db, `SELECT state FROM alerts WHERE id='al_x'`))[0]!.state).toBe("open"); // unknown neither raises nor clears
+  });
+
+  it("re-checks a failure once before alerting, so a single dropped request raises nothing", async () => {
+    const { env, db } = await makeEnv();
+    const healthy = fakeFetcher(healthySites()); let first = true;
+    const flaky: Fetcher = async (u, o) => { if (u === "https://bidline.pages.dev/" && first) { first = false; return { ok: false, status: 503, text: "", latencyMs: 5 }; } return healthy(u, o); };
+    const h = handlersWith({ fetcher: flaky });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.site_health", createdBy: "t" });
+    await run(env, h);
+    expect(await q(db, `SELECT * FROM alerts WHERE source='ops.site_health'`)).toHaveLength(0);
+    expect((await q(db, `SELECT ok FROM op_checks WHERE target='https://bidline.pages.dev/'`))[0]!.ok).toBe(1);
+  });
+
+  it("caps fetches per run and records the rest as unknown", async () => {
+    const { env, db } = await makeEnv();
+    const f = fakeFetcher(healthySites());
+    const h = handlersWith({ fetcher: f });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.site_health", createdBy: "t", input: { maxFetches: 4 } });
+    await run(env, h);
+    expect(f.calls).toHaveLength(4);
+    expect(await q(db, `SELECT * FROM op_checks WHERE check_kind='site_health' AND ok IS NULL`)).toHaveLength(7);
+  });
+
   it("records checks and a FORGE run when everything is up", async () => {
     const { env, db } = await makeEnv();
     const f = fakeFetcher(healthySites());
@@ -167,10 +213,11 @@ describe("SEO audit", () => {
   it("crawls the sitemap and alerts on broken pages", async () => {
     const { env, db } = await makeEnv();
     const base = "https://quiltplankit.pages.dev";
-    const h = handlersWith({ fetcher: fakeFetcher(healthySites({
+    const f = fakeFetcher(healthySites({
       [`${base}/sitemap.xml`]: `<urlset><url><loc>${base}/</loc></url><url><loc>${base}/gone</loc></url><url><loc>${base}/thin</loc></url></urlset>`,
       [`${base}/thin`]: page({ title: "Thin" }),
-    })) });
+    }));
+    const h = handlersWith({ fetcher: f });
     await enqueue(db, h, { runAt: PAST, kind: "ops.seo_audit", createdBy: "t", input: { nicheId: "quilt-plan-kit", batchSize: 2 } });
     // One job per tick, as on the CPU-limited cron: planner, then 2 batches, then finalize.
     const one = () => tick(env.DB, env, h, { workerId: "test", now: new Date(), maxJobs: 1 });
@@ -183,10 +230,37 @@ describe("SEO audit", () => {
     await one();
     expect((await q(db, `SELECT status FROM jobs WHERE kind='ops.seo_finalize'`))[0]!.status).toBe("succeeded");
     const pages = await q(db, `SELECT target, ok, status_code FROM op_checks WHERE check_kind='seo_page' ORDER BY target`);
+    expect(f.calls.filter((u) => u === `${base}/gone`)).toHaveLength(2); // a broken page is re-checked once
     expect(pages.map((p) => [p.target.replace(base, ""), p.ok])).toEqual([["/", 1], ["/gone", 0], ["/thin", 0]]);
     const [a] = await q(db, `SELECT severity, title FROM alerts WHERE dedupe_key='ops:seo:quilt-plan-kit'`);
     expect(a!.severity).toBe("critical");
     expect(a!.title).toContain("1 broken page");
+  });
+
+  it("fans the weekly crawl out to one planner per niche", async () => {
+    const { env, db } = await makeEnv();
+    const f = fakeFetcher(healthySites());
+    const h = handlersWith({ fetcher: f });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.seo_audit", createdBy: "t", input: { maxPages: 60 } });
+    await tick(env.DB, env, h, { workerId: "t", now: new Date(), maxJobs: 1 });
+    expect(f.calls).toHaveLength(0); // the top-level planner fetches nothing
+    expect((await q(db, `SELECT niche_id FROM jobs WHERE kind='ops.seo_audit' AND niche_id IS NOT NULL ORDER BY niche_id`)).map((r) => r.niche_id)).toEqual(["bidline", "loaf-ledger", "quilt-plan-kit"]);
+    await run(env, h); await run(env, h); await run(env, h);
+    expect(await q(db, `SELECT * FROM alerts WHERE source='ops.seo_audit' AND state='open'`)).toHaveLength(0);
+    expect((await q(db, `SELECT COUNT(*) AS n FROM jobs WHERE kind='ops.seo_finalize' AND status='succeeded'`))[0]!.n).toBe(3);
+  });
+
+  it("does not call pages broken when the crawler hits a runtime limit", async () => {
+    const { env, db } = await makeEnv();
+    const base = "https://quiltplankit.pages.dev";
+    const healthy = fakeFetcher(healthySites({ [`${base}/sitemap.xml`]: `<urlset><url><loc>${base}/</loc></url><url><loc>${base}/a</loc></url></urlset>` }));
+    const limited: Fetcher = async (u, o) => (u === `${base}/` ? { ok: false, status: null, text: "", latencyMs: 1, error: "Too many subrequests by single Worker invocation", probeError: true } : healthy(u, o));
+    const h = handlersWith({ fetcher: limited });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.seo_audit", createdBy: "t", input: { nicheId: "quilt-plan-kit" } });
+    await run(env, h); await run(env, h); await run(env, h);
+    expect(await q(db, `SELECT * FROM alerts WHERE dedupe_key='ops:seo:quilt-plan-kit' AND state='open'`)).toHaveLength(0);
+    const out = JSON.parse((await q(db, `SELECT output_json FROM jobs WHERE kind='ops.seo_finalize'`))[0]!.output_json).summarize;
+    expect(out).toMatchObject({ broken: 0, unknown: 2 });
   });
 });
 

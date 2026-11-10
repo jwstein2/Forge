@@ -4,7 +4,7 @@
  * scheduler shows up as a late heartbeat instead of silence.
  */
 import type { HandlerDef } from "../../../../services/api/src/orchestration/engine.ts";
-import { activeNiches, joinUrl, raiseAlert, recordCheck, resolveAlert, type Fetcher, type Finding } from "../lib.ts";
+import { activeNiches, alertStmt, checkStmt, flush, joinUrl, resolveStmt, type Fetcher, type Finding } from "../lib.ts";
 
 export interface HealthTarget { url: string; nicheId: string | null; label: string; critical: boolean; mustContain?: string[]; mustNotContain?: string[]; maxLatencyMs?: number }
 
@@ -47,21 +47,41 @@ export function siteHealth(fetcher: Fetcher): HandlerDef {
       async run({ db, jobId, input }) {
         const niches = await activeNiches(db, (input.nicheId as string) ?? null);
         const targets = [...niches.filter((n) => n.site_url).flatMap((n) => siteTargets(n as { id: string; name: string; site_url: string })), ...(input.nicheId ? [] : SHARED_TARGETS)];
-        let failing = 0; let resolved = 0;
+        // Each fetch is a Worker subrequest, and staging counts D1 calls too (50 per invocation). Fetches are capped and all
+        // rows are written in one batch, so a run costs about maxFetches + 2 subrequests plus the engine's own calls.
+        const budget = Math.min(Math.max(Number(input.maxFetches ?? 18), 1), 30);
+        let used = 0; let halted: string | null = null; let failing = 0; let unknown = 0; let retried = 0;
+        const stmts: D1PreparedStatement[] = []; const resolveAt: number[] = []; // every row goes out in one batch at the end
+        const probe = async (url: string) => { used++; return fetcher(url, { timeoutMs: 15000, maxBytes: 256_000 }); };
+        const unknownCheck = async (t: HealthTarget, why: string, r?: { status: number | null; latencyMs: number }) => {
+          unknown++;
+          stmts.push(checkStmt(db, { kind: "site_health", nicheId: t.nicheId, target: t.url, ok: null, status: r?.status ?? null, latencyMs: r?.latencyMs ?? null, jobId,
+            findings: [{ code: "checker_error", severity: "info", message: `FORGE could not run this check (${why}). Site state UNKNOWN; no alert raised or cleared.` }] }));
+        };
         for (const t of targets) {
-          const r = await fetcher(t.url, { timeoutMs: 15000, maxBytes: 256_000 });
-          const findings = evaluate(t, r);
+          if (halted || used >= budget) { await unknownCheck(t, halted ? `stopped after a runtime error: ${halted}` : "per-run fetch budget used"); continue; }
+          let r = await probe(t.url);
+          if (r.probeError) { halted = r.error ?? "runtime error"; await unknownCheck(t, halted, r); continue; }
+          let findings = evaluate(t, r); let confirmed = false;
+          // Re-check once before alerting, so one dropped request never raises a critical.
+          if (findings.some((x) => x.severity !== "info") && used < budget && retried < 3) {
+            retried++; const again = await probe(t.url);
+            if (again.probeError) { halted = again.error ?? "runtime error"; await unknownCheck(t, halted, again); continue; }
+            r = again; findings = evaluate(t, r); confirmed = true;
+          }
           const blocking = findings.filter((x) => x.severity !== "info");
-          await recordCheck(db, { kind: "site_health", nicheId: t.nicheId, target: t.url, ok: blocking.length === 0, status: r.status, latencyMs: r.latencyMs, findings, jobId });
+          stmts.push(checkStmt(db, { kind: "site_health", nicheId: t.nicheId, target: t.url, ok: blocking.length === 0, status: r.status, latencyMs: r.latencyMs, findings, jobId }));
           const key = `ops:health:${t.url}`;
-          if (!blocking.length) resolved += await resolveAlert(db, key);
+          if (!blocking.length) { resolveAt.push(stmts.length); stmts.push(resolveStmt(db, key)); }
           else {
             failing++;
             const worst = blocking.reduce((a, b) => (rank[b.severity] > rank[a.severity] ? b : a));
-            await raiseAlert(db, { key, severity: worst.severity, nicheId: t.nicheId, source: "ops.site_health", title: `${t.label} check failing`, detail: blocking.map((x) => x.message).join("; "), nextAction: "FORGE re-checks every hour; open the URL to confirm, then check the last deploy.", evidenceUrl: t.url });
+            stmts.push(alertStmt(db, { key, severity: worst.severity, nicheId: t.nicheId, source: "ops.site_health", title: `${t.label} check failing`, detail: `${blocking.map((x) => x.message).join("; ")}${confirmed ? " (confirmed by a second request)" : ""}`, nextAction: "FORGE re-checks every hour; open the URL to confirm, then check the last deploy.", evidenceUrl: t.url }));
           }
         }
-        return { output: { checked: targets.length, failing, resolved } };
+        const res = await flush(db, stmts);
+        const resolved = resolveAt.reduce((a, i) => a + Number(res[i]?.meta?.changes ?? 0), 0);
+        return { output: { targets: targets.length, fetches: used, failing, resolved, unknown } };
       },
     }],
   };

@@ -39,7 +39,7 @@ export function fakeFetcher(routes: Record<string, Partial<FetchResult> | string
     const r = routes[url];
     if (r === undefined) return { ok: false, status: 404, text: "not found", latencyMs: 5 };
     if (typeof r === "string") return { ok: true, status: 200, text: r, latencyMs: 5 };
-    return { ok: r.ok ?? true, status: r.status === undefined ? 200 : r.status, text: r.text ?? "", latencyMs: r.latencyMs ?? 5, error: r.error };
+    return { ok: r.ok ?? true, status: r.status === undefined ? 200 : r.status, text: r.text ?? "", latencyMs: r.latencyMs ?? 5, error: r.error, probeError: r.probeError };
   }) as Fetcher & { calls: string[] };
   f.calls = calls;
   return f;
