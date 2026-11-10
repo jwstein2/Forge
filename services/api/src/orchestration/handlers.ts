@@ -10,7 +10,7 @@ import { listRegistry } from "../domain/registry.ts";
 import { newId, nowIso } from "../lib/util.ts";
 import { seedRegistry } from "../domain/seed.ts";
 import { REGISTRY_DATA } from "../domain/registry-data.ts";
-import { operatorHandlers, seedOperatorRegistry } from "../../../../packages/operator/src/index.ts";
+import { operatorHandlers, seedOperatorRegistry } from "@forge/operator";
 import ledgerSnapshot from "../../fixtures/ledger-snapshot-2026-11-10.json" with { type: "json" };
 import n8nSnapshot from "../../fixtures/n8n-snapshot-2026-11-10.json" with { type: "json" };
 

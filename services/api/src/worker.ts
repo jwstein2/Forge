@@ -5,7 +5,7 @@ import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
 import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
-import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "../../../packages/operator/src/index.ts";
+import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
 
 const handlers = defaultHandlers();
 const app = createApp({ handlers });

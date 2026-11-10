@@ -17,7 +17,7 @@ import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
-import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "../../../packages/operator/src/index.ts";
+import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
