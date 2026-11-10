@@ -30,6 +30,14 @@ describe("lifecycle sequences", () => {
     expect(lintSequence(qpk, [800], { checkoutLive: false }).join()).toMatch(/offer email while checkout is not live/);
   });
 
+  it("names the Bidline kit and its tabs as they exist in the workbook (QA-011 P2-1)", () => {
+    const all = JSON.stringify(SEQUENCES.filter((s) => s.nicheId === "bidline"));
+    expect(all).not.toMatch(/Estimate-to-Profit|labour by phase|estimate-versus-actual tab/i);
+    expect(all).toContain("The Bidline Estimating Kit");
+    expect(all).toContain("Job Cost Tracker");
+    expect(all).toContain("https://bidline.pages.dev/#kit");
+  });
+
   it("never turns post-purchase copy into a MailerLite automation (buyers stay out of MailerLite)", () => {
     for (const s of SEQUENCES.filter((x) => x.kind === "post_purchase")) {
       expect(() => mailerLitePlan(s, { checkoutLive: true })).toThrow();

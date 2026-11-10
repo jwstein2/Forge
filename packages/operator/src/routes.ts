@@ -6,7 +6,7 @@
 import { Hono, type Context } from "hono";
 import { newId, nowIso } from "./lib.ts";
 import { lintDraft, nichePrices, receiptRule, type Draft } from "./handlers/content.ts";
-import { buildProposal, PROPOSAL_VERSION } from "./proposal.ts";
+import { buildProposal } from "./proposal.ts";
 import { SEQUENCES, lintSequence, sequenceText } from "./lifecycle/sequences.ts";
 
 type Env = { DB: D1Database };
@@ -126,8 +126,9 @@ export function operatorRoutes() {
   r.post("/policies/proposal/apply", async (c) => {
     const who = owner(c); if (!who) return fail(c, 403, "forbidden", "owner only");
     const b = await c.req.json<{ version?: string; sourceRef?: string }>().catch(() => ({} as { version?: string; sourceRef?: string }));
-    if (b.version !== PROPOSAL_VERSION) return fail(c, 409, "conflict", `proposal changed; current version is ${PROPOSAL_VERSION}`);
-    const p = await buildProposal(c.env.DB); const at = nowIso(); const approvalId = newId("apr");
+    const p = await buildProposal(c.env.DB);
+    if (b.version !== p.version) return fail(c, 409, "conflict", `proposal changed; current version is ${p.version}`);
+    const at = nowIso(); const approvalId = newId("apr");
     const stmts = [c.env.DB.prepare(`INSERT INTO approvals (id,scope,action,status,requested_by,decided_by,decided_at,boundary_json,source_ref,expires_at,created_at) VALUES (?,?,?,'approved','ops.publishing_proposal','owner',?,?,?,?,?)`)
       .bind(approvalId, `channels:proposal:${p.version}`, "ops.content_publish:boundaries", at, JSON.stringify({ version: p.version, windowEnd: p.windowEnd, channels: p.channels, by: who }), b.sourceRef ?? null, p.windowEnd, at)];
     for (const ch of p.channels) {

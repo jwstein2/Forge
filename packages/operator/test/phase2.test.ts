@@ -41,7 +41,7 @@ describe("lifecycle watch", () => {
     const { env, db } = await makeEnv();
     const h = handlersWith({ mailerlite: ml({
       groups: [group("203436416693176152", "Quilt Math Cheat Sheet", 4), group("203717192087242239", "Bidline - Estimate Template", 0, { unconfirmed_count: 12, active_count: 3 })],
-      automations: [{ id: "203721958159811713", name: "FORGE · Quilt Plan Kit · Welcome", enabled: false }, { id: "203721985113458145", name: "FORGE · Bidline · Welcome", enabled: true, broken: true }],
+      automations: [{ id: "203721958159811713", name: "FORGE · Quilt Plan Kit · Welcome", enabled: false }, { id: "203722971884292051", name: "FORGE · Bidline · Welcome", enabled: true, broken: true }],
     }) });
     await enqueue(db, h, { runAt: PAST, kind: "ops.lifecycle_watch", createdBy: "t" });
     await run(env, h);
@@ -56,17 +56,22 @@ describe("lifecycle watch", () => {
     expect(JSON.parse(snap.automations_json).map((a: any) => [a.sequence, a.status])).toEqual([["LC-QPK-WELCOME", "off"], ["LC-BID-WELCOME", "broken"], ["LC-LOAF-WELCOME", "missing"]]);
   });
 
-  it("records an error snapshot, not zeros, when MailerLite refuses", async () => {
+  it("records an error snapshot, not zeros, when MailerLite refuses, and warns after 3 in a row (QA-011 P2-2)", async () => {
     const { env, db } = await makeEnv();
     const h = handlersWith({ mailerlite: ml({ fail: true }) });
     await enqueue(db, h, { runAt: PAST, kind: "ops.lifecycle_watch", createdBy: "t" });
     await run(env, h);
     expect(await q(db, `SELECT state, error FROM op_lifecycle_snapshots`)).toEqual([{ state: "error", error: "MailerLite /groups HTTP 401" }]);
+    for (const k of ["t2", "t3"]) { await enqueue(db, h, { runAt: PAST, kind: "ops.lifecycle_watch", createdBy: k }); await run(env, h); }
+    expect((await q(db, `SELECT state FROM alerts WHERE dedupe_key='ops:lifecycle:read_error'`))[0]!.state).toBe("open");
+    const ok = handlersWith({ mailerlite: ml({}) });
+    await enqueue(db, ok, { runAt: PAST, kind: "ops.lifecycle_watch", createdBy: "t4" }); await run(env, ok);
+    expect((await q(db, `SELECT state FROM alerts WHERE dedupe_key='ops:lifecycle:read_error'`))[0]!.state).toBe("resolved");
   });
 });
 
 describe("optimization loop", () => {
-  const base: NicheFacts = { nicheId: "bidline", name: "Bidline", funnelSource: "snapshot", period: { start: "2026-10-13T00:00:00Z", end: "2026-11-10T00:00:00Z" },
+  const base: NicheFacts = { nicheId: "bidline", name: "Bidline", funnelSource: "snapshot", period: { start: "2026-10-13T00:00:00Z", end: "2026-11-10T00:00:00Z" }, dataAsOf: "2026-11-10T00:00:00Z",
     pageViews: 0, calcUses: 0, checkoutClicks: 0, signups: 0, pinterestVisits: 0, liveSales: 0, platformPins28d: 0, welcomeStatus: null, draftedAwaiting: 0, overduePlanned: 0, checkoutLiveSince: null };
   it("says nothing without a minimum sample", () => expect(recommend({ ...base, calcUses: 49, checkoutClicks: 0, pageViews: 299 })).toEqual([]));
   it("proposes from real thresholds and cites its numbers", () => {
@@ -76,6 +81,13 @@ describe("optimization loop", () => {
   });
   it("does not run funnel rules when the funnel source is unconnected", () =>
     expect(recommend({ ...base, funnelSource: "unconnected", calcUses: 500, checkoutClicks: 0 })).toEqual([]));
+  it("does not claim an absence from a snapshot that stops before the period ends (QA-011 P2-3)", () => {
+    const stale = { ...base, dataAsOf: "2026-11-01T00:00:00Z", calcUses: 80, checkoutClicks: 25, pageViews: 400, checkoutLiveSince: "2026-10-20T00:00:00Z" };
+    expect(recommend(stale).map((x) => x.rule)).toEqual([]);
+    const r = recommend({ ...stale, checkoutClicks: 0 });
+    expect(r.map((x) => [x.rule, x.label])).toEqual([["calculator_no_checkout", "INFERRED"]]);
+    expect(r[0]!.evidence).toMatchObject({ dataAsOf: "2026-11-01T00:00:00Z", partial: true });
+  });
   it("fires the kill rule only inside 60 days of checkout going live", () => {
     expect(recommend({ ...base, pageViews: 320, checkoutLiveSince: "2026-10-01T00:00:00Z" }).map((x) => x.rule)).toEqual(["kill_rule"]);
     expect(recommend({ ...base, pageViews: 320, checkoutLiveSince: "2026-08-01T00:00:00Z" })).toEqual([]);
@@ -83,7 +95,7 @@ describe("optimization loop", () => {
 
   it("writes proposals once per week and expires them when the condition clears", async () => {
     const { env, db } = await makeEnv();
-    await db.prepare(`INSERT INTO op_lifecycle_snapshots (id,taken_at,state,source,automations_json) VALUES ('s1','2026-11-09T09:00:00Z','live','mailerlite.api',?)`).bind(JSON.stringify([{ nicheId: "quilt-plan-kit", status: "off" }])).run();
+    await db.prepare(`INSERT INTO op_lifecycle_snapshots (id,taken_at,state,source,automations_json) VALUES ('s1',?,'live','mailerlite.api',?)`).bind(new Date(Date.now() - 3600000).toISOString(), JSON.stringify([{ nicheId: "quilt-plan-kit", status: "off" }])).run();
     const day = new Date().toISOString().slice(0, 10);
     await db.prepare(`INSERT INTO funnel_daily (day,niche_id,event,path,source,count,is_test,imported_at) VALUES (?, 'quilt-plan-kit','signup_submit','/','direct',2,0,?)`).bind(day, day).run();
     const h = handlersWith({});
@@ -91,7 +103,7 @@ describe("optimization loop", () => {
     const recs = await q(db, `SELECT rule, status, niche_id FROM op_recommendations`);
     expect(recs.filter((r) => r.status === "proposed").map((r) => `${r.niche_id}:${r.rule}`)).toContain("quilt-plan-kit:welcome_not_live");
     expect(recs.filter((r) => r.rule === "welcome_not_live")).toHaveLength(1); // same week, same rule: one row
-    await db.prepare(`INSERT INTO op_lifecycle_snapshots (id,taken_at,state,source,automations_json) VALUES ('s2','2026-11-10T09:00:00Z','live','mailerlite.api',?)`).bind(JSON.stringify([{ nicheId: "quilt-plan-kit", status: "active" }])).run();
+    await db.prepare(`INSERT INTO op_lifecycle_snapshots (id,taken_at,state,source,automations_json) VALUES ('s2',?,'live','mailerlite.api',?)`).bind(new Date().toISOString(), JSON.stringify([{ nicheId: "quilt-plan-kit", status: "active" }])).run();
     await enqueue(db, h, { runAt: PAST, kind: "ops.optimize_weekly", createdBy: "c" }); await run(env, h);
     expect((await q(db, `SELECT status FROM op_recommendations WHERE rule='welcome_not_live'`))[0]!.status).toBe("expired");
   });
@@ -102,12 +114,16 @@ describe("one-decision publishing proposal", () => {
     const { env, db } = await makeEnv();
     const call = app("owner");
     const p = (await call(env, "GET", "/policies/proposal")).json.data;
-    expect(p.version).toBe(PROPOSAL_VERSION);
+    expect(p.version).toMatch(new RegExp(`^${PROPOSAL_VERSION.replace(/\./g, "\\.")}\\+[0-9a-f]{8}$`));
     expect(Object.fromEntries(p.channels.map((c: any) => [c.channelId, `${c.mode}/${c.dailyCap}/${c.publisher}`]))).toEqual({
       ch_bidline_seo: "approval_each/1/manual", ch_loaf_seo: "approval_each/1/manual", ch_qpk_email: "approval_each/1/dry_run", ch_qpk_pinterest: "standing/1/dry_run", ch_qpk_seo: "approval_each/1/manual" });
-    expect((await app(null)(env, "POST", "/policies/proposal/apply", { version: PROPOSAL_VERSION })).status).toBe(403);
-    expect((await call(env, "POST", "/policies/proposal/apply", { version: "old" })).status).toBe(409);
-    const r = await call(env, "POST", "/policies/proposal/apply", { version: PROPOSAL_VERSION, sourceRef: "decision-card" });
+    expect((await app(null)(env, "POST", "/policies/proposal/apply", { version: p.version })).status).toBe(403);
+    expect((await call(env, "POST", "/policies/proposal/apply", { version: PROPOSAL_VERSION })).status).toBe(409); // no hash: refused
+    // A channel added after the owner looked changes the version, so the old one is refused (QA-011 P2-4).
+    await db.prepare(`INSERT INTO channels (id,niche_id,platform,status,updated_at) VALUES ('ch_bid_email','bidline','email','configured','2026-11-10')`).run();
+    expect((await call(env, "POST", "/policies/proposal/apply", { version: p.version })).status).toBe(409);
+    await db.prepare(`DELETE FROM channels WHERE id='ch_bid_email'`).run();
+    const r = await call(env, "POST", "/policies/proposal/apply", { version: p.version, sourceRef: "decision-card" });
     expect(r.status).toBe(200);
     expect(await q(db, `SELECT status, decided_by, source_ref FROM approvals WHERE scope LIKE 'channels:proposal:%'`)).toEqual([{ status: "approved", decided_by: "owner", source_ref: "decision-card" }]);
     const pol = await policyFor(db, "ch_qpk_pinterest", new Date());

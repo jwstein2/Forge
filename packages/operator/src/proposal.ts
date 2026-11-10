@@ -34,12 +34,20 @@ export function proposeFor(c: ChannelRow): ProposedPolicy {
   }
 }
 
+/** FNV-1a over the proposed rows, so a version names exactly the channel list and limits the owner saw (QA-011 P2-4). */
+export function proposalHash(rows: ProposedPolicy[]): string {
+  let h = 0x811c9dc5;
+  for (const ch of JSON.stringify(rows.map((r) => [r.channelId, r.mode, r.publisher, r.dailyCap]))) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(16).padStart(8, "0");
+}
+
 export async function buildProposal(db: D1Database, now = new Date()) {
   const channels = (await db.prepare(`SELECT c.id, c.niche_id, c.platform, c.status FROM channels c JOIN niches n ON n.id = c.niche_id WHERE n.paused = 0 ORDER BY c.niche_id, c.platform`).all<ChannelRow>()).results;
   const windowEnd = new Date(now.getTime() + WINDOW_DAYS * 86400000).toISOString();
+  const rows = channels.map(proposeFor);
   return {
-    version: PROPOSAL_VERSION, windowEnd,
+    version: `${PROPOSAL_VERSION}+${proposalHash(rows)}`, baseVersion: PROPOSAL_VERSION, windowEnd,
     summary: "One decision covers every channel below for 90 days. Pinterest pins that pass the claims check count as approved without asking you, up to one a day. Emails and SEO articles are approved in one weekly batch. Nothing goes live from this decision alone: each live connection is approved separately.",
-    channels: channels.map(proposeFor),
+    channels: rows,
   };
 }

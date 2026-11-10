@@ -61,10 +61,16 @@ export function lifecycleWatch(reader: (env: Record<string, unknown>) => MailerL
         try { [groups, forms, autos] = await Promise.all([ml.groups(), ml.forms(), ml.automations()]); }
         catch (e) {
           const error = String((e as Error).message ?? e).slice(0, 300);
-          await db.prepare(`INSERT INTO op_lifecycle_snapshots (id,taken_at,state,source,error,job_id) VALUES (?,?,'error','mailerlite.api',?,?)`).bind(newId("lcs"), at, error, jobId).run();
+          // Errors never read as zero, and 3 in a row escalate (QA-011 P2-2, same rule as site health).
+          const prev = (await db.prepare(`SELECT state FROM op_lifecycle_snapshots ORDER BY taken_at DESC LIMIT 2`).all<{ state: string }>()).results;
+          const stmts = [db.prepare(`INSERT INTO op_lifecycle_snapshots (id,taken_at,state,source,error,job_id) VALUES (?,?,'error','mailerlite.api',?,?)`).bind(newId("lcs"), at, error, jobId)];
+          if (prev.length === 2 && prev.every((p) => p.state === "error"))
+            stmts.push(alertStmt(db, { key: "ops:lifecycle:read_error", severity: "warning", source: "ops.lifecycle_watch", title: "Email lifecycle check has failed 3 runs in a row",
+              detail: `FORGE could not read MailerLite (${error}). Subscriber counts and automation status are UNKNOWN.`, nextAction: "Check the MAILERLITE_API_KEY secret is valid and not revoked." }));
+          await flush(db, stmts);
           return { output: { state: "error", error } };
         }
-        const stmts: D1PreparedStatement[] = [];
+        const stmts: D1PreparedStatement[] = [resolveStmt(db, "ops:lifecycle:read_error")];
         const findings: Finding[] = [];
         const byGroup = new Map(groups.map((g) => [String(g.id), g]));
         const byAuto = new Map(autos.map((a) => [String(a.id), a]));
