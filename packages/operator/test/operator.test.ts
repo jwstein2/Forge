@@ -175,6 +175,16 @@ describe("Pinterest runway and receipts", () => {
     expect((await q(db, `SELECT source FROM op_publications`)).map((x) => x.source)).toEqual(["site_feed"]);
   });
 
+  it("reads the queue from /pins/pins.json, where the site worker serves it", async () => {
+    const { env, db } = await makeEnv();
+    const h = handlersWith({ fetcher: fakeFetcher(healthySites({ "https://quiltplankit.pages.dev/pins/pins.json": queue(["2026-11-12T19:00:00Z", "2026-12-13T19:00:00Z"]) })) });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.pin_runway", createdBy: "t", input: {} });
+    await run(env, h, T("2026-11-10T03:00:00Z"));
+    const out = JSON.parse((await q(db, `SELECT output_json FROM jobs WHERE kind='ops.pin_runway'`))[0]!.output_json).check;
+    expect(out.runway).toMatchObject({ state: "known", future: 2 });
+    expect(await q(db, `SELECT 1 FROM alerts WHERE dedupe_key='ops:pins:runway:ch_qpk_pinterest' AND state='open'`)).toHaveLength(0);
+  });
+
   it("goes critical on an empty queue and unknown (not fine) when the queue cannot be read", async () => {
     const { env, db } = await makeEnv();
     let h = handlersWith({ fetcher: fakeFetcher(healthySites({ "https://quiltplankit.pages.dev/pins.json": queue(["2026-11-01T19:00:00Z"]) })) });

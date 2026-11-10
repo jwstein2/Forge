@@ -51,8 +51,10 @@ export function pinRunway(fetcher: Fetcher): HandlerDef {
         const out: Record<string, unknown> = { channelId };
 
         // 1. queue runway
-        const queueUrl = (input.queueUrl as string) ?? joinUrl(ch.site_url, "/pins.json");
-        const q = await fetcher(queueUrl, { timeoutMs: 15000 });
+        // The QPK drip keeps its queue at /pins/pins.json (served by the site worker); /pins.json is the older location.
+        let queueUrl = (input.queueUrl as string) ?? joinUrl(ch.site_url, "/pins/pins.json");
+        let q = await fetcher(queueUrl, { timeoutMs: 15000 });
+        if (!q.ok && !input.queueUrl && !q.probeError) { queueUrl = joinUrl(ch.site_url, "/pins.json"); q = await fetcher(queueUrl, { timeoutMs: 15000 }); }
         let queue: QueueItem[] | null = null;
         if (q.ok) { try { const j = JSON.parse(q.text); queue = Array.isArray(j) ? j : Array.isArray(j?.pins) ? j.pins : null; } catch { queue = null; } }
         const rkey = `ops:pins:runway:${channelId}`;

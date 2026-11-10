@@ -32,7 +32,7 @@ A job that still exceeds these on its own has to split its work into child jobs,
 
 ## Connections (approved 2026-11-10)
 
-`scripts/staging-connect.ps1` (run by the owner on the PC) sets `MAILERLITE_API_KEY` and a new `HEARTBEAT_SECRET` on the staging Worker and walks through the Access service token and its Service Auth policy, then tests it. Secrets are typed or generated locally and saved in 1Password; none pass through chat. A service token gets past Access but has no email, so every owner route still answers 403; only `/ingest/heartbeat` (HMAC-checked) is useful to it.
+Heartbeats: staging has an Access *Bypass* application for `/api/v1/ingest/*` (owner-approved 2026-11-10), so n8n reaches the HMAC-checked route without a service token. `scripts/heartbeat-connect.ps1` (owner runs it on the PC) generates a new `HEARTBEAT_SECRET`, stores it in n8n forge_config through the intake, then sets it on the Worker; nothing is printed. `MAILERLITE_API_KEY` is set on staging.
 
 ## Heartbeats from n8n
 

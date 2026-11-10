@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Hono } from "hono";
 import { enqueue } from "../../../services/api/src/orchestration/engine.ts";
 import { opportunityBoard, listBriefs } from "../../../services/api/src/domain/intelligence.ts";
@@ -6,6 +6,9 @@ import { intelligenceRoutes, storePack } from "../src/index.ts";
 import { drain, fakeFetcher, fixture, handlersWith, listingPage, makeEnv, pageviewsJson, testPack } from "./helpers.ts";
 
 const NOW = new Date("2026-11-10T06:00:00Z");
+// The engine stamps next_run_at with the real clock; pin it to NOW so jobs are runnable at NOW on any date.
+beforeAll(() => { vi.useFakeTimers({ toFake: ["Date"] }); vi.setSystemTime(NOW); });
+afterAll(() => { vi.useRealTimers(); });
 const WIKI = /wikimedia\.org\/api\/rest_v1\/metrics\/pageviews/;
 
 function packWithBrief() {
