@@ -131,7 +131,7 @@ const CLAIM_RULES: [RegExp, string][] = [
 export function claimsLint(text: string, allowedPriceCents: number[] = []): string[] {
   const out = CLAIM_RULES.filter(([re]) => re.test(text)).map(([, why]) => why);
   const allowed = new Set(allowedPriceCents.map((c) => Math.round(c)));
-  for (const m of text.matchAll(/\$\s?(\d[\d,]*(?:\.\d{1,2})?)/g)) {
+  for (const m of text.matchAll(/\$\s?((?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?)/g)) {
     const cents = Math.round(Number(m[1]!.replace(/,/g, "")) * 100);
     if (!allowed.has(cents)) { out.push(`price $${m[1]} is not a current product price`); break; }
   }

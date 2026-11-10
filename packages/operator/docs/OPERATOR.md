@@ -1,6 +1,6 @@
 # FORGE Operator (workstream E · Milestone 3)
 
-**Date:** 2026-11-10 · **Package:** `packages/operator` (`@forge/operator`) · **Status:** BUILT and TESTED locally (36 package tests plus the platform, builder and controls suites, and one real cron tick under local workerd). Merged on main. Migrations 0100 and 0101 are applied to staging D1. QA-005 defects fixed and passed QA. The SEO crawl was split into small jobs after staging measured 203 ms CPU for one unsplit tick.
+**Date:** 2026-11-10 · **Package:** `packages/operator` (`@forge/operator`) · **Status:** BUILT and TESTED locally (52 package tests plus the platform, builder and controls suites, and one real cron tick under local workerd). Merged on main. Migrations 0100 and 0101 are applied to staging D1. QA-005 defects fixed and passed QA. The SEO crawl was split into small jobs after staging measured 203 ms CPU for one unsplit tick.
 
 FORGE Operator is the part of FORGE that keeps the businesses running between conversations. It runs on the platform's durable job engine (`services/api/src/orchestration/engine.ts`), so every run is stored in D1, takes a lease, saves a checkpoint after each step, retries a limited number of times, respects the global, niche and job pause switches, and writes a `runs` row. That row is the heartbeat FORGE Command shows as the last successful run.
 
@@ -60,11 +60,30 @@ return [{ json: { body, ts, sig } }];
 * Each job caps its fetches (`maxFetches`, default 18, for site health; 10 pages per SEO batch) and writes all its rows in one D1 batch, so a run costs about one subrequest per fetch plus two. The weekly SEO crawl fans out to one planner per niche.
 * Migration 0102 rebuilds `op_checks` so `ok` can be NULL, and adds `op_lifecycle_snapshots` and `op_recommendations`.
 
+## Phase 2 (2026-11-10)
+| Registry | Job | When | What | Writes outside FORGE |
+|---|---|---|---|---|
+| OPS-LIFECYCLE-WATCH | `ops.lifecycle_watch` | daily 09:00 | Reads MailerLite groups, forms and automations (3 GETs). Alerts on a broken automation, on signups waiting while the welcome sequence is off (needs owner), on half-unconfirmed groups, and on bounces or spam complaints. UNKNOWN until `MAILERLITE_API_KEY` is approved. | None |
+| OPS-OPTIMIZE-WEEKLY | `ops.optimize_weekly` | Mon 11:00 | Rules over 28 days of funnel, sales, lifecycle and channel data, each with a minimum sample, write `op_recommendations` (proposals only). The rules are: welcome not live; calculator use with no checkout clicks; checkout clicks with no sales; pins with no Pinterest visits; the kill rule; content backlog. Funnel rules don't run when the funnel source is unconnected. | None |
+
+* **Lifecycle copy** lives in `src/lifecycle/sequences.ts` and must pass `lintSequence` (claims check, own-site links only, no placeholders):
+  * The three welcome sequences exist in MailerLite as switched-off drafts.
+  * Offer emails are left out until checkout is live.
+  * Post-purchase copy is Lemon Squeezy text only.
+  * See LIFECYCLE_EMAILS.md.
+* **One-decision publishing proposal** (`src/proposal.ts`):
+  * `GET /operator/policies/proposal` returns it.
+  * `POST /operator/policies/proposal/apply {version}` applies every channel's boundary with one owner approval row (90-day window).
+  * See PUBLISHING_PROPOSAL.md.
+* **Recommendations:** `GET /operator/recommendations`, `POST /operator/recommendations/decide {ids, status}`.
+* **Lifecycle:** `GET /operator/lifecycle`.
+* **n8n heartbeats:** prepared in `src/heartbeat-plan.ts` and N8N_HEARTBEAT_PLAN.md. One shared "Send heartbeat" sub-workflow, plus an error workflow, plus one node per workflow. Not applied.
+
 ## Running it
 
 ```bash
 npm install && npm run check                              # all workspaces incl. operator
-cd packages/operator && npx vitest run                    # 36 operator tests
+cd packages/operator && npx vitest run                    # 52 operator tests
 FORGE_OPERATOR=1 npm run dev:api                          # local dev server also runs Operator schedules (real GETs to the live sites)
 cd services/api && npx wrangler dev --env development --test-scheduled   # then GET /__scheduled
 ```

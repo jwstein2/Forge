@@ -6,6 +6,8 @@
 import { Hono, type Context } from "hono";
 import { newId, nowIso } from "./lib.ts";
 import { lintDraft, nichePrices, receiptRule, type Draft } from "./handlers/content.ts";
+import { buildProposal, PROPOSAL_VERSION } from "./proposal.ts";
+import { SEQUENCES, lintSequence, sequenceText } from "./lifecycle/sequences.ts";
 
 type Env = { DB: D1Database };
 type Vars = { me?: { email: string; role: string } };
@@ -115,6 +117,53 @@ export function operatorRoutes() {
     stmts.push(c.env.DB.prepare(`INSERT INTO audit_log (id,actor,action,subject,detail,at) VALUES (?,?,?,?,?,?)`).bind(newId("aud"), who, "operator.policy.set", id, JSON.stringify(b), at));
     await c.env.DB.batch(stmts);
     return c.json({ ok: true, data: { channelId: id, mode: b.mode, approvalId } });
+  });
+
+  /** The one-decision publishing proposal (every channel's recommended boundary). */
+  r.get("/policies/proposal", async (c) => c.json({ ok: true, data: await buildProposal(c.env.DB) }));
+
+  /** Owner accepts the whole proposal in one call: one approval row covers every channel, expiring with the window. */
+  r.post("/policies/proposal/apply", async (c) => {
+    const who = owner(c); if (!who) return fail(c, 403, "forbidden", "owner only");
+    const b = await c.req.json<{ version?: string; sourceRef?: string }>().catch(() => ({} as { version?: string; sourceRef?: string }));
+    if (b.version !== PROPOSAL_VERSION) return fail(c, 409, "conflict", `proposal changed; current version is ${PROPOSAL_VERSION}`);
+    const p = await buildProposal(c.env.DB); const at = nowIso(); const approvalId = newId("apr");
+    const stmts = [c.env.DB.prepare(`INSERT INTO approvals (id,scope,action,status,requested_by,decided_by,decided_at,boundary_json,source_ref,expires_at,created_at) VALUES (?,?,?,'approved','ops.publishing_proposal','owner',?,?,?,?,?)`)
+      .bind(approvalId, `channels:proposal:${p.version}`, "ops.content_publish:boundaries", at, JSON.stringify({ version: p.version, windowEnd: p.windowEnd, channels: p.channels, by: who }), b.sourceRef ?? null, p.windowEnd, at)];
+    for (const ch of p.channels) {
+      const standing = ch.mode === "standing";
+      stmts.push(c.env.DB.prepare(`INSERT INTO op_channel_policies (channel_id,mode,publisher,daily_cap,approval_id,window_end,notes,updated_by,updated_at) VALUES (?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(channel_id) DO UPDATE SET mode=excluded.mode, publisher=excluded.publisher, daily_cap=excluded.daily_cap, approval_id=excluded.approval_id, window_end=excluded.window_end, notes=excluded.notes, updated_by=excluded.updated_by, updated_at=excluded.updated_at`)
+        .bind(ch.channelId, ch.mode, ch.publisher, ch.dailyCap, approvalId, standing ? p.windowEnd : null, `publishing proposal ${p.version}: ${ch.why}`, who, at));
+    }
+    stmts.push(c.env.DB.prepare(`INSERT INTO audit_log (id,actor,action,subject,detail,at) VALUES (?,?,?,?,?,?)`).bind(newId("aud"), who, "operator.proposal.apply", p.version, JSON.stringify({ approvalId, channels: p.channels.length, sourceRef: b.sourceRef ?? null }), at));
+    await c.env.DB.batch(stmts);
+    return c.json({ ok: true, data: { approvalId, version: p.version, windowEnd: p.windowEnd, channels: p.channels.map((x) => ({ channelId: x.channelId, mode: x.mode, dailyCap: x.dailyCap })) } });
+  });
+
+  /** Lifecycle: latest MailerLite snapshot plus the sequences FORGE holds, with their claims check. */
+  r.get("/lifecycle", async (c) => {
+    const snap = await c.env.DB.prepare(`SELECT * FROM op_lifecycle_snapshots ORDER BY taken_at DESC LIMIT 1`).first<Record<string, any>>();
+    const sequences = [];
+    for (const s of SEQUENCES) sequences.push({ id: s.id, nicheId: s.nicheId, kind: s.kind, name: s.name, status: s.status, trigger: s.trigger, mailerliteAutomationId: s.mailerliteAutomationId ?? null, notes: s.notes,
+      emails: s.emails.map((e) => ({ ref: e.ref, delayDays: e.delayDays, subject: e.subject, requiresCheckoutLive: !!e.requiresCheckoutLive })), lint: lintSequence(s, await nichePrices(c.env.DB, s.nicheId)), text: sequenceText(s) });
+    return c.json({ ok: true, data: { snapshot: snap ? { takenAt: snap.taken_at, state: snap.state, source: snap.source, error: snap.error, groups: parse(snap.groups_json) ?? [], forms: parse(snap.forms_json) ?? [], automations: parse(snap.automations_json) ?? [] } : { state: "unconnected", note: "No lifecycle snapshot yet." }, sequences } });
+  });
+
+  r.get("/recommendations", async (c) => {
+    const st = c.req.query("status") ?? "proposed";
+    const rows = (await c.env.DB.prepare(`SELECT * FROM op_recommendations WHERE (? = 'all' OR status = ?) ORDER BY CASE impact WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END, created_at DESC LIMIT 100`).bind(st, st).all<Record<string, any>>()).results;
+    return c.json({ ok: true, data: rows.map((x) => ({ id: x.id, nicheId: x.niche_id, rule: x.rule, title: x.title, detail: x.detail, action: x.action, impact: x.impact, evidence: parse(x.evidence_json), evidenceLabel: x.evidence_label, status: x.status, needsOwner: !!x.needs_owner, createdAt: x.created_at, decidedAt: x.decided_at })) });
+  });
+
+  /** Owner accepts or dismisses recommendations in one batch. Accepting records intent; it changes nothing by itself. */
+  r.post("/recommendations/decide", async (c) => {
+    const who = owner(c); if (!who) return fail(c, 403, "forbidden", "owner only");
+    const b = await c.req.json<{ ids?: string[]; status?: string }>().catch(() => ({} as { ids?: string[]; status?: string }));
+    if (!Array.isArray(b.ids) || !b.ids.length || !["accepted", "dismissed", "done"].includes(String(b.status))) return fail(c, 400, "bad_request", "ids[] and status accepted|dismissed|done required");
+    const at = nowIso();
+    await c.env.DB.batch(b.ids.slice(0, 100).map((id) => c.env.DB.prepare(`UPDATE op_recommendations SET status=?, decided_at=?, decided_by=? WHERE id=?`).bind(b.status, at, who, id)));
+    return c.json({ ok: true, data: { updated: Math.min(b.ids.length, 100), status: b.status } });
   });
 
   return r;

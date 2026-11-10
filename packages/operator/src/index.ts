@@ -17,13 +17,18 @@ import { pinRunway } from "./handlers/pinterest.ts";
 import { seoAudit, seoBatch, seoFinalize } from "./handlers/seo.ts";
 import { contentDraft, contentPlan, contentPublish, contentVerify, dryRunPublisher, type Publisher } from "./handlers/content.ts";
 import { weeklySummary } from "./handlers/summary.ts";
+import { lifecycleWatch, mailerLiteFromEnv, type MailerLiteReader } from "./handlers/lifecycle.ts";
+import { optimizeWeekly } from "./handlers/optimize.ts";
 
 export { enqueueDue, seedSchedules, latestSlot, slotKey, type ScheduleDef, type ScheduleSpec } from "./schedule.ts";
 export { operatorRoutes } from "./routes.ts";
 export { providerFromEnv, boundedJsonCall, type LlmProvider } from "./llm.ts";
 export type { Fetcher } from "./lib.ts";
+export { SEQUENCES, lintSequence, mailerLitePlan, sequenceText } from "./lifecycle/sequences.ts";
+export { buildProposal, PROPOSAL_VERSION } from "./proposal.ts";
+export { HEARTBEAT_PLAN } from "./heartbeat-plan.ts";
 
-export interface OperatorDeps { fetcher?: Fetcher; provider?: (env: Record<string, unknown>) => LlmProvider | null; publishers?: Publisher[] }
+export interface OperatorDeps { fetcher?: Fetcher; provider?: (env: Record<string, unknown>) => LlmProvider | null; publishers?: Publisher[]; mailerlite?: (env: Record<string, unknown>) => MailerLiteReader }
 
 /** Manual publisher: the owner posts by hand and records the URL; FORGE then verifies it. Never auto-publishes. */
 export const manualPublisher: Publisher = { id: "manual", live: false, async publish() { return { published: false, note: "manual channel: waiting for the owner to post and record the URL" }; } };
@@ -35,7 +40,7 @@ export function operatorHandlers(deps: OperatorDeps = {}): HandlerDef[] {
   // The SEO planner enqueues its batch and finalize jobs, so it needs the handler map it belongs to.
   const list: HandlerDef[] = [];
   const map = () => new Map(list.map((h) => [h.kind, h]));
-  list.push(siteHealth(fetcher), pinRunway(fetcher), seoAudit(fetcher, map), seoBatch(fetcher), seoFinalize(), contentPlan(), contentDraft(provider), contentPublish(publishers), contentVerify(fetcher), weeklySummary());
+  list.push(siteHealth(fetcher), pinRunway(fetcher), seoAudit(fetcher, map), seoBatch(fetcher), seoFinalize(), contentPlan(), contentDraft(provider), contentPublish(publishers), contentVerify(fetcher), weeklySummary(), lifecycleWatch(deps.mailerlite ?? mailerLiteFromEnv), optimizeWeekly());
   return list;
 }
 
@@ -48,6 +53,8 @@ export const OPERATOR_SCHEDULES: ScheduleDef[] = [
   { id: "OPS-CONTENT-DRAFT", kind: "ops.content_draft", spec: { daily: "08:00" }, input: { limit: 4, costCapCentsPerItem: 10 }, costCapCents: 40, maxAttempts: 1 },
   { id: "OPS-CONTENT-PUBLISH", kind: "ops.content_publish", spec: { daily: "15:00" }, maxAttempts: 1 },
   { id: "OPS-CONTENT-VERIFY", kind: "ops.content_verify", spec: { every: 360 } },
+  { id: "OPS-LIFECYCLE-WATCH", kind: "ops.lifecycle_watch", spec: { daily: "09:00" }, maxAttempts: 2 },
+  { id: "OPS-OPTIMIZE-WEEKLY", kind: "ops.optimize_weekly", spec: { weekly: { day: 1, at: "11:00" } }, maxAttempts: 1 },
   { id: "OPS-WEEKLY-SUMMARY", kind: "ops.weekly_summary", spec: { weekly: { day: 1, at: "12:00" } } },
 ];
 
@@ -61,6 +68,8 @@ export const OPERATOR_REGISTRY_ENTRIES = [
   { ...base, id: "OPS-CONTENT-DRAFT", name: "Operator · Copy drafting (bounded model step)", nicheId: null, externalRef: "ops.content_draft", cadence: "Daily 08:00 UTC", intervalMinutes: 1440, model: "claude-opus-5-5 (configurable)", costCapCents: 40, retryBudget: 1, notes: "JSON-validated, claims-linted, one retry, cost recorded. Idle until a model API key is approved." },
   { ...base, id: "OPS-CONTENT-PUBLISH", name: "Operator · Policy-gated publishing", nicheId: null, externalRef: "ops.content_publish", cadence: "Daily 15:00 UTC", intervalMinutes: 1440, retryBudget: 1, notes: "Default draft_only. Standing publishing only inside an owner-approved boundary. Only dry_run and manual publishers exist." },
   { ...base, id: "OPS-CONTENT-VERIFY", name: "Operator · Publication receipt verification", nicheId: null, externalRef: "ops.content_verify", cadence: "Every 6 h", intervalMinutes: 360, notes: "Marks content and channels verified only from the platform URL." },
+  { ...base, id: "OPS-LIFECYCLE-WATCH", name: "Operator · Email lifecycle watch (MailerLite, read-only)", nicheId: null, externalRef: "ops.lifecycle_watch", cadence: "Daily 09:00 UTC", intervalMinutes: 1440, retryBudget: 2, notes: "Reads groups, forms and automations; alerts on broken automations, signups waiting without a live welcome sequence, unconfirmed or bouncing signups. UNKNOWN until MAILERLITE_API_KEY is approved. Never enables or sends." },
+  { ...base, id: "OPS-OPTIMIZE-WEEKLY", name: "Operator · Weekly optimization proposals", nicheId: null, externalRef: "ops.optimize_weekly", cadence: "Weekly Mon 11:00 UTC", intervalMinutes: 10080, retryBudget: 1, notes: "Proposes changes from funnel, sales, lifecycle and channel data with minimum samples. Proposals only; the owner decides in one batch." },
   { ...base, id: "OPS-WEEKLY-SUMMARY", name: "Operator · Weekly in-app summary", nicheId: null, department: "Operations, Finance & Infrastructure", externalRef: "ops.weekly_summary", cadence: "Weekly Mon 12:00 UTC", intervalMinutes: 10080, notes: "Stored for FORGE Command; never emailed." },
 ];
 

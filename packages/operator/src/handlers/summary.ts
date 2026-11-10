@@ -31,6 +31,7 @@ export async function buildSummary(db: D1Database, start: Date, end: Date) {
     FROM channels c ORDER BY c.niche_id, c.platform`).bind(s, e, s, e).all<Record<string, any>>()).results;
   const pipeline = (await db.prepare(`SELECT status, COUNT(*) AS n, SUM(late) AS late FROM op_content_items GROUP BY status`).all<{ status: string; n: number; late: number }>()).results;
   const health = (await db.prepare(`SELECT target, niche_id, COUNT(ok) AS checks, SUM(ok) AS ok, SUM(CASE WHEN ok IS NULL THEN 1 ELSE 0 END) AS unknown FROM op_checks WHERE check_kind = 'site_health' AND checked_at >= ? AND checked_at < ? GROUP BY target ORDER BY target`).bind(s, e).all<Record<string, any>>()).results;
+  const recos = (await db.prepare(`SELECT id, niche_id, title, impact, needs_owner FROM op_recommendations WHERE status = 'proposed' ORDER BY CASE impact WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END, created_at DESC LIMIT 20`).all<Record<string, any>>()).results;
   const llm = await db.prepare(`SELECT COUNT(*) AS calls, SUM(cost_cents) AS cost FROM op_llm_calls WHERE at >= ? AND at < ?`).bind(s, e).first<{ calls: number; cost: number | null }>();
 
   const sources = await listSources(db);
@@ -53,12 +54,13 @@ export async function buildSummary(db: D1Database, start: Date, end: Date) {
   headline.push(revenue.state === "unconnected" ? "Revenue: unknown (ledger not connected)." : `Revenue: ${money(Number(revenue.grossCents))} gross from ${revenue.orders} live order(s)${revenue.state === "partial" ? " (partial week of data)" : ""}, from ${ledger!.mode === "snapshot" ? `a ledger snapshot dated ${ledger!.asOf ?? "unknown"}` : `the live ledger as of ${ledger!.asOf ?? "unknown"}`}.`);
   headline.push(`Jobs: ${okRuns} successful and ${badRuns} failed run(s) reported to FORGE; ${silent.length} LIVE job(s) reported nothing.`);
   headline.push(`Channels: ${verifiedCh.length} of ${channels.length} verified; ${channels.reduce((a, c) => a + Number(c.platform_receipts), 0)} platform-confirmed publication(s) this week.`);
+  if (recos.length) headline.push(`${recos.length} optimization proposal(s) open, top: ${recos[0]!.title}.`);
   headline.push(crit.length ? `${crit.length} critical alert(s) open: ${crit.slice(0, 3).map((a) => a.title).join("; ")}.` : `No critical alerts open; ${openNow.length} other alert(s) open.`);
 
   return {
     period: { start: s, end: e, label: `Week of ${s.slice(0, 10)}` }, generatedAt: nowIso(), headline,
     revenue, jobs: { runs, silentLive: silent }, alerts: { openedThisWeek: alertsOpened, openNow: openNow.slice(0, 25), openCount: openNow.length, needsOwner: openNow.filter((a) => a.needs_owner).length },
-    channels, contentPipeline: pipeline,
+    channels, contentPipeline: pipeline, recommendations: recos,
     siteHealth: health.map((h) => ({ ...h, uptimePct: h.checks ? Math.round((Number(h.ok) / Number(h.checks)) * 1000) / 10 : null })),
     modelUsage: { calls: Number(llm?.calls ?? 0), costCents: Number(llm?.cost ?? 0) },
     unknowns: [
