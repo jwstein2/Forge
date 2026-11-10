@@ -1,0 +1,1935 @@
+{
+  "schema_version": "1.0.0",
+  "brief_id": "brief_bidline_v1-0-0",
+  "niche": "bidline",
+  "display_name": "Bidline",
+  "version": "1.0.0",
+  "supersedes": null,
+  "status": "draft",
+  "created_at": "2026-11-10T03:00:00Z",
+  "updated_at": "2026-11-10T03:00:00Z",
+  "refresh_by": "2027-02-10",
+  "authors": [
+    "forge-intelligence"
+  ],
+  "approved_by": null,
+  "summary": {
+    "one_line": "Small US residential contractors do price jobs in spreadsheets and lose money on markup, overhead and labour-hour mistakes, but basic estimate templates are given away free by software vendors and dozens of AI-built sites, so Bidline only earns money if its paid kit sells the profit loop (overhead recovery, labour hours, estimate vs actual) rather than a template.",
+    "go_hold": {
+      "date": "2026-11-10",
+      "call": "go_with_changes",
+      "subject": "Bidline paid Estimating Kit",
+      "rationale": "Real, large audience and verified spreadsheet behaviour, plus paid bundles at $9-$109 on Etsy and Gumroad. But the free-template market is saturated and earlier FORGE research ranked a trades estimate pack last. Proceed only with a differentiated kit; keep investment small until first-party sales prove demand.",
+      "falsifying_test": "If the kit is live, checkout works and Bidline gets at least 300 organic sessions to the kit page within 60 days of launch with zero sales, move Bidline to hold and shift Stage 2 to Quilt Plan Kit. Thresholds are owner-adjustable decision rules, not forecasts.",
+      "decided_by": "intelligence (recommendation)"
+    },
+    "key_findings": [
+      {
+        "id": "c_bl_kf_market",
+        "statement": "There were 2,875,590 nonemployer construction businesses in the US in 2022, with $238.0B in receipts (9.6% of all nonemployer establishments).",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "government_statistics",
+        "source_ids": [
+          "src_census_nonemp_2022"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 2875590,
+        "unit": "establishments"
+      },
+      {
+        "id": "c_bl_kf_excel",
+        "statement": "Small contractors describe estimating in Excel or Google Sheets: unit-cost sheets, labour hours by phase, and comparing estimates with actual job cost.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "forum_mining",
+        "source_ids": [
+          "src_reddit_pricing_thread"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "One thread, about 12 replies; qualitative only."
+      },
+      {
+        "id": "c_bl_kf_free",
+        "statement": "Basic estimate templates are offered free by field-service software vendors (e.g. Housecall Pro) and many template sites, so a basic template has little standalone value.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "search_result_observation",
+        "source_ids": [
+          "src_hcp_templates",
+          "src_serp_free_templates"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_bl_kf_paid",
+        "statement": "Paid contractor template bundles exist at $3.99 single sheets, $9 three-packs, $19 eight-tool packs, and $109 for a 17-pack; trade-specific packs sell around $45.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_sitedesk",
+          "src_etsy_tradetemplates",
+          "src_gumroad_xactimator",
+          "src_gumroad_formwork"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_bl_kf_weak_sales",
+        "statement": "The $109 17-template Etsy bundle shows 9 shop sales in 5 months and no reviews, a weak demand signal for high-priced template bundles.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "marketplace_listing_observation",
+        "source_ids": [
+          "src_etsy_tradetemplates"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_bl_kf_ai_flood",
+        "statement": "Search results for contractor pricing topics include several small AI-built template sites on free hosting, so competition for these keywords is rising.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "search_result_observation",
+        "source_ids": [
+          "src_serp_ai_sites"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_bl_kf_volume",
+        "statement": "Search volume for contractor estimating keywords is unknown.",
+        "evidence": "UNKNOWN",
+        "confidence": "low",
+        "method": "not_collected",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "to_resolve": "Google Keyword Planner and Search Console for bidline.pages.dev"
+      }
+    ]
+  },
+  "audience": {
+    "segments": [
+      {
+        "id": "owner-operator-remodeler",
+        "name": "Owner-operator residential contractor",
+        "description": "1-5 person remodeling, carpentry, deck/fence, painting or handyman business that writes its own estimates, usually at night after site work.",
+        "priority": "primary",
+        "skill_level": "Comfortable with Excel or Google Sheets basics; not an accountant.",
+        "context": "Self-employed or very small crew; estimates directly affect household income.",
+        "devices_and_formats": [
+          "Laptop for building estimates",
+          "Phone for site measurements",
+          "PDF quotes sent to homeowners"
+        ],
+        "platforms": [
+          "Google search",
+          "YouTube",
+          "Reddit r/Contractor",
+          "Facebook trade groups"
+        ],
+        "evidence": [
+          {
+            "id": "c_bl_seg1_count",
+            "statement": "The nonemployer construction population is about 2.9 million businesses (2022).",
+            "evidence": "VERIFIED",
+            "confidence": "high",
+            "method": "government_statistics",
+            "source_ids": [
+              "src_census_nonemp_2022"
+            ],
+            "observed_at": "2026-11-10"
+          },
+          {
+            "id": "c_bl_seg1_tools",
+            "statement": "Owner-operators describe Excel price sheets, Google Sheets estimators and looking at software such as Jobber or Buildertrend.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "forum_mining",
+            "source_ids": [
+              "src_reddit_pricing_thread"
+            ],
+            "observed_at": "2026-11-10"
+          },
+          {
+            "id": "c_bl_seg1_platforms",
+            "statement": "Facebook trade groups and YouTube are where this segment learns pricing.",
+            "evidence": "INFERRED",
+            "confidence": "low",
+            "method": "analyst_inference",
+            "source_ids": [],
+            "observed_at": "2026-11-10",
+            "notes": "Not measured; check with Search Console referrers and YouTube search."
+          }
+        ]
+      },
+      {
+        "id": "new-contractor",
+        "name": "New or second-year contractor",
+        "description": "Recently licensed or newly independent tradesperson who has never built a pricing system and is losing jobs or margin.",
+        "priority": "secondary",
+        "skill_level": "Beginner at business pricing.",
+        "platforms": [
+          "Google search",
+          "Reddit",
+          "YouTube"
+        ],
+        "evidence": [
+          {
+            "id": "c_bl_seg2_post",
+            "statement": "A second-year contractor reports losing leads when quoting high and earning less than expected when quoting low.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "forum_mining",
+            "source_ids": [
+              "src_reddit_pricing_thread"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "new-contractor"
+          }
+        ]
+      },
+      {
+        "id": "specialty-trade",
+        "name": "Single-trade specialist (roofing, electrical, landscaping)",
+        "description": "Wants trade-specific line items and unit prices.",
+        "priority": "exploratory",
+        "platforms": [
+          "Google search",
+          "Etsy",
+          "Gumroad"
+        ],
+        "evidence": [
+          {
+            "id": "c_bl_seg3_trade_packs",
+            "statement": "Trade-specific packs (roofing $44.99; construction estimate AUD 45) are priced above general templates.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "product_page_observation",
+            "source_ids": [
+              "src_gumroad_xactimator",
+              "src_gumroad_formwork"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "specialty-trade"
+          }
+        ]
+      }
+    ],
+    "demographics": [
+      {
+        "id": "c_bl_demo_size",
+        "statement": "2,875,590 construction nonemployer establishments, $238.0B receipts (2022).",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "government_statistics",
+        "source_ids": [
+          "src_census_nonemp_2022"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_bl_demo_age",
+        "statement": "Age distribution of owner-operator contractors.",
+        "evidence": "UNKNOWN",
+        "confidence": "low",
+        "method": "not_collected",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "to_resolve": "Census Annual Business Survey owner characteristics tables (free, not yet pulled)"
+      },
+      {
+        "id": "c_bl_demo_geo",
+        "statement": "Geographic concentration of small residential contractors.",
+        "evidence": "UNKNOWN",
+        "confidence": "low",
+        "method": "not_collected",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "to_resolve": "Census Nonemployer Statistics API by state for NAICS 23 (free; API reachable only from an allowed runner)"
+      },
+      {
+        "id": "c_bl_demo_country",
+        "statement": "US-first: Bidline uses US units, US terminology and USD.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "notes": "The reddit sample includes Canadians, so Canada is an adjacent market."
+      }
+    ],
+    "customer_language": [
+      {
+        "phrase": "I lose leads when I quote high, and make less than I expected when I go lower.",
+        "segment_id": "new-contractor",
+        "source_ids": [
+          "src_reddit_pricing_thread"
+        ]
+      },
+      {
+        "phrase": "Material unit costs on one sheet, labour hours by phase on another.",
+        "segment_id": "owner-operator-remodeler",
+        "source_ids": [
+          "src_reddit_pricing_thread"
+        ]
+      },
+      {
+        "phrase": "Compare every estimate to the final cost.",
+        "segment_id": "owner-operator-remodeler",
+        "source_ids": [
+          "src_reddit_pricing_thread"
+        ]
+      },
+      {
+        "phrase": "Why is a 30% markup not a 30% margin?",
+        "segment_id": "owner-operator-remodeler",
+        "source_ids": [
+          "src_reddit_margin_thread"
+        ]
+      }
+    ],
+    "visual_and_trust_preferences": [
+      {
+        "id": "c_bl_vis_practical",
+        "statement": "Contractors respond to practical, plain, job-site language and real worked examples over corporate software styling.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_forge_ws4"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "WS4 found the current site reads as cool and corporate; validate with a rendered A/B of hero imagery."
+      },
+      {
+        "id": "c_bl_vis_excel",
+        "statement": "Excel familiarity, offline use and easy PDF export are reasons contractors keep spreadsheets over apps.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "forum_mining",
+        "source_ids": [
+          "src_reddit_pricing_thread"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "jobs_to_be_done": [
+    {
+      "id": "c_bl_jtbd_price",
+      "statement": "Produce a confident, profitable price for a job quickly, from measurements, materials and labour hours.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_jtbd_send",
+      "statement": "Send a clean, professional quote that wins the homeowner's trust.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_sitedesk"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_jtbd_learn",
+      "statement": "Learn from each finished job whether the estimate was right, and fix the price book.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    }
+  ],
+  "pains": [
+    {
+      "id": "c_bl_pain_markup",
+      "statement": "Confusing markup with margin, which underprices jobs (30% markup is about 23% margin).",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_reddit_margin_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_pain_overhead",
+      "statement": "Not spreading overhead across billable hours, so small jobs lose money.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_pain_materials",
+      "statement": "Material price volatility makes old price sheets wrong.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_pain_time",
+      "statement": "Estimating eats evenings; contractors want it faster.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_pain_software_cost",
+      "statement": "Estimating software costs $13 to $250 per month, which is heavy for a one-person shop.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_joist_workyard",
+        "src_clearest_capterra"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    }
+  ],
+  "desired_outcomes": [
+    {
+      "id": "c_bl_out_margin",
+      "statement": "Know the real margin on every job before sending the quote.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_out_win",
+      "statement": "Win more of the jobs worth winning without racing to the bottom.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    }
+  ],
+  "buying_triggers": [
+    {
+      "id": "c_bl_trig_loss",
+      "statement": "Just lost money on a job, or lost a bid and suspects the price was wrong.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_reddit_pricing_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_trig_season",
+      "statement": "Winter slow season and January business planning, when contractors set up systems and rates.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "notes": "Confirm with Trends for 'contractor estimate template'."
+    },
+    {
+      "id": "c_bl_trig_newbiz",
+      "statement": "Going independent or getting licensed.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "segment_id": "new-contractor"
+    }
+  ],
+  "objections": [
+    {
+      "id": "c_bl_obj_free",
+      "statement": "\"I can get an estimate template free from Housecall Pro or Google.\"",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "search_result_observation",
+      "source_ids": [
+        "src_hcp_templates",
+        "src_serp_free_templates"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_obj_app",
+      "statement": "\"Should I just use Joist or Jobber?\" (free tiers exist).",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_joist_workyard"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "owner-operator-remodeler"
+    },
+    {
+      "id": "c_bl_obj_fit",
+      "statement": "\"A generic template won't match my trade.\"",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_gumroad_xactimator"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "specialty-trade"
+    }
+  ],
+  "demand": {
+    "keywords": [
+      {
+        "term": "contractor estimate template",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_bl_kw1",
+          "statement": "Term appears across vendor lead magnets, Etsy titles and template sites.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_serp_free_templates"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "construction estimate template excel",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_bl_kw2",
+          "statement": "Common in competitor titles (Gumroad, Etsy).",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_gumroad_formwork",
+            "src_serp_free_templates"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "markup vs margin contractor",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_bl_kw3",
+          "statement": "Recurring forum question and blog topic (Handoff, Simple Sheets, AI sites).",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_reddit_margin_thread",
+            "src_serp_ai_sites"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "contractor markup calculator",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_bl_kw4",
+          "statement": "Free calculators from Simple Sheets and others target it.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_simplesheets"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "how to price a remodeling job",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_bl_kw5",
+          "statement": "Matches the core forum question.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_reddit_pricing_thread"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "job costing spreadsheet contractor",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_bl_kw6",
+          "statement": "Job cost trackers are sold as separate products.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_sitedesk",
+            "src_etsy_tradetemplates"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      }
+    ],
+    "trends": {
+      "status": "blocked",
+      "series": [],
+      "note": "Google Trends values are relative interest, not volume. Not collected: Trends is unreachable from this environment."
+    },
+    "seasonality": [
+      {
+        "event": "Winter planning and rate setting",
+        "demand_window": "12-01/02-28",
+        "publish_by": "11-15",
+        "assets": [
+          "Overhead and hourly-rate guide",
+          "Kit promotion"
+        ],
+        "evidence": {
+          "id": "c_bl_seas_winter",
+          "statement": "Contractor business-system purchases likely rise in the winter slow season and January planning.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "Spring bidding season",
+        "demand_window": "02-15/05-31",
+        "publish_by": "01-31",
+        "assets": [
+          "Estimate checklist",
+          "Change-order guide"
+        ],
+        "evidence": {
+          "id": "c_bl_seas_spring",
+          "statement": "Estimating volume likely rises as homeowners book spring projects.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "Holiday tool gift-buying",
+        "demand_window": "11-20/12-24",
+        "publish_by": "11-01",
+        "assets": [
+          "Gift guide (affiliate, after approval)"
+        ],
+        "evidence": {
+          "id": "c_bl_seas_gift",
+          "statement": "Tool gift-guide searches likely peak late November to December (affiliate angle, needs approved program).",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      }
+    ],
+    "market_size": [
+      {
+        "id": "c_bl_ms_receipts",
+        "statement": "Construction nonemployer receipts $238.0B (2022). This is the audience's revenue, not a market for templates.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "government_statistics",
+        "source_ids": [
+          "src_census_nonemp_2022"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "competitors": [
+    {
+      "id": "sitedesk-templates",
+      "name": "SiteDesk Templates",
+      "url": "https://sitedesk-templates.pages.dev/",
+      "type": "direct_digital_product",
+      "scope": "marketplace",
+      "offers": [
+        {
+          "name": "Ops Master Pack (8 tools)",
+          "format": "Excel + Google Sheets",
+          "price": {
+            "value": 19.0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_sitedesk"
+            ]
+          },
+          "billing": "one_time",
+          "includes": [
+            "Estimates",
+            "Invoicing",
+            "Logs",
+            "Job costing",
+            "Materials",
+            "Punch lists",
+            "Sub payments",
+            "Timeline"
+          ]
+        },
+        {
+          "name": "Admin Starter Pack",
+          "format": "Excel + Google Sheets",
+          "price": {
+            "value": 9.0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_sitedesk"
+            ]
+          },
+          "billing": "one_time"
+        },
+        {
+          "name": "Single templates",
+          "format": "Excel + Google Sheets",
+          "price": {
+            "value": 3.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_sitedesk"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_sitedesk"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Pay-once paperwork for contractors, sold through Etsy.",
+      "free_resources": [
+        "Contractor paperwork checklist"
+      ],
+      "strengths": [
+        "Low prices",
+        "Bundles",
+        "Excel and Sheets"
+      ],
+      "gaps": [
+        "No overhead recovery or estimate-vs-actual loop",
+        "Sold on Etsy, little brand"
+      ]
+    },
+    {
+      "id": "tradetemplatesco",
+      "name": "TradeTemplatesCo (Etsy)",
+      "url": "https://www.etsy.com/listing/4582251962",
+      "type": "marketplace_seller",
+      "scope": "marketplace",
+      "offers": [
+        {
+          "name": "Contractor Business Bundle, 17 templates",
+          "format": "Excel/Word/PDF",
+          "price": {
+            "value": 109.0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_etsy_tradetemplates"
+            ]
+          },
+          "billing": "one_time",
+          "includes": [
+            "Estimate calculator",
+            "Overhead, markup & break-even calculator",
+            "Lien waivers",
+            "Schedule of values",
+            "Flat-rate price book builder"
+          ]
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_etsy_tradetemplates"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "strengths": [
+        "Very broad",
+        "Filled examples"
+      ],
+      "gaps": [
+        "High price",
+        "9 shop sales in 5 months, no reviews"
+      ]
+    },
+    {
+      "id": "formwork-gumroad",
+      "name": "Formwork (Gumroad)",
+      "url": "https://formwork.gumroad.com/l/estimate",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Construction Estimate + Automatic Quote Template",
+          "format": "Excel",
+          "price": {
+            "value": null,
+            "evidence": "UNKNOWN",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "to_resolve": "Price not shown on fetched page"
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_gumroad_formwork"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "AUD 45 Excel estimate-to-quote template (Australian seller).",
+      "gaps": [
+        "Priced in AUD (45), not USD"
+      ]
+    },
+    {
+      "id": "xactimator-gumroad",
+      "name": "Xactimator roofing pack (Gumroad)",
+      "url": "https://xactimator.gumroad.com/l/Roofer",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Roofing Contractor 4-pack + Google Sheets CRM",
+          "format": "Forms + Sheets",
+          "price": {
+            "value": 44.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_xactimator"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_gumroad_xactimator"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Trade-specific forms plus CRM."
+    },
+    {
+      "id": "housecall-pro",
+      "name": "Housecall Pro",
+      "url": "https://www.housecallpro.com/",
+      "type": "vendor_lead_magnet",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Free trade estimate templates",
+          "format": "PDF/Excel",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_hcp_templates"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_hcp_templates"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Field-service software; templates are lead magnets.",
+      "strengths": [
+        "Brand",
+        "SEO strength"
+      ],
+      "gaps": [
+        "Templates push toward software subscription"
+      ]
+    },
+    {
+      "id": "joist",
+      "name": "Joist",
+      "url": "https://www.joist.com/",
+      "type": "app",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Free",
+          "format": "App",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_joist_workyard"
+            ]
+          },
+          "billing": "free"
+        },
+        {
+          "name": "Pro",
+          "format": "App",
+          "price": {
+            "value": 13,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_joist_workyard"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_joist_workyard"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Mobile estimates and invoices for contractors.",
+      "strengths": [
+        "Free tier",
+        "Mobile"
+      ],
+      "gaps": [
+        "Ongoing subscription for branding/payments"
+      ]
+    },
+    {
+      "id": "clear-estimates",
+      "name": "Clear Estimates",
+      "url": "https://www.clearestimates.com/",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Standard",
+          "format": "SaaS",
+          "price": {
+            "value": 79,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_clearest_capterra"
+            ]
+          },
+          "billing": "monthly"
+        },
+        {
+          "name": "Pro",
+          "format": "SaaS",
+          "price": {
+            "value": 119,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_clearest_capterra"
+            ]
+          },
+          "billing": "monthly"
+        },
+        {
+          "name": "Franchise",
+          "format": "SaaS",
+          "price": {
+            "value": 250,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_clearest_capterra"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_clearest_capterra"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Remodeling estimating software with cost database."
+    },
+    {
+      "id": "national-construction-estimator",
+      "name": "Craftsman 2026 National Construction Estimator",
+      "url": "https://www.contractorresource.com/2025-national-construction-estimator",
+      "type": "publisher_or_media",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "2026 National Construction Estimator (672 pp.)",
+          "format": "Book",
+          "price": {
+            "value": 93.9,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_nce_2026"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_nce_2026"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Annual unit-cost reference; shows contractors pay ~$94 for cost data."
+    },
+    {
+      "id": "handoff-ai",
+      "name": "Handoff",
+      "url": "https://handoff.ai",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "AI estimator subscription",
+          "format": "SaaS",
+          "price": {
+            "value": null,
+            "evidence": "UNKNOWN",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "to_resolve": "Price not shown on fetched page"
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_handoff"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "AI estimating for remodelers; publishes markup-vs-margin content.",
+      "gaps": [
+        "Price not captured; Capterra lists plans"
+      ]
+    },
+    {
+      "id": "simple-sheets",
+      "name": "Simple Sheets",
+      "url": "https://www.simplesheets.co/contractor-markup-calculator",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Accounting & Finance bundle",
+          "format": "Excel/Sheets",
+          "price": {
+            "value": null,
+            "evidence": "UNKNOWN",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "to_resolve": "Price not shown on fetched page"
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_simplesheets"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Template library with free calculators and courses.",
+      "free_resources": [
+        "Contractor markup calculator",
+        "Free Excel/Sheets version"
+      ]
+    },
+    {
+      "id": "ai-template-sites",
+      "name": "Small AI-built template sites (bidforge, builtright-academy, contractor-toolkit, gc-estimator)",
+      "url": "https://bidforge-silk.vercel.app/blog/contractor-markup-vs-margin-guide",
+      "type": "free_tool",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Free guides and templates",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_serp_ai_sites"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_serp_ai_sites"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Same strategy as Bidline: free calculator plus guides on free hosting.",
+      "gaps": [
+        "Thin trust, no brand"
+      ]
+    }
+  ],
+  "pricing_map": [
+    {
+      "format": "Single contractor template",
+      "low": 3.99,
+      "median": 3.99,
+      "high": 3.99,
+      "currency": "USD",
+      "n_observations": 1,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "sitedesk-templates"
+      ]
+    },
+    {
+      "format": "Multi-template bundle",
+      "low": 9,
+      "median": 19,
+      "high": 109,
+      "currency": "USD",
+      "n_observations": 4,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "sitedesk-templates",
+        "tradetemplatesco"
+      ]
+    },
+    {
+      "format": "Trade-specific pack",
+      "low": 44.99,
+      "median": null,
+      "high": 44.99,
+      "currency": "USD",
+      "n_observations": 1,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "xactimator-gumroad"
+      ]
+    },
+    {
+      "format": "Estimating software (monthly)",
+      "low": 0,
+      "median": 79,
+      "high": 250,
+      "currency": "USD",
+      "n_observations": 5,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "joist",
+        "clear-estimates"
+      ]
+    }
+  ],
+  "monetization_options": [
+    {
+      "id": "profit-kit",
+      "model": "spreadsheet_template",
+      "description": "Estimate-to-Profit Kit: estimating workbook plus overhead recovery, price book and estimate-vs-actual job costing.",
+      "fit": "strong",
+      "price_hypothesis": {
+        "value": 29,
+        "evidence": "INFERRED",
+        "observed_at": "2026-11-10",
+        "unit": "USD",
+        "currency": "USD",
+        "source_ids": [
+          "src_sitedesk",
+          "src_etsy_tradetemplates"
+        ]
+      },
+      "rationale": [
+        {
+          "id": "c_bl_mo1",
+          "statement": "Sits between $19 generic bundles and $45 trade packs, and adds the profit features contractors describe building themselves.",
+          "evidence": "INFERRED",
+          "confidence": "medium",
+          "method": "analyst_inference",
+          "source_ids": [
+            "src_sitedesk",
+            "src_gumroad_xactimator",
+            "src_reddit_pricing_thread"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Free substitutes",
+        "Must look and work far better than free templates"
+      ]
+    },
+    {
+      "id": "trade-editions",
+      "model": "spreadsheet_template",
+      "description": "Trade editions (deck/fence, painting, handyman) with pre-filled line items.",
+      "fit": "moderate",
+      "price_hypothesis": {
+        "value": 39,
+        "evidence": "INFERRED",
+        "observed_at": "2026-11-10",
+        "unit": "USD",
+        "currency": "USD",
+        "source_ids": [
+          "src_gumroad_xactimator"
+        ]
+      },
+      "rationale": [
+        {
+          "id": "c_bl_mo2",
+          "statement": "Trade packs price higher ($44.99) than general ones.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_gumroad_xactimator"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "More SKUs to maintain"
+      ]
+    },
+    {
+      "id": "affiliate-tools",
+      "model": "affiliate",
+      "description": "Seasonal tool gift guides with retailer affiliate links (Home Depot, Amazon, or brand programs).",
+      "fit": "weak",
+      "rationale": [
+        {
+          "id": "c_bl_mo3",
+          "statement": "Affiliate needs program approval, a new account, and traffic Bidline does not yet have.",
+          "evidence": "INFERRED",
+          "confidence": "medium",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Requires owner-approved accounts",
+        "Low commission on tools"
+      ]
+    },
+    {
+      "id": "saas",
+      "model": "saas_subscription",
+      "description": "Hosted estimating app.",
+      "fit": "reject",
+      "rationale": [
+        {
+          "id": "c_bl_mo4",
+          "statement": "Crowded by $13-$250/month incumbents with free tiers.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_joist_workyard",
+            "src_clearest_capterra"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    }
+  ],
+  "premium_product_recommendation": {
+    "name": "Bidline Estimate-to-Profit Kit",
+    "target_segment_id": "owner-operator-remodeler",
+    "format": "Excel workbook (also opens in Google Sheets) + one-page quick-start PDF + filled example job",
+    "price": {
+      "value": 19,
+      "evidence": "INFERRED",
+      "observed_at": "2026-11-10",
+      "unit": "USD",
+      "currency": "USD",
+      "source_ids": [
+        "src_forge_ws3",
+        "src_sitedesk"
+      ]
+    },
+    "must_include": [
+      "Overhead recovery: monthly overhead / billable hours = true hourly cost",
+      "Labour hours by phase x rate, separate from materials",
+      "Reusable unit-cost price book the estimate pulls from",
+      "Correct pricing by target margin, with markup shown alongside",
+      "Estimate vs actual job-cost tab that flags misses and feeds the price book",
+      "Change-order log",
+      "Client-ready printable quote page",
+      "A complete worked example (e.g. a 12x16 deck) so it is useful in 10 minutes"
+    ],
+    "must_not": [
+      "Be the free template renamed (the current paid file is byte-identical to the free one, per WS3)",
+      "Claim it guarantees profit or wins bids",
+      "Require macros (blocked in Google Sheets and many Excel setups)"
+    ],
+    "why_they_pay": "Free templates format a quote; contractors pay to stop losing money. The paid kit answers 'what should I charge so this job actually makes money', which forum users currently build by hand.",
+    "offer_ladder": [
+      {
+        "tier": "free",
+        "item": "Estimate calculator, markup/margin converter, basic template",
+        "price": {
+          "value": 0,
+          "evidence": "VERIFIED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD",
+          "source_ids": [
+            "src_forge_ws4"
+          ]
+        }
+      },
+      {
+        "tier": "core",
+        "item": "Estimate-to-Profit Kit",
+        "price": {
+          "value": 19,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      },
+      {
+        "tier": "premium",
+        "item": "Trade edition or kit + trade price-book bundle",
+        "price": {
+          "value": 39,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      }
+    ],
+    "falsifying_test": "Zero sales from the first 300 organic sessions on the kit page within 60 days of checkout going live means the offer or audience is wrong; hold and re-research.",
+    "evidence": [
+      {
+        "id": "c_bl_pp_e1",
+        "statement": "Contractors describe building exactly these components themselves.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "forum_mining",
+        "source_ids": [
+          "src_reddit_pricing_thread",
+          "src_reddit_margin_thread"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_bl_pp_e2",
+        "statement": "$19 matches the main competitor bundle price; a $29 test is justified once the job-costing loop exists.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_sitedesk"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Launch at the approved $19 (Lemon Squeezy test product is $19.99; align it). Any price change needs owner approval."
+      }
+    ]
+  },
+  "economics": {
+    "unit_economics": [
+      {
+        "id": "c_bl_ue_fee",
+        "statement": "Lemon Squeezy takes about 5% + $0.50 per order, so a $19 sale nets about $17.55 before tax.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 17.55,
+        "unit": "USD"
+      }
+    ],
+    "scenarios": {
+      "downside": {
+        "monthly_orders": 0,
+        "average_order_value": 19,
+        "monthly_gross": 0,
+        "monthly_contribution": 0.0,
+        "assumptions": [
+          "No organic traffic yet; 0 orders/month is the honest floor"
+        ],
+        "evidence": "INFERRED"
+      },
+      "base": {
+        "monthly_orders": 8,
+        "average_order_value": 19,
+        "monthly_gross": 152,
+        "monthly_contribution": 140.4,
+        "assumptions": [
+          "Hypothesis only: modest organic traffic after 3-6 months",
+          "No paid ads"
+        ],
+        "evidence": "INFERRED"
+      },
+      "upside": {
+        "monthly_orders": 30,
+        "average_order_value": 24,
+        "monthly_gross": 720,
+        "monthly_contribution": 669.0,
+        "assumptions": [
+          "Hypothesis only: ranking for several commercial terms plus a $39 trade edition lifting AOV"
+        ],
+        "evidence": "INFERRED"
+      }
+    }
+  },
+  "channel_fit": [
+    {
+      "channel": "Organic search",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_bl_ch_seo",
+        "statement": "Strong intent keywords exist but are contested by software vendors and AI template sites.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "search_result_observation",
+        "source_ids": [
+          "src_serp_free_templates",
+          "src_serp_ai_sites"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "YouTube",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_bl_ch_yt",
+        "statement": "Pricing walkthroughs suit video; no Bidline channel exists.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Pinterest",
+      "fit": "weak",
+      "rationale": {
+        "id": "c_bl_ch_pin",
+        "statement": "Contractor audience is not Pinterest-first.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Reddit / Facebook groups",
+      "fit": "unknown",
+      "rationale": {
+        "id": "c_bl_ch_comm",
+        "statement": "Self-promotion rules restrict posting; only helpful participation by the owner is allowed.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "date": "2026-11-10",
+      "call": "go_with_changes",
+      "subject": "Keep Bidline in the portfolio with a differentiated paid kit",
+      "rationale": "See summary.",
+      "falsifying_test": "See summary.",
+      "decided_by": "intelligence (recommendation)"
+    }
+  ],
+  "data_connectors": [
+    {
+      "name": "Google Trends (5-year, US, related queries)",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Relative interest 0-100 over 5 years, seasonal peaks, rising related queries; sets publish_by dates.",
+      "blocked_reason": "trends.google.com is robots-disallowed to the fetch tool and the container proxy refuses direct connections. Needs a scheduled job on an allowed runner (n8n or James's PC) or a manual CSV export."
+    },
+    {
+      "name": "Google Search autocomplete",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Long-tail question phrasing for keyword lists.",
+      "blocked_reason": "Proxy refuses suggestqueries.google.com from this container."
+    },
+    {
+      "name": "Google Keyword Planner",
+      "status": "requires_owner_account",
+      "cost": "free with a Google Ads account (no spend needed)",
+      "would_add": "Monthly search volume ranges and competition per keyword."
+    },
+    {
+      "name": "Google Search Console",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "First-party impressions, clicks, positions and real queries for each site; replaces guesses with measured demand."
+    },
+    {
+      "name": "Cloudflare Web Analytics",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "Visits and top pages per site."
+    },
+    {
+      "name": "FORGE ledger (D1 sales/events)",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Verified orders and funnel events by niche. As of 2026-11-10 holds test-mode rows only."
+    },
+    {
+      "name": "Etsy listings",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Prices, review counts and shop sales for template sellers. Individual listing pages are fetchable; search pages are not, so sampling is manual. Etsy Open API needs a developer account (new account, not authorized)."
+    },
+    {
+      "name": "Amazon / KDP bestseller ranks",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Book demand proxies (BSR, review counts).",
+      "blocked_reason": "robots-disallowed to the fetch tool."
+    },
+    {
+      "name": "Pinterest Trends and board RSS",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Seasonal pin interest and publication receipts.",
+      "blocked_reason": "robots-disallowed; Pinterest Trends needs a business login."
+    },
+    {
+      "name": "Semrush / Ahrefs / Similarweb",
+      "status": "requires_paid_access",
+      "cost": "paid (roughly $100+/month); not in budget",
+      "would_add": "Third-party traffic and keyword difficulty estimates for competitors (would be labelled ESTIMATED)."
+    },
+    {
+      "name": "Reddit API",
+      "status": "requires_owner_account",
+      "cost": "free tier",
+      "would_add": "Systematic mining of customer language. Read-only mirrors were used for a few threads instead."
+    }
+  ],
+  "sources": [
+    {
+      "id": "src_census_nonemp_2022",
+      "title": "Census Bureau: smallest businesses by sector (2022 Nonemployer Statistics)",
+      "url": "https://www.census.gov/library/stories/2025/05/smallest-businesses.html",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "U.S. Census Bureau",
+      "published": "2025-05"
+    },
+    {
+      "id": "src_reddit_pricing_thread",
+      "title": "r/Contractor: How to price projects faster and more accurately (mirror)",
+      "url": "https://reddit.birdcat.cafe/r/Contractor/comments/1i1bcup/how_to_price_projects_faster_and_more_accurately",
+      "accessed_at": "2026-11-10",
+      "kind": "forum_or_community",
+      "published": "2025-01-14",
+      "reliability_note": "Read-only mirror of a public Reddit thread; small sample."
+    },
+    {
+      "id": "src_reddit_margin_thread",
+      "title": "r/Contractor: Margin vs markup (mirror)",
+      "url": "https://reddit.birdcat.cafe/r/Contractor/comments/1jufw4g/margin_vs_markup/mm388y4/?context=3",
+      "accessed_at": "2026-11-10",
+      "kind": "forum_or_community",
+      "published": "2025",
+      "reliability_note": "Read-only mirror; small sample."
+    },
+    {
+      "id": "src_sitedesk",
+      "title": "SiteDesk Templates product hub",
+      "url": "https://sitedesk-templates.pages.dev/",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_etsy_tradetemplates",
+      "title": "Etsy: Contractor Business Bundle, 17 Templates (TradeTemplatesCo)",
+      "url": "https://www.etsy.com/listing/4582251962",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_gumroad_formwork",
+      "title": "Gumroad: Construction Estimate Template (excel)",
+      "url": "https://formwork.gumroad.com/l/estimate",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_gumroad_xactimator",
+      "title": "Gumroad: Roofing Contractor (4) Pack Template & CRM",
+      "url": "https://xactimator.gumroad.com/l/Roofer",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_joist_workyard",
+      "title": "Workyard: How much does the Joist app cost",
+      "url": "https://www.workyard.com/answers/how-much-does-the-joist-app-cost",
+      "accessed_at": "2026-11-10",
+      "kind": "review_site"
+    },
+    {
+      "id": "src_clearest_capterra",
+      "title": "Capterra: Clear Estimates pricing",
+      "url": "https://capterra.com/p/24826/Clear-Estimates/pricing/",
+      "accessed_at": "2026-11-10",
+      "kind": "review_site"
+    },
+    {
+      "id": "src_nce_2026",
+      "title": "Contractor Resource: 2026 National Construction Estimator",
+      "url": "https://www.contractorresource.com/2025-national-construction-estimator",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_hcp_templates",
+      "title": "Housecall Pro free estimate templates (search results)",
+      "url": "https://www.housecallpro.com/plumbing/templates-calculators/plumbing-estimate-template-free-download/",
+      "accessed_at": "2026-11-10",
+      "kind": "search_results"
+    },
+    {
+      "id": "src_serp_free_templates",
+      "title": "Web search: contractor estimate template excel (2026-11-10)",
+      "url": "https://www.etsy.com/listing/827773435/electrical-contractor-estimate-template",
+      "accessed_at": "2026-11-10",
+      "kind": "search_results",
+      "reliability_note": "Results page dominated by free vendor templates, template mirror sites and Etsy listings."
+    },
+    {
+      "id": "src_serp_ai_sites",
+      "title": "Web search: markup vs margin contractor (2026-11-10)",
+      "url": "https://bidforge-silk.vercel.app/blog/contractor-markup-vs-margin-guide",
+      "accessed_at": "2026-11-10",
+      "kind": "search_results",
+      "reliability_note": "Several results are small AI-built template sites on pages.dev, vercel.app and lovable.app."
+    },
+    {
+      "id": "src_handoff",
+      "title": "Handoff AI estimator for remodelers",
+      "url": "https://handoff.ai",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_simplesheets",
+      "title": "Simple Sheets contractor markup calculator",
+      "url": "https://www.simplesheets.co/contractor-markup-calculator",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_ls_fees",
+      "title": "Lemon Squeezy fee reviews (5% + 50c)",
+      "url": "https://dodopayments.com/blogs/lemonsqueezy-review",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog",
+      "reliability_note": "Secondary; confirm on Lemon Squeezy's own pricing page."
+    },
+    {
+      "id": "src_forge_ws4",
+      "title": "FORGE audit WS4: market, design and marketing",
+      "url": "/mnt/project-files/audit/WS4_MARKET_DESIGN_MARKETING.md",
+      "accessed_at": "2026-11-10",
+      "kind": "internal_doc"
+    },
+    {
+      "id": "src_forge_ws3",
+      "title": "FORGE audit WS3: commercial readiness",
+      "url": "/mnt/project-files/audit/WS3_COMMERCIAL_READINESS.md",
+      "accessed_at": "2026-11-10",
+      "kind": "internal_doc"
+    }
+  ],
+  "open_questions": [
+    "Was Bidline chosen deliberately over the researched niches, and is there contractor demand evidence outside WEBSITE BUILDING?",
+    "Will James approve a $29 price test once the job-costing loop is built?",
+    "Can Search Console for bidline.pages.dev be connected (read-only) to replace keyword guesses?"
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "First brief from public sources; Trends and keyword volumes not collected (blocked/unconnected)."
+    }
+  ]
+}

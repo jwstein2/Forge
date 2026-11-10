@@ -17,6 +17,7 @@ import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
+import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "../../../packages/operator/src/index.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -45,9 +46,13 @@ async function bootTick() {
   await tick(env.DB, env, handlers, { workerId: "dev" });
   await enqueue(env.DB, handlers, { kind: "heartbeat.watchdog", idempotencyKey: `heartbeat.watchdog:${new Date().toISOString().slice(0, 16)}`, createdBy: "dev-server" });
   await tick(env.DB, env, handlers, { workerId: "dev" });
+  // Operator schedules make real read-only GETs to the live sites; opt in locally with FORGE_OPERATOR=1.
+  if (process.env.FORGE_OPERATOR === "1") { await enqueueDue(env.DB, handlers); await tick(env.DB, env, handlers, { workerId: "dev" }); }
 }
 
 await seedRegistry(env.DB, REGISTRY_DATA);
+await seedOperatorRegistry(env.DB);
+await seedSchedules(env.DB, OPERATOR_SCHEDULES);
 await bootTick();
 setInterval(() => { bootTick().catch((e) => console.error("tick failed:", (e as Error).message)); }, 60000);
 
@@ -56,7 +61,7 @@ const port = Number(process.env.PORT ?? 8787);
 createServer(async (req, res) => {
   const origin = req.headers.origin ?? "";
   const cors: Record<string, string> = CORS_ORIGINS.has(origin)
-    ? { "access-control-allow-origin": origin, "access-control-allow-headers": "content-type,x-forge-dev-token", "access-control-allow-methods": "GET,POST,OPTIONS", "access-control-allow-credentials": "true", vary: "origin" } : {};
+    ? { "access-control-allow-origin": origin, "access-control-allow-headers": "content-type,x-forge-dev-token", "access-control-allow-methods": "GET,POST,PUT,OPTIONS", "access-control-allow-credentials": "true", vary: "origin" } : {};
   if (req.method === "OPTIONS") { res.writeHead(204, cors).end(); return; }
   const chunks: Buffer[] = [];
   for await (const ch of req) chunks.push(ch as Buffer);

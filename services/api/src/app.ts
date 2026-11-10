@@ -16,6 +16,7 @@ import { dailySeries } from "./domain/series.ts";
 import { listRegistry, listRuns } from "./domain/registry.ts";
 import { evidenceFor, listAccounts, listAlerts, listBudgets, listChannels, listCosts, listIntegrations, listProducts, mapEvidence } from "./domain/records.ts";
 import { buildBoard, buildDetail, listBriefs, opportunityBoard, storeBrief, validateBrief } from "./domain/intelligence.ts";
+import { operatorRoutes } from "../../../packages/operator/src/index.ts";
 import { decideApproval, enqueue, EnqueueError, getJob, tick, type HandlerDef } from "./orchestration/engine.ts";
 
 type Vars = { me: Me };
@@ -237,6 +238,9 @@ export function createApp(deps: AppDeps) {
   };
   app.post("/control/emergency-stop", setGlobal(true));
   app.post("/control/resume", setGlobal(false));
+
+  // FORGE Operator (workstream E): behind the same owner auth as everything above.
+  app.route("/operator", operatorRoutes() as never);
 
   return app;
 }

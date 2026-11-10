@@ -5,6 +5,7 @@ import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
 import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
+import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "../../../packages/operator/src/index.ts";
 
 const handlers = defaultHandlers();
 const app = createApp({ handlers });
@@ -17,6 +18,10 @@ export async function scheduledTick(env: Env, now = new Date()): Promise<void> {
   await enqueue(env.DB, handlers, { kind: "ledger.sync", idempotencyKey: `ledger.sync:${hour}`, createdBy: "cron", runAt: now.toISOString() });
   await enqueue(env.DB, handlers, { kind: "n8n.sync", idempotencyKey: `n8n.sync:${hour}`, createdBy: "cron", runAt: now.toISOString() });
   await enqueue(env.DB, handlers, { kind: "heartbeat.watchdog", idempotencyKey: `heartbeat.watchdog:${quarter}`, createdBy: "cron", runAt: now.toISOString() });
+  await seedOperatorRegistry(env.DB);                 // idempotent
+  await seedSchedules(env.DB, OPERATOR_SCHEDULES);    // git is the source of truth for schedules
+  // One job per due schedule slot. Not in the unit-test environment: Operator jobs make real read-only GETs to the live sites.
+  if (env.ENVIRONMENT !== "test") await enqueueDue(env.DB, handlers, now);
   await tick(env.DB, env, handlers, { workerId: "cron", now });
 }
 

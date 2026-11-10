@@ -12,5 +12,7 @@ export interface Env {
   DEV_AUTH_TOKEN?: string;              // development only; refused in any other environment
   HEARTBEAT_SECRET?: string;            // shared secret for signed run heartbeats (n8n → FORGE)
   N8N_BASE_URL?: string;
+  ANTHROPIC_API_KEY?: string;           // OPTIONAL. Operator copy drafting only; unset = drafting idle. Needs owner approval.
+  OPERATOR_MODEL?: string;              // OPTIONAL model id override for Operator drafting.
   N8N_API_KEY?: string;                 // FORGE-scoped, read-only. Unset = n8n live source unconnected.
 }
