@@ -1,0 +1,66 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "niches": [
+    {
+      "id": "bidline",
+      "name": "Bidline",
+      "tagline": "Contractor estimating tools, spreadsheets and resources",
+      "positioning": "Free estimating calculator and templates for small contractors; paid estimating workbook (not yet built).",
+      "lifecycle": "live",
+      "siteUrl": "https://bidline.pages.dev",
+      "pagesProject": "bidline",
+      "ledgerVertical": "bidline",
+      "eventPathPrefix": "/bidline/",
+      "evidence": [
+        {
+          "claim": "Site live on Cloudflare Pages; beacon emits /bidline/ events since 2026-11-10",
+          "label": "LIVE",
+          "source": "audit/final/FORGE_CURRENT_STATE_MAP.md"
+        }
+      ],
+      "beacon": "prefix"
+    },
+    {
+      "id": "quilt-plan-kit",
+      "name": "Quilt Plan Kit",
+      "tagline": "Quilting calculators, guides, planner and KDP publishing",
+      "positioning": "Free quilting calculators and guides; $8 printable Quilt Planner PDF; KDP paperback.",
+      "lifecycle": "live",
+      "siteUrl": "https://quiltplankit.pages.dev",
+      "pagesProject": "quiltplankit",
+      "ledgerVertical": "quilt-plan-kit",
+      "eventPathPrefix": null,
+      "evidence": [
+        {
+          "claim": "Live copy = quilt-plan-kit/deploy-r2 (text match); undeployed redesign in quilt-plan-kit/site",
+          "label": "LIVE",
+          "source": "audit/final/FORGE_CURRENT_STATE_MAP.md"
+        }
+      ],
+      "beacon": "shared_root"
+    },
+    {
+      "id": "loaf-ledger",
+      "name": "Loaf Ledger",
+      "tagline": "Baking calculators, guides and digital products",
+      "positioning": "Free baking calculators and guides; no paid product yet.",
+      "lifecycle": "live",
+      "siteUrl": "https://loaf-ledger.pages.dev",
+      "pagesProject": "loaf-ledger",
+      "ledgerVertical": "loaf-ledger",
+      "eventPathPrefix": null,
+      "evidence": [
+        {
+          "claim": "Live copy inferred to be loaf-ledger/site; no beacon, no checkout",
+          "label": "UNVERIFIED",
+          "source": "audit/final/FORGE_CURRENT_STATE_MAP.md"
+        }
+      ],
+      "beacon": "none"
+    }
+  ]
+}

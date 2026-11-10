@@ -1,0 +1,129 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "integrations": [
+    {
+      "id": "int_ledger_d1",
+      "service": "Cloudflare D1 (sales ledger)",
+      "nicheId": null,
+      "purpose": "Revenue and funnel source of truth",
+      "status": "connected",
+      "accessMode": "read_only",
+      "lastCheckedAt": "2026-11-10T02:13:00Z",
+      "lastOkAt": "2026-11-10T02:13:00Z",
+      "detail": "Read through the Cloudflare connector into a dated snapshot (sales, events). Live in-app reads need a read-only API token.",
+      "blocker": "A read-only D1 API token for live reads (credential connection needs owner approval)."
+    },
+    {
+      "id": "int_n8n",
+      "service": "n8n Cloud",
+      "nicheId": null,
+      "purpose": "Scheduler execution history",
+      "status": "connected",
+      "accessMode": "read_only",
+      "lastCheckedAt": "2026-11-10T02:13:00Z",
+      "lastOkAt": "2026-11-10T02:13:00Z",
+      "detail": "Execution history read through the n8n connector into a dated snapshot.",
+      "blocker": "A FORGE-scoped n8n API key for live reads (credential connection needs owner approval)."
+    },
+    {
+      "id": "int_lemonsqueezy",
+      "service": "Lemon Squeezy",
+      "nicheId": null,
+      "purpose": "Checkout, delivery, payouts",
+      "status": "unconnected",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "Store in test mode; no connector installed. Webhooks reach the ledger.",
+      "blocker": "Store activation (owner identity) and an API key for reconciliation."
+    },
+    {
+      "id": "int_mailerlite",
+      "service": "MailerLite",
+      "nicheId": "quilt-plan-kit",
+      "purpose": "Email capture",
+      "status": "unconnected",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "Account approved by owner (2026-11-10); not wired to any site; no connector.",
+      "blocker": "Owner-approved API key; consent flow build."
+    },
+    {
+      "id": "int_search_console",
+      "service": "Google Search Console",
+      "nicheId": null,
+      "purpose": "Impressions, clicks, indexing",
+      "status": "unconnected",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "Verification files on all three sites; FORGE has no read access.",
+      "blocker": "Read-only Search Console access for FORGE."
+    },
+    {
+      "id": "int_cf_analytics",
+      "service": "Cloudflare Web Analytics",
+      "nicheId": null,
+      "purpose": "Visits",
+      "status": "unknown",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "Status unverified on all three sites.",
+      "blocker": "Pages/Analytics read token or dashboard check."
+    },
+    {
+      "id": "int_cf_pages",
+      "service": "Cloudflare Pages",
+      "nicheId": null,
+      "purpose": "Hosting and deploy history",
+      "status": "unconnected",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "Connector has no Pages tool; deploys are manual wrangler from James's PC.",
+      "blocker": "Scoped read-only Pages token."
+    },
+    {
+      "id": "int_pinterest",
+      "service": "Pinterest",
+      "nicheId": "quilt-plan-kit",
+      "purpose": "Publishing receipts",
+      "status": "connected",
+      "accessMode": "read_only",
+      "lastCheckedAt": "2026-11-10T00:23:26Z",
+      "lastOkAt": "2026-11-10T00:23:26Z",
+      "detail": "Public profile RSS read by N8N-03; no Pinterest API.",
+      "blocker": null
+    },
+    {
+      "id": "int_kdp",
+      "service": "Amazon KDP",
+      "nicheId": "quilt-plan-kit",
+      "purpose": "Paperback royalties",
+      "status": "unconnected",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "Owner-only; no export into FORGE.",
+      "blocker": "Owner royalty report export."
+    },
+    {
+      "id": "int_github",
+      "service": "GitHub",
+      "nicheId": null,
+      "purpose": "Version control and CI",
+      "status": "unconnected",
+      "accessMode": "none",
+      "lastCheckedAt": null,
+      "lastOkAt": null,
+      "detail": "No repository attached to FORGE yet; this repo is local git on James's PC.",
+      "blocker": "Owner creates a private repo and attaches it."
+    }
+  ]
+}

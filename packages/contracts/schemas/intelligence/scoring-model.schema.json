@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.local/schemas/intelligence/scoring-model.schema.json",
+  "title": "FORGE Opportunity Scoring Model",
+  "description": "Configurable weighted model used to rank niches and opportunities. Versioned by semver; stored whole in scoring_models.content_json. Exactly one version is active at a time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "model_id",
+    "version",
+    "name",
+    "scale",
+    "criteria",
+    "evidence_multipliers",
+    "unknown_policy",
+    "gates",
+    "recommendation_rules",
+    "changelog"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "model_id": {
+      "type": "string",
+      "pattern": "^scoring_[a-z0-9-]+_v[0-9]+-[0-9]+-[0-9]+$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "scale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "const": 0
+        },
+        "max": {
+          "const": 5
+        }
+      }
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "label",
+          "weight",
+          "direction",
+          "question",
+          "anchors",
+          "preferred_sources"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "direction": {
+            "enum": [
+              "higher_is_better"
+            ],
+            "description": "All criteria are phrased so 5 is best (e.g. 'low support load' = 5)."
+          },
+          "question": {
+            "type": "string"
+          },
+          "anchors": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "0",
+              "1",
+              "3",
+              "5"
+            ],
+            "properties": {
+              "0": {
+                "type": "string"
+              },
+              "1": {
+                "type": "string"
+              },
+              "2": {
+                "type": "string"
+              },
+              "3": {
+                "type": "string"
+              },
+              "4": {
+                "type": "string"
+              },
+              "5": {
+                "type": "string"
+              }
+            }
+          },
+          "preferred_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "required_for_recommendation": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "evidence_multipliers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "VERIFIED",
+        "ESTIMATED",
+        "INFERRED",
+        "UNKNOWN"
+      ],
+      "properties": {
+        "VERIFIED": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ESTIMATED": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "INFERRED": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "UNKNOWN": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "unknown_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "score_as"
+      ],
+      "properties": {
+        "score_as": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Score substituted when a criterion is UNKNOWN (pessimistic prior)."
+        }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "rule",
+          "on_fail"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "rule": {
+            "type": "string"
+          },
+          "on_fail": {
+            "enum": [
+              "exclude",
+              "cannot_recommend",
+              "flag"
+            ]
+          }
+        }
+      }
+    },
+    "recommendation_rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidates_min",
+        "candidates_max",
+        "rank_by",
+        "min_evidence_coverage",
+        "min_margin_for_strong"
+      ],
+      "properties": {
+        "candidates_min": {
+          "type": "integer"
+        },
+        "candidates_max": {
+          "type": "integer"
+        },
+        "rank_by": {
+          "enum": [
+            "adjusted_score",
+            "raw_score"
+          ]
+        },
+        "min_evidence_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Share of total weight scored with non-UNKNOWN evidence needed to be the strongest recommendation."
+        },
+        "min_margin_for_strong": {
+          "type": "number",
+          "description": "Adjusted-score lead (points of 100) over #2 to call the recommendation 'clear'; otherwise 'narrow'."
+        }
+      }
+    },
+    "changelog": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "version",
+          "date",
+          "change"
+        ],
+        "properties": {
+          "version": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

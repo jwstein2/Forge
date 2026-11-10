@@ -1,0 +1,14 @@
+{
+  "name": "forge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Project FORGE: the machine that builds businesses. Monorepo for FORGE Command, API, orchestration and registries.",
+  "workspaces": ["packages/*", "services/*"],
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "dev:api": "npm run dev -w @forge/api",
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "check": "npm run typecheck && npm test && node scripts/check-secrets.mjs"
+  }
+}

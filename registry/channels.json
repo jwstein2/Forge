@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "channels": [
+    {
+      "id": "ch_qpk_pinterest",
+      "nicheId": "quilt-plan-kit",
+      "platform": "pinterest",
+      "status": "verified",
+      "cadence": "1 pin/day (RSS drip)",
+      "accountUrl": null,
+      "lastVerifiedAt": "2026-11-09T00:00:00Z",
+      "lastVerifiedUrl": "https://quiltplankit.pages.dev/pins.xml",
+      "registryId": "CF-01",
+      "notes": "3 pins verified (7 Nov, 9 Nov ×2) by N8N-03 RSS receipt; queue ends 2026-11-12. Exact pin URLs live in n8n qpk_published_pins."
+    },
+    {
+      "id": "ch_qpk_email",
+      "nicheId": "quilt-plan-kit",
+      "platform": "email",
+      "status": "configured",
+      "cadence": null,
+      "accountUrl": null,
+      "lastVerifiedAt": null,
+      "lastVerifiedUrl": null,
+      "registryId": null,
+      "notes": "MailerLite account approved by owner; site form built but not wired."
+    },
+    {
+      "id": "ch_qpk_seo",
+      "nicheId": "quilt-plan-kit",
+      "platform": "seo",
+      "status": "configured",
+      "cadence": null,
+      "accountUrl": null,
+      "lastVerifiedAt": null,
+      "lastVerifiedUrl": null,
+      "registryId": "SCH-02",
+      "notes": "Search Console verified per docs; coverage and clicks UNKNOWN (no access)."
+    },
+    {
+      "id": "ch_bidline_seo",
+      "nicheId": "bidline",
+      "platform": "seo",
+      "status": "configured",
+      "cadence": null,
+      "accountUrl": null,
+      "lastVerifiedAt": null,
+      "lastVerifiedUrl": null,
+      "registryId": "SCH-02",
+      "notes": "Verification file present; status UNVERIFIED."
+    },
+    {
+      "id": "ch_loaf_seo",
+      "nicheId": "loaf-ledger",
+      "platform": "seo",
+      "status": "configured",
+      "cadence": null,
+      "accountUrl": null,
+      "lastVerifiedAt": null,
+      "lastVerifiedUrl": null,
+      "registryId": "SCH-02",
+      "notes": "Verification file present; no structured data."
+    }
+  ]
+}

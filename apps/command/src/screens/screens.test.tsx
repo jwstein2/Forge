@@ -1,0 +1,183 @@
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { TestApp } from '../App';
+import { createFixtureSource } from '../data/fixtureSource';
+
+const renderAt = (path: string) => render(<TestApp source={createFixtureSource()} path={path} />);
+
+describe('Portfolio', () => {
+  it('leads with an outcome sentence built from data', async () => {
+    renderAt('/');
+    expect(await screen.findByRole('heading', { level: 1, name: /None has taken a live payment yet/ })).toBeInTheDocument();
+    expect(screen.getByText(/1 of 9 marketing channels verified/)).toBeInTheDocument();
+  });
+
+  it('shows period and freshness on headline metrics', async () => {
+    renderAt('/');
+    const rev = await screen.findByTestId('stat-Verified revenue');
+    expect(within(rev).getByText('Verified')).toBeInTheDocument();
+    expect(within(rev).getByText('Nov 1–10, 2026')).toBeInTheDocument();
+    expect(within(rev).getByText(/as of/)).toBeInTheDocument();
+  });
+
+  it('marks contribution incomplete instead of inventing a number', async () => {
+    renderAt('/');
+    expect((await screen.findAllByTestId('contribution-value'))[0]).toHaveTextContent('Incomplete');
+    expect(screen.getByText('Not yet established')).toBeInTheDocument();
+  });
+
+  it('lists all three businesses with health', async () => {
+    renderAt('/');
+    for (const n of ['Quilt Plan Kit', 'Bidline', 'Loaf Ledger']) expect((await screen.findAllByRole('link', { name: n })).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Blocked').length).toBeGreaterThan(0);
+  });
+});
+
+describe('Niche drill-down', () => {
+  it('shows the failed Bidline kit and the price mismatch', async () => {
+    renderAt('/niches/bidline');
+    expect(await screen.findByRole('heading', { level: 1, name: /Bidline/ })).toBeInTheDocument();
+    expect(screen.getByText(/byte-identical to the free template/)).toBeInTheDocument();
+    expect(screen.getByText('$19.00')).toBeInTheDocument();
+    expect(screen.getByText('$19.99')).toBeInTheDocument();
+  });
+
+  it('handles an unknown niche', async () => {
+    renderAt('/niches/nope');
+    expect(await screen.findByRole('heading', { level: 1, name: 'No business with that name' })).toBeInTheDocument();
+  });
+});
+
+describe('Opportunities', () => {
+  it('shows an honest empty state when the Scout has not run', async () => {
+    renderAt('/opportunities');
+    expect(await screen.findByRole('heading', { level: 1, name: /has not run yet/ })).toBeInTheDocument();
+    expect(screen.queryByText('Vegetable garden planners')).not.toBeInTheDocument();
+  });
+
+  it('labels sample data with a banner and disables commissioning', async () => {
+    renderAt('/opportunities?preview=sample');
+    expect(await screen.findByRole('note', { name: 'Sample data' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Commission a Launch Blueprint/ })).toBeDisabled();
+    expect(screen.getAllByText('Recommended')).toHaveLength(1);
+  });
+
+  it('switches the selected opportunity', async () => {
+    renderAt('/opportunities?preview=sample');
+    await userEvent.click(await screen.findByRole('button', { name: /Woodworking cut-list tools/ }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Woodworking cut-list tools' })).toBeInTheDocument();
+  });
+});
+
+describe('Builder', () => {
+  it('says no build is under way by default', async () => {
+    renderAt('/builder');
+    expect(await screen.findByRole('heading', { level: 1, name: /No business build is under way/ })).toBeInTheDocument();
+  });
+  it('renders nine milestones in sample mode', async () => {
+    renderAt('/builder?preview=sample');
+    const track = await screen.findByRole('list', { name: 'Build milestones' });
+    expect(within(track).getAllByRole('listitem').filter((li) => li.classList.contains('track__step'))).toHaveLength(9);
+  });
+});
+
+describe('Operations', () => {
+  it('pauses and resumes an approved job, saying it is simulated in snapshot mode', async () => {
+    renderAt('/operations');
+    const btn = await screen.findByRole('button', { name: /Pause N8N-04/ });
+    await userEvent.click(btn);
+    expect(await screen.findByText(/N8N-04 paused\. Snapshot mode: this is simulated/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Resume N8N-04/ }));
+    expect(await screen.findByText(/N8N-04 resumed/)).toBeInTheDocument();
+  });
+
+  it('does not offer pause for non-approved automation', async () => {
+    renderAt('/operations');
+    await screen.findByRole('button', { name: /Pause N8N-02/ });
+    expect(screen.queryByRole('button', { name: /Pause CF-02/ })).not.toBeInTheDocument();
+  });
+
+  it('filters alerts by severity', async () => {
+    renderAt('/operations');
+    await userEvent.selectOptions(await screen.findByLabelText('Severity'), 'critical');
+    expect(screen.getByText('1 shown')).toBeInTheDocument();
+  });
+
+  it('shows an in-app weekly summary and no approval queue', async () => {
+    renderAt('/operations');
+    expect(await screen.findByRole('heading', { name: 'Weekly summary' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /approve/i })).not.toBeInTheDocument();
+  });
+});
+
+describe('Accounts', () => {
+  it('never renders a password field or reveal control', async () => {
+    const { container } = renderAt('/accounts');
+    await screen.findByRole('heading', { level: 1, name: /accounts/ });
+    expect(container.querySelector('input[type="password"]')).toBeNull();
+    expect(screen.queryByRole('button', { name: /reveal|show password/i })).not.toBeInTheDocument();
+    expect(screen.getAllByText('Not linked').length).toBe(10);
+  });
+});
+
+describe('Opportunities with real Scout output shape', () => {
+  it('renders the Intelligence fixture through the API mapper without inventing sections', async () => {
+    const { mapOpportunityBoard } = await import('../data/apiMap');
+    const run = (await import('../data/__fixtures__/opportunity-run.fixture.json')).default;
+    const { OpportunitiesView } = await import('./Opportunities');
+    const { MemoryRouter } = await import('react-router-dom');
+    const board = mapOpportunityBoard({
+      state: 'ready', runAt: '2026-11-10T03:00:00Z', scoringModelVersion: '1.0.0', note: 'fixture',
+      opportunities: run.opportunities.map((o) => ({
+        id: o.opportunity_id, opportunityKey: o.opportunity_key, title: o.title, score: o.adjusted_score, rank: o.rank,
+        recommended: o.recommended, scoringModelVersion: '1.0.0', briefRef: null, runId: o.run_id, status: 'candidate' as const, content: o,
+      })),
+    });
+    render(<MemoryRouter><OpportunitiesView board={board} /></MemoryRouter>);
+    expect(screen.getByRole('heading', { level: 1, name: /Strongest recommendation: FIXTURE: fixture-niche-a/ })).toBeInTheDocument();
+    expect(screen.getByText('No seasonal data in this run.')).toBeInTheDocument();
+    expect(screen.getAllByText('Not covered in this run.').length).toBeGreaterThan(0);
+  });
+});
+
+describe('QA-001 regressions', () => {
+  it('D3: Loaf Ledger page views are not connected, not 0 verified', async () => {
+    renderAt('/niches/loaf-ledger');
+    const pv = await screen.findByTestId('stat-Page views');
+    expect(within(pv).getByText('Not connected')).toBeInTheDocument();
+    expect(within(pv).queryByText('0')).not.toBeInTheDocument();
+  });
+  it('D4: Operations headline does not claim jobs ran on time without a heartbeat', async () => {
+    renderAt('/operations');
+    const h1 = await screen.findByRole('heading', { level: 1 });
+    expect(h1).not.toHaveTextContent(/on time|on schedule/);
+    expect(h1).toHaveTextContent(/nothing yet checks that they are still running/);
+  });
+  it('D5: Quilt Plan Kit search is configured, not running', async () => {
+    renderAt('/niches/quilt-plan-kit');
+    const card = (await screen.findByText('Search (SEO)', { selector: '.channel__name' })).closest('li')!;
+    expect(within(card).getByText('Configured')).toBeInTheDocument();
+  });
+  it('D7: an unsafe vault or console link is not rendered as a link', async () => {
+    const { AccountsView } = await import('./Accounts');
+    const { accounts } = await import('../data/fixtures');
+    const bad = accounts.map((a, i) => (i === 0 ? { ...a, passwordManagerRef: 'javascript:alert(1)', consoleUrl: 'javascript:alert(2)' } : a));
+    const { container } = render(<AccountsView accounts={bad} />);
+    expect(container.querySelector('a[href^="javascript"]')).toBeNull();
+  });
+  it('D9: unknown routes have an h1', async () => {
+    renderAt('/nowhere');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Page not found' })).toBeInTheDocument();
+  });
+});
+
+describe('Accounts with 1Password links', () => {
+  it('links a row to its 1Password item and shows nothing secret', async () => {
+    const { AccountsView } = await import('./Accounts');
+    const { accounts } = await import('../data/fixtures');
+    const linked = accounts.map((a, i) => (i === 0 ? { ...a, passwordManagerRef: 'https://start.1password.com/open/i?a=ACC&v=VAULT&i=ITEM' } : a));
+    render(<AccountsView accounts={linked} />);
+    expect(screen.getByRole('heading', { level: 1, name: /1 linked to 1Password/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Open in 1Password/ })).toHaveAttribute('href', 'https://start.1password.com/open/i?a=ACC&v=VAULT&i=ITEM');
+  });
+});

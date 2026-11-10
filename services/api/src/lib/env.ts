@@ -1,0 +1,13 @@
+/** Worker bindings and configuration. Secrets are bindings only; they are never logged or returned. */
+export interface Env {
+  DB: D1Database;                       // FORGE platform database (never the live sales ledger)
+  LEDGER_DB?: D1Database;               // OPTIONAL read-only binding to the live sales ledger (staging, owner-approved only)
+  ENVIRONMENT: "development" | "staging" | "production" | "test";
+  OWNER_EMAILS: string;                 // comma-separated allowlist
+  ACCESS_TEAM_DOMAIN?: string;          // e.g. https://<team>.cloudflareaccess.com
+  ACCESS_AUD?: string;                  // Cloudflare Access application audience tag
+  DEV_AUTH_TOKEN?: string;              // development only; refused in any other environment
+  HEARTBEAT_SECRET?: string;            // shared secret for signed run heartbeats (n8n → FORGE)
+  N8N_BASE_URL?: string;
+  N8N_API_KEY?: string;                 // FORGE-scoped, read-only. Unset = n8n live source unconnected.
+}

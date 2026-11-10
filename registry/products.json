@@ -1,0 +1,182 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "products": [
+    {
+      "id": "prd_bidline_kit",
+      "nicheId": "bidline",
+      "name": "Bidline Estimating Kit (paid workbook)",
+      "kind": "spreadsheet",
+      "tier": "paid",
+      "sitePriceCents": 1900,
+      "checkoutPriceCents": 1999,
+      "ledgerProductName": "Bidline Estimating Kit: Contractor Estimate Spreadsheet",
+      "status": "FAILED",
+      "checkoutStatus": "test_mode",
+      "deliveryStatus": "unverified",
+      "notes": "Paid file is byte-identical to the free template (critical release failure). Site $19 vs Lemon Squeezy test product $19.99. Owned by 'Reach first verified live dollar'.",
+      "evidence": [
+        {
+          "claim": "Downloads\\06 Bidline\\Bidline-Estimating-Kit.xlsx byte-identical to free template",
+          "label": "FAILED",
+          "source": "audit/WS3_COMMERCIAL_READINESS.md"
+        },
+        {
+          "claim": "Test order $19.99 recorded in ledger 2026-11-07",
+          "label": "TESTED",
+          "source": "ledger.d1 snapshot 2026-11-10"
+        }
+      ]
+    },
+    {
+      "id": "prd_bidline_free_template",
+      "nicheId": "bidline",
+      "name": "Free estimate template",
+      "kind": "spreadsheet",
+      "tier": "free",
+      "sitePriceCents": 0,
+      "checkoutPriceCents": null,
+      "ledgerProductName": null,
+      "status": "LIVE",
+      "checkoutStatus": "none",
+      "deliveryStatus": "n/a",
+      "notes": null,
+      "evidence": [
+        {
+          "claim": "Free download on live site",
+          "label": "LIVE",
+          "source": "audit/WS3_COMMERCIAL_READINESS.md"
+        }
+      ]
+    },
+    {
+      "id": "prd_bidline_calculator",
+      "nicheId": "bidline",
+      "name": "Estimating calculator",
+      "kind": "calculator",
+      "tier": "free",
+      "sitePriceCents": 0,
+      "checkoutPriceCents": null,
+      "ledgerProductName": null,
+      "status": "LIVE",
+      "checkoutStatus": "none",
+      "deliveryStatus": "n/a",
+      "notes": null,
+      "evidence": [
+        {
+          "claim": "/bidline/calculator page views recorded 2026-11-10",
+          "label": "LIVE",
+          "source": "ledger.d1 snapshot 2026-11-10"
+        }
+      ]
+    },
+    {
+      "id": "prd_qpk_planner",
+      "nicheId": "quilt-plan-kit",
+      "name": "The Quilt Planner — Printable PDF",
+      "kind": "pdf",
+      "tier": "paid",
+      "sitePriceCents": 800,
+      "checkoutPriceCents": 800,
+      "ledgerProductName": "The Quilt Planner — Printable PDF",
+      "status": "TESTED",
+      "checkoutStatus": "test_mode",
+      "deliveryStatus": "unverified",
+      "notes": "Test order + refund recorded 2026-11-07. Site shows 'Available soon' because CHECKOUT_URL is blank; store not activated.",
+      "evidence": [
+        {
+          "claim": "Test order 9968080 and refund in ledger",
+          "label": "TESTED",
+          "source": "ledger.d1 snapshot 2026-11-10"
+        }
+      ]
+    },
+    {
+      "id": "prd_qpk_calculators",
+      "nicheId": "quilt-plan-kit",
+      "name": "Quilting calculators (binding, backing, borders, precuts, squares)",
+      "kind": "calculator",
+      "tier": "free",
+      "sitePriceCents": 0,
+      "checkoutPriceCents": null,
+      "ledgerProductName": null,
+      "status": "LIVE",
+      "checkoutStatus": "none",
+      "deliveryStatus": "n/a",
+      "notes": "105 automated answer checks (verify_answers.js), run by hand.",
+      "evidence": [
+        {
+          "claim": "Calculators live; manual test suite exists",
+          "label": "LIVE",
+          "source": "audit/final/FORGE_CURRENT_STATE_MAP.md"
+        }
+      ]
+    },
+    {
+      "id": "prd_qpk_paperback",
+      "nicheId": "quilt-plan-kit",
+      "name": "KDP paperback",
+      "kind": "book",
+      "tier": "paid",
+      "sitePriceCents": null,
+      "checkoutPriceCents": null,
+      "ledgerProductName": null,
+      "status": "UNVERIFIED",
+      "checkoutStatus": "unknown",
+      "deliveryStatus": "n/a",
+      "notes": "Sold on Amazon; royalties not captured by any FORGE source.",
+      "evidence": [
+        {
+          "claim": "KDP status and royalties unknown",
+          "label": "UNVERIFIED",
+          "source": "audit/final/FORGE_CURRENT_STATE_MAP.md"
+        }
+      ]
+    },
+    {
+      "id": "prd_loaf_calculators",
+      "nicheId": "loaf-ledger",
+      "name": "Baking calculators and guides",
+      "kind": "calculator",
+      "tier": "free",
+      "sitePriceCents": 0,
+      "checkoutPriceCents": null,
+      "ledgerProductName": null,
+      "status": "LIVE",
+      "checkoutStatus": "none",
+      "deliveryStatus": "n/a",
+      "notes": null,
+      "evidence": [
+        {
+          "claim": "Live site content",
+          "label": "LIVE",
+          "source": "audit/final/FORGE_CURRENT_STATE_MAP.md"
+        }
+      ]
+    },
+    {
+      "id": "prd_loaf_paid",
+      "nicheId": "loaf-ledger",
+      "name": "Paid baking spreadsheet",
+      "kind": "spreadsheet",
+      "tier": "paid",
+      "sitePriceCents": null,
+      "checkoutPriceCents": null,
+      "ledgerProductName": null,
+      "status": "PROPOSED",
+      "checkoutStatus": "none",
+      "deliveryStatus": "n/a",
+      "notes": "Not found on PC or Drive (2026-11-10). Lemon Squeezy secret slot exists, no product.",
+      "evidence": [
+        {
+          "claim": "No paid spreadsheet found in any searched location",
+          "label": "UNVERIFIED",
+          "source": "audit/WS3_COMMERCIAL_READINESS.md"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+.env
+.env.*
+*.local.sqlite
+*.sqlite
+*.sqlite-*
+coverage/
+.DS_Store
+# never commit credential material
+*credential*
+*secret*
+!**/check-secrets.mjs
+
+# transfer archives
+*.tgz
+*.bundle
+.data/

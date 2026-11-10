@@ -1,0 +1,262 @@
+{
+  "schema_version": "1.0.0",
+  "model_id": "scoring_forge-default_v1-0-0",
+  "version": "1.0.0",
+  "name": "FORGE default opportunity model",
+  "description": "Ranks by risk-adjusted return and reuse of FORGE infrastructure, per the owner's stated preference. Score = 100 * sum(weight * score/5). Adjusted score multiplies each criterion by its evidence multiplier, so thinly evidenced ideas cannot outrank well evidenced ones on optimism alone.",
+  "scale": {
+    "min": 0,
+    "max": 5
+  },
+  "criteria": [
+    {
+      "key": "demand_evidence",
+      "label": "Demand evidence",
+      "weight": 0.15,
+      "direction": "higher_is_better",
+      "question": "How strong and durable is measurable search or marketplace demand for the problem?",
+      "anchors": {
+        "0": "No evidence anyone searches or buys",
+        "1": "Anecdotal only",
+        "3": "Consistent autocomplete, competitor listings with reviews, stable Trends",
+        "5": "Measured keyword volume plus sales evidence (review counts, bestseller ranks) and stable or rising 5-year Trends"
+      },
+      "preferred_sources": [
+        "google_trends",
+        "keyword_planner",
+        "search_console",
+        "marketplace_review_counts",
+        "autocomplete"
+      ],
+      "required_for_recommendation": true
+    },
+    {
+      "key": "willingness_to_pay",
+      "label": "Willingness to pay",
+      "weight": 0.15,
+      "direction": "higher_is_better",
+      "question": "Is there evidence this audience pays for a digital product like ours, at what price?",
+      "anchors": {
+        "0": "Everything comparable is free",
+        "1": "Free substitutes dominate; paid items rare",
+        "3": "Multiple paid sellers with reviews at our price band",
+        "5": "Many paid sellers at or above our price with strong review counts; buyers frame it as a business expense or gift"
+      },
+      "preferred_sources": [
+        "marketplace_listings",
+        "competitor_pricing",
+        "reviews"
+      ],
+      "required_for_recommendation": true
+    },
+    {
+      "key": "competition_gap",
+      "label": "Competitive gap",
+      "weight": 0.1,
+      "direction": "higher_is_better",
+      "question": "Is there a clear quality or positioning gap we can own?",
+      "anchors": {
+        "0": "Saturated by strong incumbents with free tools",
+        "1": "Crowded, little differentiation possible",
+        "3": "Crowded but generic; a premium, well-designed offer stands out",
+        "5": "Underserved: few credible offers, poor UX, unmet sub-need"
+      },
+      "preferred_sources": [
+        "competitor_scan",
+        "reviews",
+        "forum_mining"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "unit_economics",
+      "label": "Unit economics",
+      "weight": 0.1,
+      "direction": "higher_is_better",
+      "question": "Margin after fees, delivery and support at the expected price?",
+      "anchors": {
+        "0": "Negative or near zero",
+        "1": "Thin; relies on volume",
+        "3": "Digital product with >80% margin at under $15 AOV",
+        "5": ">85% margin and AOV >= $25 or natural bundle/upsell"
+      },
+      "preferred_sources": [
+        "pricing_map",
+        "fee_schedule"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "time_to_first_revenue",
+      "label": "Speed to first revenue",
+      "weight": 0.1,
+      "direction": "higher_is_better",
+      "question": "How quickly can a sellable product reach checkout?",
+      "anchors": {
+        "0": "Months, needs new capabilities",
+        "1": "6+ weeks",
+        "3": "2-4 weeks with existing playbooks",
+        "5": "Under 2 weeks; assets mostly exist"
+      },
+      "preferred_sources": [
+        "internal_inventory"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "infrastructure_reuse",
+      "label": "FORGE reuse",
+      "weight": 0.1,
+      "direction": "higher_is_better",
+      "question": "How much existing FORGE infrastructure (sites, ledger, checkout, Pinterest drip, calculators, email) does it reuse?",
+      "anchors": {
+        "0": "Needs a new stack",
+        "1": "Little reuse",
+        "3": "Reuses checkout, ledger, site template",
+        "5": "Reuses nearly everything and adds reusable capability back"
+      },
+      "preferred_sources": [
+        "internal_inventory"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "acquisition_channel_fit",
+      "label": "Free acquisition fit",
+      "weight": 0.1,
+      "direction": "higher_is_better",
+      "question": "Is there a free, compliant channel where this audience already searches or browses (SEO, Pinterest, YouTube, communities)?",
+      "anchors": {
+        "0": "Only paid ads would work",
+        "1": "Weak organic fit",
+        "3": "One strong organic channel",
+        "5": "Two or more strong organic channels with evergreen intent"
+      },
+      "preferred_sources": [
+        "serp_review",
+        "pinterest_observation",
+        "community_observation"
+      ],
+      "required_for_recommendation": true
+    },
+    {
+      "key": "seasonal_timing",
+      "label": "Seasonal timing",
+      "weight": 0.05,
+      "direction": "higher_is_better",
+      "question": "Does the next demand window leave enough lead time to build and rank?",
+      "anchors": {
+        "0": "Peak just passed; next is 10+ months out with no evergreen demand",
+        "1": "Poor timing",
+        "3": "Evergreen or next peak 3-6 months away",
+        "5": "Evergreen with an upcoming peak 3-5 months out"
+      },
+      "preferred_sources": [
+        "google_trends"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "low_support_load",
+      "label": "Low support and maintenance",
+      "weight": 0.05,
+      "direction": "higher_is_better",
+      "question": "How little ongoing support, updates and customer service does it need?",
+      "anchors": {
+        "0": "High-touch, frequent updates",
+        "1": "Regular support",
+        "3": "Occasional questions",
+        "5": "Self-serve, rarely changes"
+      },
+      "preferred_sources": [
+        "analyst_inference"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "low_risk",
+      "label": "Low legal, platform and IP risk",
+      "weight": 0.05,
+      "direction": "higher_is_better",
+      "question": "How free is it from regulatory, licensing, platform-policy and IP exposure?",
+      "anchors": {
+        "0": "Licensed advice, safety claims or heavy policy risk",
+        "1": "Material risk",
+        "3": "Standard disclaimers suffice",
+        "5": "Negligible"
+      },
+      "preferred_sources": [
+        "analyst_inference",
+        "policy_review"
+      ],
+      "required_for_recommendation": false
+    },
+    {
+      "key": "strategic_fit",
+      "label": "Strategic and owner fit",
+      "weight": 0.05,
+      "direction": "higher_is_better",
+      "question": "Does it fit the owner's goals (shovel-seller tools, portfolio, low maintenance, family time)?",
+      "anchors": {
+        "0": "Conflicts",
+        "1": "Weak",
+        "3": "Fits",
+        "5": "Strong fit and builds a reusable FORGE capability"
+      },
+      "preferred_sources": [
+        "owner_statement"
+      ],
+      "required_for_recommendation": false
+    }
+  ],
+  "evidence_multipliers": {
+    "VERIFIED": 1.0,
+    "ESTIMATED": 0.9,
+    "INFERRED": 0.75,
+    "UNKNOWN": 0.5
+  },
+  "unknown_policy": {
+    "score_as": 1
+  },
+  "gates": [
+    {
+      "key": "no_licensed_advice",
+      "rule": "Product must not require professional licensing or give regulated advice (legal, medical, financial, engineering sign-off).",
+      "on_fail": "exclude"
+    },
+    {
+      "key": "budget",
+      "rule": "Launch cost must fit the owner-approved budget envelope without new paid tools.",
+      "on_fail": "cannot_recommend"
+    },
+    {
+      "key": "free_channel",
+      "rule": "At least one free acquisition channel scored >= 3.",
+      "on_fail": "cannot_recommend"
+    },
+    {
+      "key": "evidence_coverage",
+      "rule": "Required criteria must not be UNKNOWN and total non-UNKNOWN weight >= min_evidence_coverage.",
+      "on_fail": "cannot_recommend"
+    },
+    {
+      "key": "ip_clean",
+      "rule": "No dependence on others' trademarks, characters or unlicensed assets.",
+      "on_fail": "exclude"
+    }
+  ],
+  "recommendation_rules": {
+    "candidates_min": 3,
+    "candidates_max": 5,
+    "rank_by": "adjusted_score",
+    "min_evidence_coverage": 0.6,
+    "min_margin_for_strong": 5
+  },
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-11-10",
+      "change": "Initial model. Weights reflect owner preference for risk-adjusted ROI and FORGE reuse (handoff \u00a75.1). Recalibrate after the first 90 days of first-party sales data."
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "costItems": [
+    {
+      "id": "cost_cf",
+      "nicheId": null,
+      "category": "hosting_software",
+      "vendor": "Cloudflare",
+      "item": "Pages, Workers, D1 (free tier)",
+      "amountCents": 0,
+      "cadence": "monthly",
+      "evidence": "INFERRED",
+      "allocationRule": "equal across live niches",
+      "notes": "Free tier per audit; no paid plan observed."
+    },
+    {
+      "id": "cost_n8n",
+      "nicheId": null,
+      "category": "hosting_software",
+      "vendor": "n8n",
+      "item": "Cloud plan (tier unknown)",
+      "amountCents": null,
+      "cadence": "monthly",
+      "evidence": "UNKNOWN",
+      "allocationRule": "share of FORGE executions",
+      "notes": "Plan tier unknown; shared with other businesses."
+    },
+    {
+      "id": "cost_ls_fees",
+      "nicheId": null,
+      "category": "payment",
+      "vendor": "Lemon Squeezy",
+      "item": "Payment/MoR fees",
+      "amountCents": 0,
+      "cadence": "usage",
+      "evidence": "VERIFIED",
+      "allocationRule": "direct per order",
+      "notes": "No live orders, so no fees incurred."
+    },
+    {
+      "id": "cost_ai",
+      "nicheId": null,
+      "category": "ai_usage",
+      "vendor": "Anthropic",
+      "item": "Claude usage by FORGE agents",
+      "amountCents": null,
+      "cadence": "usage",
+      "evidence": "UNKNOWN",
+      "allocationRule": "direct where tagged",
+      "notes": "Session usage priced at API rates ~ $161 recorded across 5 sessions; on a subscription this draws plan limits rather than billing. Not yet a cash cost line."
+    },
+    {
+      "id": "cost_domains",
+      "nicheId": null,
+      "category": "domain",
+      "vendor": "(none)",
+      "item": "Custom domains",
+      "amountCents": 0,
+      "cadence": "annual",
+      "evidence": "VERIFIED",
+      "allocationRule": null,
+      "notes": "None purchased; $11 envelope approved, unspent."
+    },
+    {
+      "id": "cost_mailerlite",
+      "nicheId": "quilt-plan-kit",
+      "category": "marketing",
+      "vendor": "MailerLite",
+      "item": "plan (not recorded)",
+      "amountCents": null,
+      "cadence": "monthly",
+      "evidence": "UNKNOWN",
+      "allocationRule": null,
+      "notes": "Plan not recorded."
+    }
+  ]
+}

@@ -1,0 +1,387 @@
+{
+ "_meta": {
+  "kind": "ledger.d1.snapshot",
+  "database": "quiltplankit-sales",
+  "databaseId": "1c82cc0f-ddd6-4ae0-8600-90d7c2d7e392",
+  "capturedAt": "2026-11-10T02:13:00Z",
+  "method": "Read-only SELECT through the Cloudflare D1 connector by the platform thread. No writes.",
+  "tables": {
+   "sales": "CREATE TABLE sales (id TEXT PRIMARY KEY, event TEXT, order_id TEXT, test_mode INTEGER, currency TEXT, total_cents INTEGER, tax_cents INTEGER, refunded_cents INTEGER, product TEXT, created_at TEXT, received_at TEXT DEFAULT CURRENT_TIMESTAMP, source TEXT, campaign TEXT, vertical TEXT DEFAULT 'unknown')",
+   "events": "CREATE TABLE events (day TEXT, name TEXT, path TEXT, source TEXT, count INTEGER DEFAULT 0, PRIMARY KEY (day, name, path, source))"
+  }
+ },
+ "sales": [
+  {
+   "id": "order_created:9968080",
+   "event": "order_created",
+   "order_id": "9968080",
+   "test_mode": 1,
+   "currency": "USD",
+   "total_cents": 800,
+   "tax_cents": 0,
+   "refunded_cents": 0,
+   "product": "The Quilt Planner — Printable PDF",
+   "created_at": "2026-11-07T01:16:31.000000Z",
+   "received_at": "2026-11-07 03:01:19",
+   "source": null,
+   "campaign": null,
+   "vertical": "quilt-plan-kit"
+  },
+  {
+   "id": "order_refunded:9968080",
+   "event": "order_refunded",
+   "order_id": "9968080",
+   "test_mode": 1,
+   "currency": "USD",
+   "total_cents": 800,
+   "tax_cents": 0,
+   "refunded_cents": 800,
+   "product": "The Quilt Planner — Printable PDF",
+   "created_at": "2026-11-07T01:16:31.000000Z",
+   "received_at": "2026-11-07 03:27:42",
+   "source": "",
+   "campaign": "",
+   "vertical": "quilt-plan-kit"
+  },
+  {
+   "id": "order_created:9975275",
+   "event": "order_created",
+   "order_id": "9975275",
+   "test_mode": 1,
+   "currency": "USD",
+   "total_cents": 1999,
+   "tax_cents": 0,
+   "refunded_cents": 0,
+   "product": "Bidline Estimating Kit: Contractor Estimate Spreadsheet",
+   "created_at": "2026-11-07T22:07:36.000000Z",
+   "received_at": "2026-11-07 22:07:38",
+   "source": "",
+   "campaign": "",
+   "vertical": "bidline"
+  }
+ ],
+ "events": [
+  {
+   "day": "2026-11-07",
+   "name": "calc_use",
+   "path": "/calculators/binding",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "calc_use",
+   "path": "/site/calculators/precuts",
+   "source": "qa-test",
+   "count": 2
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/",
+   "source": "direct",
+   "count": 8
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/",
+   "source": "qa-test",
+   "count": 6
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/answers/binding-queen-quilt",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/calculators/",
+   "source": "qa-test",
+   "count": 2
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/calculators/binding",
+   "source": "pinterest",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/calculators/binding",
+   "source": "qa-test",
+   "count": 3
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/calculators/precuts",
+   "source": "internal",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/calculators/quilt-sizes",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/calculators/squares-yardage",
+   "source": "internal",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/embed/binding",
+   "source": "embed:127.0.0.1",
+   "count": 6
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/free-calculators-for-your-site",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/guides/",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/guides/how-much-binding",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/planner",
+   "source": "qa-test",
+   "count": 9
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/planner",
+   "source": "test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site-launch/planner",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/answers/backing-queen-quilt",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/calculators/backing",
+   "source": "qa-test",
+   "count": 4
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/calculators/binding",
+   "source": "qa-test",
+   "count": 12
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/calculators/borders",
+   "source": "qa-test",
+   "count": 3
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/calculators/index",
+   "source": "qa-test",
+   "count": 12
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/calculators/precuts",
+   "source": "qa-test",
+   "count": 7
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/guides/how-much-binding",
+   "source": "qa-test",
+   "count": 12
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/guides/how-much-fabric-for-borders",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/guides/precut-quilt-sizes",
+   "source": "qa-test",
+   "count": 4
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/index",
+   "source": "qa-test",
+   "count": 15
+  },
+  {
+   "day": "2026-11-07",
+   "name": "page_view",
+   "path": "/site/planner",
+   "source": "qa-test",
+   "count": 14
+  },
+  {
+   "day": "2026-11-08",
+   "name": "page_view",
+   "path": "/",
+   "source": "direct",
+   "count": 1
+  },
+  {
+   "day": "2026-11-09",
+   "name": "calc_use",
+   "path": "/calculators/squares-yardage",
+   "source": "internal",
+   "count": 1
+  },
+  {
+   "day": "2026-11-09",
+   "name": "checkout_click",
+   "path": "/qa/ui-v2",
+   "source": "qa-test",
+   "count": 1
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/",
+   "source": "direct",
+   "count": 4
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/",
+   "source": "internal",
+   "count": 2
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/",
+   "source": "ref:bing.com",
+   "count": 1
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/calculators/backing",
+   "source": "internal",
+   "count": 2
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/calculators/binding",
+   "source": "pinterest",
+   "count": 1
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/calculators/borders",
+   "source": "internal",
+   "count": 1
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/calculators/squares-yardage",
+   "source": "internal",
+   "count": 3
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/guides/fabric-for-squares",
+   "source": "direct",
+   "count": 2
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/guides/fabric-for-squares",
+   "source": "internal",
+   "count": 2
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/planner",
+   "source": "internal",
+   "count": 2
+  },
+  {
+   "day": "2026-11-09",
+   "name": "page_view",
+   "path": "/terms",
+   "source": "internal",
+   "count": 1
+  },
+  {
+   "day": "2026-11-10",
+   "name": "page_view",
+   "path": "/",
+   "source": "direct",
+   "count": 2
+  },
+  {
+   "day": "2026-11-10",
+   "name": "page_view",
+   "path": "/bidline/",
+   "source": "direct",
+   "count": 1
+  },
+  {
+   "day": "2026-11-10",
+   "name": "page_view",
+   "path": "/bidline/calculator",
+   "source": "direct",
+   "count": 1
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+# FORGE API Worker. NOTHING here is deployed to production; production requires explicit owner approval.
+# Local:   npm run dev:wrangler   (uses a local D1 via Miniflare; no account needed)
+# Staging: D1 approved and created 2026-11-10. `wrangler deploy --env staging` runs on the owner's PC with the owner's OK.
+name = "forge-api"
+main = "src/worker.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.development]
+name = "forge-api-dev"
+vars = { ENVIRONMENT = "development", OWNER_EMAILS = "owner@forge.local" }
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "forge"
+database_id = "00000000-0000-0000-0000-000000000000"   # local only
+migrations_dir = "migrations"
+
+[env.staging]
+name = "forge-api-staging"
+vars = { ENVIRONMENT = "staging" }   # OWNER_EMAILS, ACCESS_TEAM_DOMAIN, ACCESS_AUD set at approval time
+[env.staging.triggers]
+crons = ["*/15 * * * *"]
+[[env.staging.d1_databases]]          # created 2026-11-10 after owner approval (free tier); migrations 0001-0006 applied
+binding = "DB"
+database_name = "forge-staging"
+database_id = "df5672ae-252d-4b44-862e-4eff3ab7f4e5"
+migrations_dir = "migrations"
+# Optional, owner-approved read-only view of the live sales ledger:
+# [[env.staging.d1_databases]]
+# binding = "LEDGER_DB"
+# database_name = "quiltplankit-sales"
+# database_id = "1c82cc0f-ddd6-4ae0-8600-90d7c2d7e392"

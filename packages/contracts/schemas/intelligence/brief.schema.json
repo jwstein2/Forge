@@ -1,0 +1,1217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.local/schemas/intelligence/brief.schema.json",
+  "title": "FORGE Audience & Market Brief",
+  "description": "One authoritative, versioned brief per niche. Every factual statement is a Claim carrying source ids, observation date, method, confidence and an evidence label. Stored whole as JSON (market_briefs.content_json). Schema version 1.0.0.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "brief_id",
+    "niche",
+    "version",
+    "status",
+    "created_at",
+    "updated_at",
+    "authors",
+    "summary",
+    "audience",
+    "jobs_to_be_done",
+    "pains",
+    "buying_triggers",
+    "objections",
+    "demand",
+    "competitors",
+    "monetization_options",
+    "premium_product_recommendation",
+    "data_connectors",
+    "sources",
+    "open_questions",
+    "changelog"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "brief_id": {
+      "type": "string",
+      "pattern": "^brief_[a-z0-9-]+_v[0-9]+-[0-9]+-[0-9]+$",
+      "description": "brief_<niche>_v<major>-<minor>-<patch>"
+    },
+    "niche": {
+      "$ref": "#/$defs/slug",
+      "description": "Niche key, e.g. bidline, quilt-plan-kit, loaf-ledger."
+    },
+    "display_name": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "#/$defs/semver",
+      "description": "Major: positioning or recommended product changes. Minor: new claims or competitors. Patch: corrections."
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "brief_id this version replaces."
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "approved",
+        "superseded"
+      ]
+    },
+    "created_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "updated_at": {
+      "$ref": "#/$defs/timestamp"
+    },
+    "refresh_by": {
+      "type": "string",
+      "format": "date",
+      "description": "Date by which the brief must be re-checked."
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "approved_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "one_line",
+        "go_hold",
+        "key_findings"
+      ],
+      "properties": {
+        "one_line": {
+          "type": "string"
+        },
+        "go_hold": {
+          "$ref": "#/$defs/decisionCall"
+        },
+        "key_findings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        }
+      }
+    },
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "segments",
+        "demographics"
+      ],
+      "properties": {
+        "segments": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "priority",
+              "evidence"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/slug"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "priority": {
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "exploratory"
+                ]
+              },
+              "skill_level": {
+                "type": "string"
+              },
+              "context": {
+                "type": "string",
+                "description": "Household or professional context."
+              },
+              "devices_and_formats": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "platforms": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/claim"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        "demographics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          },
+          "description": "Age, gender, income, geography, market concentration. Each a claim; UNKNOWN where no defensible source."
+        },
+        "customer_language": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "phrase",
+              "source_ids"
+            ],
+            "properties": {
+              "phrase": {
+                "type": "string",
+                "description": "Paraphrase or short quote (under 25 words) of how customers describe the problem."
+              },
+              "segment_id": {
+                "type": "string"
+              },
+              "source_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        "visual_and_trust_preferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        }
+      }
+    },
+    "jobs_to_be_done": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segmentClaim"
+      }
+    },
+    "pains": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segmentClaim"
+      }
+    },
+    "desired_outcomes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segmentClaim"
+      }
+    },
+    "buying_triggers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segmentClaim"
+      }
+    },
+    "objections": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/segmentClaim"
+      }
+    },
+    "demand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "keywords",
+        "trends",
+        "seasonality"
+      ],
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "term",
+              "intent",
+              "volume",
+              "evidence"
+            ],
+            "properties": {
+              "term": {
+                "type": "string"
+              },
+              "intent": {
+                "enum": [
+                  "informational",
+                  "commercial",
+                  "transactional",
+                  "navigational",
+                  "unknown"
+                ]
+              },
+              "volume": {
+                "$ref": "#/$defs/metric",
+                "description": "Monthly searches. UNKNOWN until a keyword source is connected."
+              },
+              "difficulty": {
+                "$ref": "#/$defs/metric"
+              },
+              "evidence": {
+                "$ref": "#/$defs/claim",
+                "description": "Why this term matters, e.g. observed in autocomplete, competitor titles or forum language."
+              }
+            }
+          }
+        },
+        "trends": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "series"
+          ],
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/connectorStatus"
+            },
+            "series": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "term",
+                  "geo",
+                  "range",
+                  "points_ref",
+                  "collected_at"
+                ],
+                "properties": {
+                  "term": {
+                    "type": "string"
+                  },
+                  "geo": {
+                    "type": "string"
+                  },
+                  "range": {
+                    "type": "string",
+                    "description": "e.g. 2021-11-01/2026-11-01"
+                  },
+                  "points_ref": {
+                    "type": "string",
+                    "description": "Path or URL to the stored CSV of relative-interest points."
+                  },
+                  "collected_at": {
+                    "$ref": "#/$defs/timestamp"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "note": {
+              "type": "string",
+              "description": "Google Trends values are relative interest (0-100), never absolute volume or purchases."
+            }
+          }
+        },
+        "seasonality": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/seasonalWindow"
+          }
+        },
+        "market_size": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          },
+          "description": "Only published third-party figures, labelled with publisher and method. Never computed by FORGE without a stated model."
+        }
+      }
+    },
+    "competitors": {
+      "type": "array",
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "url",
+          "type",
+          "scope",
+          "offers",
+          "observed_at",
+          "source_ids"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/slug"
+          },
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "direct_digital_product",
+              "free_tool",
+              "software_saas",
+              "marketplace_seller",
+              "publisher_or_media",
+              "retailer",
+              "vendor_lead_magnet",
+              "app",
+              "other"
+            ]
+          },
+          "scope": {
+            "enum": [
+              "national",
+              "international",
+              "local_regional",
+              "marketplace"
+            ]
+          },
+          "positioning": {
+            "type": "string"
+          },
+          "offers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "format",
+                "price"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "format": {
+                  "type": "string"
+                },
+                "price": {
+                  "$ref": "#/$defs/metric"
+                },
+                "billing": {
+                  "enum": [
+                    "one_time",
+                    "monthly",
+                    "annual",
+                    "free",
+                    "freemium",
+                    "unknown"
+                  ]
+                },
+                "includes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "free_resources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "visible_channels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "gaps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "traffic_estimate": {
+            "$ref": "#/$defs/metric",
+            "description": "Third-party estimate only, labelled ESTIMATED with source; UNKNOWN if no source connected."
+          },
+          "revenue_estimate": {
+            "$ref": "#/$defs/metric",
+            "description": "Leave UNKNOWN unless an official or published figure exists."
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        }
+      }
+    },
+    "pricing_map": {
+      "type": "array",
+      "description": "Price bands observed across competitors, per product format.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "format",
+          "low",
+          "high",
+          "n_observations",
+          "evidence"
+        ],
+        "properties": {
+          "format": {
+            "type": "string"
+          },
+          "low": {
+            "type": "number"
+          },
+          "median": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "high": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "n_observations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "evidence": {
+            "$ref": "#/$defs/evidenceLabel"
+          },
+          "competitor_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "monetization_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "model",
+          "description",
+          "fit",
+          "rationale"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/slug"
+          },
+          "model": {
+            "enum": [
+              "digital_download",
+              "spreadsheet_template",
+              "printable",
+              "kdp_book",
+              "affiliate",
+              "saas_subscription",
+              "membership",
+              "course",
+              "physical_product",
+              "services",
+              "ads",
+              "bundle"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "fit": {
+            "enum": [
+              "strong",
+              "moderate",
+              "weak",
+              "reject"
+            ]
+          },
+          "price_hypothesis": {
+            "$ref": "#/$defs/metric"
+          },
+          "rationale": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/claim"
+            }
+          },
+          "risks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "premium_product_recommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "target_segment_id",
+        "format",
+        "price",
+        "must_include",
+        "why_they_pay",
+        "falsifying_test",
+        "evidence"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "target_segment_id": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "price": {
+          "$ref": "#/$defs/metric"
+        },
+        "must_include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "must_not": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "why_they_pay": {
+          "type": "string"
+        },
+        "offer_ladder": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "tier",
+              "item",
+              "price"
+            ],
+            "properties": {
+              "tier": {
+                "enum": [
+                  "free",
+                  "entry",
+                  "core",
+                  "premium",
+                  "bundle"
+                ]
+              },
+              "item": {
+                "type": "string"
+              },
+              "price": {
+                "$ref": "#/$defs/metric"
+              }
+            }
+          }
+        },
+        "falsifying_test": {
+          "type": "string",
+          "description": "Observable result that would prove this recommendation wrong, with threshold and window."
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "economics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit_economics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "scenarios": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "downside": {
+              "$ref": "#/$defs/scenario"
+            },
+            "base": {
+              "$ref": "#/$defs/scenario"
+            },
+            "upside": {
+              "$ref": "#/$defs/scenario"
+            }
+          }
+        }
+      }
+    },
+    "channel_fit": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "channel",
+          "fit",
+          "rationale"
+        ],
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "fit": {
+            "enum": [
+              "strong",
+              "moderate",
+              "weak",
+              "unknown"
+            ]
+          },
+          "rationale": {
+            "$ref": "#/$defs/claim"
+          }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/decisionCall"
+      }
+    },
+    "data_connectors": {
+      "type": "array",
+      "description": "Every data source the brief would use, with its live state. Unconnected sources say what they would add rather than being estimated around.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "status",
+          "would_add"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/$defs/connectorStatus"
+          },
+          "cost": {
+            "type": "string",
+            "description": "free, paid (approx price), or requires owner account"
+          },
+          "would_add": {
+            "type": "string"
+          },
+          "blocked_reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "url",
+          "accessed_at",
+          "kind"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^src_[a-z0-9_-]+$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "published": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Publication date if known."
+          },
+          "accessed_at": {
+            "type": "string",
+            "format": "date"
+          },
+          "kind": {
+            "enum": [
+              "survey_or_report",
+              "government_data",
+              "product_page",
+              "marketplace_listing",
+              "review_site",
+              "forum_or_community",
+              "news_or_blog",
+              "search_results",
+              "first_party",
+              "owner_statement",
+              "internal_doc"
+            ]
+          },
+          "reliability_note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "changelog": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "date",
+          "author",
+          "change"
+        ],
+        "properties": {
+          "version": {
+            "$ref": "#/$defs/semver"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "author": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidenceLabel": {
+      "enum": [
+        "VERIFIED",
+        "ESTIMATED",
+        "INFERRED",
+        "UNKNOWN"
+      ],
+      "description": "VERIFIED: directly observed or measured from a cited source. ESTIMATED: a third-party or modelled number with stated method. INFERRED: reasoned from evidence, not directly observed. UNKNOWN: not collected; must name what would resolve it."
+    },
+    "connectorStatus": {
+      "enum": [
+        "connected",
+        "unconnected",
+        "blocked",
+        "requires_paid_access",
+        "requires_owner_account",
+        "not_applicable"
+      ]
+    },
+    "method": {
+      "enum": [
+        "first_party_analytics",
+        "first_party_sales",
+        "published_survey",
+        "government_statistics",
+        "product_page_observation",
+        "marketplace_listing_observation",
+        "review_mining",
+        "forum_mining",
+        "search_result_observation",
+        "autocomplete_observation",
+        "third_party_estimate",
+        "analyst_inference",
+        "owner_statement",
+        "not_collected"
+      ]
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "statement",
+        "evidence",
+        "confidence",
+        "method",
+        "source_ids",
+        "observed_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^c_[a-z0-9_-]+$"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidenceLabel"
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "method": {
+          "$ref": "#/$defs/method"
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "to_resolve": {
+          "type": "string",
+          "description": "Required when evidence is UNKNOWN: which source or test would settle it."
+        },
+        "notes": {
+          "type": "string"
+        },
+        "segment_id": {
+          "type": "string",
+          "description": "Audience segment this claim applies to, if any."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence": {
+                "const": "UNKNOWN"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "to_resolve"
+            ],
+            "properties": {
+              "method": {
+                "const": "not_collected"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "evidence": {
+                "enum": [
+                  "VERIFIED",
+                  "ESTIMATED"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "segmentClaim": {
+      "$ref": "#/$defs/claim",
+      "description": "Claim about a segment; set segment_id."
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "evidence"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        },
+        "low": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "high": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidenceLabel"
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "to_resolve": {
+          "type": "string"
+        }
+      },
+      "if": {
+        "properties": {
+          "evidence": {
+            "const": "UNKNOWN"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "to_resolve"
+        ],
+        "properties": {
+          "value": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    "seasonalWindow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event",
+        "demand_window",
+        "publish_by",
+        "evidence"
+      ],
+      "properties": {
+        "event": {
+          "type": "string"
+        },
+        "demand_window": {
+          "type": "string",
+          "description": "MM-DD/MM-DD"
+        },
+        "publish_by": {
+          "type": "string",
+          "description": "MM-DD; content and product live by this date given SEO and Pinterest lead time."
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "$ref": "#/$defs/claim"
+        }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "monthly_orders",
+        "average_order_value",
+        "monthly_gross",
+        "assumptions"
+      ],
+      "properties": {
+        "monthly_orders": {
+          "type": "number"
+        },
+        "average_order_value": {
+          "type": "number"
+        },
+        "monthly_gross": {
+          "type": "number"
+        },
+        "monthly_contribution": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "evidence": {
+          "const": "INFERRED",
+          "description": "Scenarios are always model hypotheses."
+        }
+      }
+    },
+    "decisionCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "date",
+        "call",
+        "rationale",
+        "falsifying_test"
+      ],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "call": {
+          "enum": [
+            "go",
+            "go_with_changes",
+            "hold",
+            "stop"
+          ]
+        },
+        "subject": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "falsifying_test": {
+          "type": "string"
+        },
+        "decided_by": {
+          "type": "string",
+          "description": "intelligence (recommendation) or owner (decision)."
+        }
+      }
+    }
+  }
+}

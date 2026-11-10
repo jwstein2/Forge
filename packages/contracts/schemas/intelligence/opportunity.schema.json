@@ -1,0 +1,276 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.local/schemas/intelligence/opportunity.schema.json",
+  "title": "FORGE Opportunity (Scout candidate)",
+  "description": "One scored candidate from an Opportunity Scout run. A run emits 3-5 of these with exactly one recommended=true (or none, with reason, if no candidate passes the gates).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "opportunity_id",
+    "opportunity_key",
+    "run_id",
+    "title",
+    "created_at",
+    "scoring_model_version",
+    "customer_segment",
+    "problem",
+    "proposed_offer",
+    "criterion_scores",
+    "raw_score",
+    "adjusted_score",
+    "evidence_coverage",
+    "gates",
+    "rank",
+    "recommended",
+    "confidence",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "opportunity_id": {
+      "type": "string",
+      "pattern": "^opp_[a-z0-9_-]+$"
+    },
+    "opportunity_key": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^run_[a-z0-9_-]+$"
+    },
+    "existing_niche": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Set when the candidate is an expansion inside an existing niche."
+    },
+    "title": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scoring_model_version": {
+      "type": "string"
+    },
+    "customer_segment": {
+      "type": "string"
+    },
+    "problem": {
+      "type": "string"
+    },
+    "proposed_offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "description",
+        "price"
+      ],
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "price": {
+          "$ref": "brief.schema.json#/$defs/metric"
+        }
+      }
+    },
+    "demand_summary": {
+      "type": "array",
+      "items": {
+        "$ref": "brief.schema.json#/$defs/claim"
+      }
+    },
+    "competitor_summary": {
+      "type": "array",
+      "items": {
+        "$ref": "brief.schema.json#/$defs/claim"
+      }
+    },
+    "seasonality": {
+      "type": "array",
+      "items": {
+        "$ref": "brief.schema.json#/$defs/seasonalWindow"
+      }
+    },
+    "economics": {
+      "type": "object",
+      "properties": {
+        "downside": {
+          "$ref": "brief.schema.json#/$defs/scenario"
+        },
+        "base": {
+          "$ref": "brief.schema.json#/$defs/scenario"
+        },
+        "upside": {
+          "$ref": "brief.schema.json#/$defs/scenario"
+        }
+      }
+    },
+    "launch_effort": {
+      "type": "string"
+    },
+    "support_load": {
+      "type": "string"
+    },
+    "criterion_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "score",
+          "evidence",
+          "rationale"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 5
+          },
+          "evidence": {
+            "enum": [
+              "VERIFIED",
+              "ESTIMATED",
+              "INFERRED",
+              "UNKNOWN"
+            ]
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "claim_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "raw_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "adjusted_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "evidence_coverage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "passed"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "rank": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "recommended": {
+      "type": "boolean"
+    },
+    "recommendation_strength": {
+      "enum": [
+        "clear",
+        "narrow",
+        "none"
+      ]
+    },
+    "hypothesis": {
+      "type": "string",
+      "description": "The Scout's entrepreneurial hunch, stated as a testable claim."
+    },
+    "why_beats_alternatives": {
+      "type": "string"
+    },
+    "falsifying_test": {
+      "type": "string"
+    },
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "unconnected_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "would_add"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "would_add": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "brief_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "shortlisted",
+        "approved_by_owner",
+        "rejected",
+        "archived"
+      ]
+    }
+  }
+}

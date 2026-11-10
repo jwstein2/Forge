@@ -1,0 +1,112 @@
+{
+ "_meta": {
+  "kind": "n8n.executions.snapshot",
+  "instance": "james1854.app.n8n.cloud",
+  "capturedAt": "2026-11-10T02:13:30Z",
+  "window": {
+   "startedAfter": "2026-11-03T00:00:00Z"
+  },
+  "method": "Read-only search_workflow_executions through the n8n connector. Latest 3 executions per FORGE workflow. Instance-wide: 263 executions in window, 0 with status error/crashed on the first page of 200.",
+  "noRunsObserved": [
+   "Jgnze2IjwqEvqbVT"
+  ]
+ },
+ "executions": [
+  {
+   "workflowId": "e4v1Qjmu8gqt8ugu",
+   "executionId": "558",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-10T02:11:38.642Z",
+   "stoppedAt": "2026-11-10T02:11:42.078Z"
+  },
+  {
+   "workflowId": "e4v1Qjmu8gqt8ugu",
+   "executionId": "557",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-10T01:41:38.735Z",
+   "stoppedAt": "2026-11-10T01:41:41.880Z"
+  },
+  {
+   "workflowId": "e4v1Qjmu8gqt8ugu",
+   "executionId": "556",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-10T01:11:38.652Z",
+   "stoppedAt": "2026-11-10T01:11:41.888Z"
+  },
+  {
+   "workflowId": "e4625vttrQGtDSnL",
+   "executionId": "554",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-10T00:23:24.065Z",
+   "stoppedAt": "2026-11-10T00:23:26.367Z"
+  },
+  {
+   "workflowId": "e4625vttrQGtDSnL",
+   "executionId": "537",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-09T18:23:24.077Z",
+   "stoppedAt": "2026-11-09T18:23:26.435Z"
+  },
+  {
+   "workflowId": "e4625vttrQGtDSnL",
+   "executionId": "517",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-09T12:23:24.079Z",
+   "stoppedAt": "2026-11-09T12:23:26.383Z"
+  },
+  {
+   "workflowId": "iWvwx0VDj7cFzAYy",
+   "executionId": "552",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-10T00:07:21.126Z",
+   "stoppedAt": "2026-11-10T00:07:23.469Z"
+  },
+  {
+   "workflowId": "iWvwx0VDj7cFzAYy",
+   "executionId": "543",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-09T21:07:21.080Z",
+   "stoppedAt": "2026-11-09T21:07:23.355Z"
+  },
+  {
+   "workflowId": "iWvwx0VDj7cFzAYy",
+   "executionId": "535",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-09T18:07:21.106Z",
+   "stoppedAt": "2026-11-09T18:07:23.333Z"
+  },
+  {
+   "workflowId": "vWIlDu4JdcAjcmkr",
+   "executionId": "521",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-09T14:00:01.090Z",
+   "stoppedAt": "2026-11-09T14:00:04.426Z"
+  },
+  {
+   "workflowId": "vWIlDu4JdcAjcmkr",
+   "executionId": "452",
+   "status": "success",
+   "mode": "trigger",
+   "startedAt": "2026-11-08T14:00:01.126Z",
+   "stoppedAt": "2026-11-08T14:00:04.398Z"
+  },
+  {
+   "workflowId": "vWIlDu4JdcAjcmkr",
+   "executionId": "400",
+   "status": "success",
+   "mode": "webhook",
+   "startedAt": "2026-11-07T22:07:38.964Z",
+   "stoppedAt": "2026-11-07T22:07:39.721Z"
+  }
+ ]
+}

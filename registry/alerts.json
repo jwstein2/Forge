@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "alerts": [
+    {
+      "id": "al_bidline_kit",
+      "severity": "critical",
+      "nicheId": "bidline",
+      "source": "audit.ws3",
+      "title": "Paid Bidline kit is identical to the free template",
+      "detail": "Do not enable checkout until a differentiated workbook passes gate G4.",
+      "nextAction": "Being fixed by 'Reach first verified live dollar'.",
+      "dedupeKey": "product:prd_bidline_kit:identical",
+      "needsOwner": false
+    },
+    {
+      "id": "al_bidline_price",
+      "severity": "warning",
+      "nicheId": "bidline",
+      "source": "audit.ws3",
+      "title": "Price mismatch: site $19, checkout $19.99",
+      "detail": null,
+      "nextAction": "Owner pricing decision; fix in Milestone 2.",
+      "dedupeKey": "product:prd_bidline_kit:price",
+      "needsOwner": true
+    },
+    {
+      "id": "al_ls_test",
+      "severity": "critical",
+      "nicheId": null,
+      "source": "audit.ws3",
+      "title": "No site can take payment: Lemon Squeezy store in test mode",
+      "detail": "Activation requires owner identity verification.",
+      "nextAction": "Owner-controlled dependency.",
+      "dedupeKey": "integration:lemonsqueezy:test_mode",
+      "needsOwner": true
+    },
+    {
+      "id": "al_pins_queue",
+      "severity": "warning",
+      "nicheId": "quilt-plan-kit",
+      "source": "audit.ws2",
+      "title": "Pinterest queue runs out 2026-11-12",
+      "detail": "Only verified marketing channel.",
+      "nextAction": "Refill pins.json (Milestone 1A).",
+      "dedupeKey": "channel:ch_qpk_pinterest:queue",
+      "needsOwner": false
+    },
+    {
+      "id": "al_n8n_webhook",
+      "severity": "warning",
+      "nicheId": null,
+      "source": "audit.ws5",
+      "title": "n8n sale webhook is unauthenticated",
+      "detail": "Fake sales could be injected into qpk_sales.",
+      "nextAction": "Shared-secret header (Milestone 1A).",
+      "dedupeKey": "security:n8n:sale_webhook",
+      "needsOwner": false
+    },
+    {
+      "id": "al_events_site",
+      "severity": "info",
+      "nicheId": null,
+      "source": "ledger.d1",
+      "title": "Funnel events have no site column",
+      "detail": "Root-path page views from QPK and Bidline (before 11-10) cannot be attributed to a niche. Loaf Ledger has no beacon at all.",
+      "nextAction": "Coordinated ledger change with 'Reach first verified live dollar'.",
+      "dedupeKey": "ledger:events:no_site",
+      "needsOwner": false
+    }
+  ]
+}

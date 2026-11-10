@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Every row cites evidence. Statuses are the audit's verified labels; change them only with new evidence."
+  },
+  "budgets": [
+    {
+      "id": "bud_forge",
+      "scope": "FORGE cumulative startup budget",
+      "ceilingCents": 150000,
+      "approvedCents": 10600,
+      "spentCents": 0,
+      "evidence": "VERIFIED",
+      "notes": "BUDGET_LEDGER.md: $1,500 ceiling, $106 approved envelope, $0 spent (as of 2026-11-07). A ceiling is not purchase authorization."
+    },
+    {
+      "id": "bud_api_month",
+      "scope": "Monthly model API cap",
+      "ceilingCents": 1500,
+      "approvedCents": 1500,
+      "spentCents": 0,
+      "evidence": "ESTIMATED",
+      "notes": "Existing $15 envelope (E4) per proposed architecture §5; actual metered spend not connected."
+    }
+  ]
+}

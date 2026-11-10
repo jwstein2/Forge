@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "asOf": "2026-11-10T02:00:00Z",
+    "source": "FORGE audit 2026-11-10 (Library: audit/final/)",
+    "rule": "Safe identifiers only. Passwords live in the password manager; password_manager_ref is a link to the vault entry, never the secret."
+  },
+  "accounts": [
+    {
+      "id": "acc_cloudflare",
+      "service": "Cloudflare",
+      "nicheId": null,
+      "identifier": "FORGE Cloudflare account (free tier)",
+      "status": "active",
+      "url": "https://dash.cloudflare.com",
+      "passwordManagerRef": null,
+      "notes": "Hosts all three Pages sites, the sales Worker and D1."
+    },
+    {
+      "id": "acc_n8n",
+      "service": "n8n Cloud",
+      "nicheId": null,
+      "identifier": "james1854.app.n8n.cloud",
+      "status": "active",
+      "url": "https://james1854.app.n8n.cloud",
+      "passwordManagerRef": null,
+      "notes": "Shared with Sandbox Coffee and Z3D workflows; plan tier unknown."
+    },
+    {
+      "id": "acc_lemonsqueezy",
+      "service": "Lemon Squeezy",
+      "nicheId": null,
+      "identifier": "Stores: Quilt Plan Kit, Bidline, Loaf Ledger",
+      "status": "test_mode",
+      "url": "https://app.lemonsqueezy.com",
+      "passwordManagerRef": null,
+      "notes": "Activation pending owner identity verification."
+    },
+    {
+      "id": "acc_mailerlite",
+      "service": "MailerLite",
+      "nicheId": "quilt-plan-kit",
+      "identifier": null,
+      "status": "active",
+      "url": "https://dashboard.mailerlite.com",
+      "passwordManagerRef": null,
+      "notes": "Approved per owner 2026-11-10; identifier not recorded."
+    },
+    {
+      "id": "acc_pinterest",
+      "service": "Pinterest",
+      "nicheId": "quilt-plan-kit",
+      "identifier": null,
+      "status": "active",
+      "url": "https://www.pinterest.com",
+      "passwordManagerRef": null,
+      "notes": "Auto-publishes from pins.xml."
+    },
+    {
+      "id": "acc_kdp",
+      "service": "Amazon KDP",
+      "nicheId": "quilt-plan-kit",
+      "identifier": null,
+      "status": "unknown",
+      "url": "https://kdp.amazon.com",
+      "passwordManagerRef": null,
+      "notes": null
+    },
+    {
+      "id": "acc_password_manager",
+      "service": "Password manager",
+      "nicheId": null,
+      "identifier": null,
+      "status": "not_created",
+      "url": null,
+      "passwordManagerRef": null,
+      "notes": "Recommended (Bitwarden free or 1Password). Plaintext credential files on the Desktop should migrate here (owner action)."
+    }
+  ]
+}
