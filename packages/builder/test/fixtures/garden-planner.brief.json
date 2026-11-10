@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_garden-planner_v1-0-1",
+  "brief_id": "brief_garden-planner_v1-0-2",
   "niche": "garden-planner",
   "display_name": "Garden Planner (working name)",
-  "version": "1.0.1",
-  "supersedes": "brief_garden-planner_v1-0-0",
+  "version": "1.0.2",
+  "supersedes": "brief_garden-planner_v1-0-1",
   "status": "draft",
-  "created_at": "2026-11-10T05:00:00Z",
-  "updated_at": "2026-11-10T04:40:00Z",
+  "created_at": "2026-11-10T04:20:00Z",
+  "updated_at": "2026-11-10T05:00:00Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
@@ -53,7 +53,7 @@
       },
       {
         "id": "c_g_prices_software",
-        "statement": "Garden-planning software charges $50 a year or $85 for two years (Almanac Garden Planner, 7-day trial) and $7 or $14 a month billed yearly (Seedtime paid plans).",
+        "statement": "Garden-planning software charges $35 a year auto-renewing, $50 for one year or $85 for two years (Almanac Garden Planner, 7-day trial) and $7 or $14 a month billed yearly (Seedtime paid plans).",
         "evidence": "VERIFIED",
         "confidence": "high",
         "method": "product_page_observation",
@@ -92,15 +92,14 @@
       },
       {
         "id": "c_g_zones",
-        "statement": "USDA's 2023 hardiness map moved about half the country into the next warmer half zone, so many gardeners' existing planting dates are out of date.",
+        "statement": "USDA's November 2023 hardiness map moved about half the country into the next warmer half zone.",
         "evidence": "VERIFIED",
         "confidence": "high",
         "method": "government_statistics",
         "source_ids": [
           "src_usda_zone_2023"
         ],
-        "observed_at": "2026-11-10",
-        "notes": "The 'out of date' part is an inference."
+        "observed_at": "2026-11-10"
       },
       {
         "id": "c_g_frost_data",
@@ -818,6 +817,21 @@
       "scope": "national",
       "offers": [
         {
+          "name": "Annual auto-renewing subscription",
+          "format": "Web app",
+          "price": {
+            "value": 35,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_almanac_gp_pricing"
+            ]
+          },
+          "billing": "annual"
+        },
+        {
           "name": "1-year subscription",
           "format": "Web app",
           "price": {
@@ -1051,11 +1065,11 @@
     },
     {
       "format": "Garden planning software (per year)",
-      "low": 50,
-      "median": 84,
+      "low": 35,
+      "median": 67,
       "high": 168,
       "currency": "USD",
-      "n_observations": 3,
+      "n_observations": 4,
       "evidence": "VERIFIED",
       "competitor_ids": [
         "almanac-garden-planner",
@@ -1083,7 +1097,7 @@
       "rationale": [
         {
           "id": "c_g_mo1",
-          "statement": "$15 sits inside the $3.99-$18 printable band and well below $50/yr software.",
+          "statement": "$15 sits inside the $3.99-$18 printable band and below $35-$50/yr software.",
           "evidence": "VERIFIED",
           "confidence": "high",
           "method": "marketplace_listing_observation",
@@ -1230,7 +1244,7 @@
     "evidence": [
       {
         "id": "c_g_pp_e1",
-        "statement": "Printables at $3.99-$18 and software at $50/yr are verified price points.",
+        "statement": "Printables at $3.99-$18 and software at $35-$50/yr are verified price points.",
         "evidence": "VERIFIED",
         "confidence": "high",
         "method": "marketplace_listing_observation",
@@ -1514,6 +1528,32 @@
       "published": "2023-11-15"
     },
     {
+      "id": "src_ncei_normals_catalog",
+      "title": "Data.gov: U.S. Climate Normals 2020, Annual/Seasonal Normals (1991-2020)",
+      "url": "https://catalog.data.gov/dataset/u-s-climate-normals-2020-u-s-annual-seasonal-climate-normals-1991-2020",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA National Centers for Environmental Information",
+      "reliability_note": "Catalog lists licence CC0 1.0 (public domain). Bulk CSV at ncei.noaa.gov/data/normals-annualseasonal/1991-2020 and the NOAA open-data S3 bucket."
+    },
+    {
+      "id": "src_ncei_normals_doc",
+      "title": "NCEI Annual/Seasonal Normals 1991-2020 documentation",
+      "url": "https://www.ncei.noaa.gov/pub/data/cdo/documentation/normals-annualseasonal-1991-2020_documentation.pdf",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA NCEI",
+      "reliability_note": "PDF; expected-text matching skipped."
+    },
+    {
+      "id": "src_climategov_lastfreeze",
+      "title": "Climate.gov: Interactive map of average date of last spring freeze",
+      "url": "https://www.climate.gov/news-features/understanding-climate/interactive-map-average-date-last-spring-freeze-across-united",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA Climate.gov"
+    },
+    {
       "id": "src_goingtoseed_thread",
       "title": "Going to Seed forum: How are you planning out your garden?",
       "url": "https://goingtoseed.discourse.group/t/how-are-you-planning-out-your-garden/895",
@@ -1535,37 +1575,12 @@
       "url": "/mnt/project-files/forge/intelligence/briefs/quilt-plan-kit.brief.json",
       "accessed_at": "2026-11-10",
       "kind": "internal_doc"
-    },
-    {
-      "id": "src_ncei_normals_catalog",
-      "title": "Data.gov: U.S. Climate Normals 2020, Annual/Seasonal Normals (1991-2020)",
-      "url": "https://catalog.data.gov/dataset/u-s-climate-normals-2020-u-s-annual-seasonal-climate-normals-1991-2020",
-      "accessed_at": "2026-11-10",
-      "kind": "government_data",
-      "publisher": "NOAA National Centers for Environmental Information",
-      "reliability_note": "Catalog lists licence CC0 1.0 (public domain). Bulk CSV at ncei.noaa.gov/data/normals-annualseasonal/1991-2020 and the NOAA open-data S3 bucket."
-    },
-    {
-      "id": "src_ncei_normals_doc",
-      "title": "NCEI Annual/Seasonal Normals 1991-2020 documentation",
-      "url": "https://www.ncei.noaa.gov/pub/data/cdo/documentation/normals-annualseasonal-1991-2020_documentation.pdf",
-      "accessed_at": "2026-11-10",
-      "kind": "government_data",
-      "publisher": "NOAA NCEI"
-    },
-    {
-      "id": "src_climategov_lastfreeze",
-      "title": "Climate.gov: Interactive map of average date of last spring freeze",
-      "url": "https://www.climate.gov/news-features/understanding-climate/interactive-map-average-date-last-spring-freeze-across-united",
-      "accessed_at": "2026-11-10",
-      "kind": "government_data",
-      "publisher": "NOAA Climate.gov"
     }
   ],
   "open_questions": [
+    "ZIP-to-station mapping: use Census ZCTA centroids (Gazetteer files, public) and the nearest normals station with freeze elements. Confirm the CSV date encoding and coverage when building.",
     "Will James approve an Etsy seller account as a second channel?",
-    "Brand name and domain (Builder to propose).",
-    "ZIP-to-station mapping: use Census ZCTA centroids (Gazetteer files, public) and the nearest normals station with freeze elements. Confirm the CSV date encoding and coverage when building."
+    "Brand name and domain (Builder to propose)."
   ],
   "changelog": [
     {
@@ -1579,6 +1594,12 @@
       "date": "2026-11-10",
       "author": "forge-intelligence",
       "change": "Resolved the frost-date dataset question: NOAA NCEI 1991-2020 normals (CC0). Added 3 sources, a key finding and a must-include. Opened a follow-up question on the ZIP-to-station mapping."
+    },
+    {
+      "version": "1.0.2",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "QA-013: c_g_zones keeps only the verified USDA fact (the planting-date inference stays in pain g_pain_zone, INFERRED); Almanac's $35/yr auto-renew plan added to the price claim, competitor offers and pricing map; review counts added to the re-check expectations."
     }
   ]
 }

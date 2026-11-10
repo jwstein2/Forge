@@ -15,6 +15,7 @@ const args = process.argv.slice(2);
 const CHANGELOG: Record<string, string> = {
   "1.0.1": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap).",
   "garden-planner@1.0.1": "Regenerated from brief v1.0.1: frost dates from NOAA 1991-2020 Climate Normals (CC0), station name and distance shown.",
+  "garden-planner@1.0.2": "Regenerated from brief v1.0.2: Almanac competitor shows three plans (software band $35-$168/yr); USDA zone claim split into fact and inference. Offer, must-includes and price unchanged.",
   "1.0.2": "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
 };
 function previousId(niche: string, version: string): string | null {
