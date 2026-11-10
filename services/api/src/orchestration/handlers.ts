@@ -12,6 +12,7 @@ import { newId, nowIso } from "../lib/util.ts";
 import { seedRegistry } from "../domain/seed.ts";
 import { REGISTRY_DATA } from "../domain/registry-data.ts";
 import { operatorHandlers, seedOperatorRegistry } from "@forge/operator";
+import { intelligenceHandlers, seedIntelligenceRegistry } from "@forge/intelligence";
 import ledgerSnapshot from "../../fixtures/ledger-snapshot-2026-11-10.json" with { type: "json" };
 import n8nSnapshot from "../../fixtures/n8n-snapshot-2026-11-10.json" with { type: "json" };
 
@@ -115,7 +116,7 @@ export const heartbeatWatchdog: HandlerDef = {
 /** Load the git registry into the database (idempotent; never overwrites runtime state such as pauses). */
 export const registrySeed: HandlerDef = {
   kind: "registry.seed",
-  steps: [{ name: "seed", async run({ db }) { const out = await seedRegistry(db, REGISTRY_DATA); return { output: { ...out, operator_registry: await seedOperatorRegistry(db) } }; } }],
+  steps: [{ name: "seed", async run({ db }) { const out = await seedRegistry(db, REGISTRY_DATA); return { output: { ...out, operator_registry: await seedOperatorRegistry(db), intelligence_registry: await seedIntelligenceRegistry(db) } }; } }],
 };
 
 const BUILDER_REGISTRY: Record<string, string> = {
@@ -124,4 +125,4 @@ const BUILDER_REGISTRY: Record<string, string> = {
 const builder = (): HandlerDef[] => builderHandlers({ NonRetryableError }).map((h) => ({ ...h, registryId: h.registryId ?? BUILDER_REGISTRY[h.kind] }) as HandlerDef);
 
 export const defaultHandlers = (): Map<string, HandlerDef> =>
-  new Map([registrySeed, ledgerSync, n8nSync, heartbeatWatchdog, ...builder(), ...operatorHandlers()].map((h) => [h.kind, h]));
+  new Map([registrySeed, ledgerSync, n8nSync, heartbeatWatchdog, ...builder(), ...operatorHandlers(), ...intelligenceHandlers()].map((h) => [h.kind, h]));
