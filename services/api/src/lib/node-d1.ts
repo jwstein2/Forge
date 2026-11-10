@@ -52,7 +52,7 @@ export class NodeD1 {
     this.db.exec("BEGIN");
     try {
       const out = [];
-      for (const s of stmts) { s._exec(); out.push({ results: [], success: true, meta: {} }); }
+      for (const s of stmts) { const r = s._exec(); out.push({ results: [], success: true, meta: { changes: Number(r.changes), last_row_id: Number(r.lastInsertRowid) } }); }
       this.db.exec("COMMIT");
       return out;
     } catch (e) { this.db.exec("ROLLBACK"); throw e; }
