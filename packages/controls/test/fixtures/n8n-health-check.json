@@ -1,0 +1,19 @@
+{
+  "id": "iWvwx0VDj7cFzAYy", "name": "QPK · Health check", "active": true,
+  "_note": "Condensed: Code-node jsCode shortened; structure, types, schedule and conditions verbatim.",
+  "nodes": [
+    { "name": "Every 3 hours", "type": "n8n-nodes-base.scheduleTrigger", "parameters": { "rule": { "interval": [ { "field": "hours", "hoursInterval": 3, "triggerAtMinute": 7 } ] } } },
+    { "name": "Endpoints to check", "type": "n8n-nodes-base.code", "parameters": { "jsCode": "return [ /* 12 endpoints */ ];" } },
+    { "name": "Fetch each endpoint", "type": "n8n-nodes-base.httpRequest", "parameters": { "method": "GET", "url": "={{ $json.url }}" } },
+    { "name": "Find failures", "type": "n8n-nodes-base.code", "parameters": { "jsCode": "return [{ json: { failed: failures.length > 0, count: failures.length } }];" } },
+    { "name": "Anything down?", "type": "n8n-nodes-base.if", "parameters": { "conditions": { "conditions": [ { "leftValue": "={{ $json.failed }}", "operator": { "type": "boolean", "operation": "true" } } ] } } },
+    { "name": "Email James: outage", "type": "n8n-nodes-base.gmail", "parameters": { "resource": "message", "operation": "send", "sendTo": "owner@example.com" } }
+  ],
+  "connections": {
+    "Every 3 hours": { "main": [ [ { "node": "Endpoints to check" } ] ] },
+    "Endpoints to check": { "main": [ [ { "node": "Fetch each endpoint" } ] ] },
+    "Fetch each endpoint": { "main": [ [ { "node": "Find failures" } ] ] },
+    "Find failures": { "main": [ [ { "node": "Anything down?" } ] ] },
+    "Anything down?": { "main": [ [ { "node": "Email James: outage" } ] ] }
+  }
+}

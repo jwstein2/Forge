@@ -1,0 +1,33 @@
+{
+  "id": "vWIlDu4JdcAjcmkr", "name": "FORGE · Sales alerts and weekly per-niche report", "active": true,
+  "_note": "Condensed: Code-node jsCode and Gmail message bodies shortened; structure, types, schedule and conditions verbatim.",
+  "nodes": [
+    { "name": "Sale from Cloudflare Worker", "type": "n8n-nodes-base.webhook", "parameters": { "httpMethod": "POST", "path": "REDACTED-PATH", "responseMode": "responseNode" } },
+    { "name": "Get forward secret", "type": "n8n-nodes-base.dataTable", "parameters": { "operation": "get", "resource": "row", "dataTableId": { "cachedResultName": "forge_config" }, "filters": { "conditions": [ { "condition": "eq", "keyName": "key", "keyValue": "n8n_forward_secret" } ] } } },
+    { "name": "Compute expected signature", "type": "n8n-nodes-base.crypto", "parameters": { "action": "hmac", "dataPropertyName": "expected_sig", "encoding": "hex", "secret": "={{ $json.value || 'unset-' + $now.toMillis() }}", "type": "SHA256", "value": "={{ JSON.stringify($('Sale from Cloudflare Worker').first().json.body) }}" } },
+    { "name": "Signature valid?", "type": "n8n-nodes-base.if", "parameters": { "conditions": { "conditions": [ { "leftValue": "={{ !!$json.value && /^[0-9a-f]{64}$/.test(String($('Sale from Cloudflare Worker').first().json.headers['x-forge-signature'] || '')) && $json.expected_sig === $('Sale from Cloudflare Worker').first().json.headers['x-forge-signature'] }}", "operator": { "operation": "true", "type": "boolean" } } ] } } },
+    { "name": "Respond 200", "type": "n8n-nodes-base.respondToWebhook", "parameters": { "options": { "responseCode": 200 } } },
+    { "name": "Respond 401", "type": "n8n-nodes-base.respondToWebhook", "parameters": { "options": { "responseCode": 401 } } },
+    { "name": "Email James: sale or refund", "type": "n8n-nodes-base.gmail", "parameters": { "sendTo": "owner@example.com", "subject": "={{ sale subject }}" } },
+    { "name": "Daily 8:00", "type": "n8n-nodes-base.scheduleTrigger", "parameters": { "rule": { "interval": [ { "triggerAtHour": 8 } ] } } },
+    { "name": "Get report token", "type": "n8n-nodes-base.dataTable", "parameters": { "operation": "get", "resource": "row", "dataTableId": { "cachedResultName": "forge_config" }, "filters": { "conditions": [ { "condition": "eq", "keyName": "key", "keyValue": "n8n_forward_secret" } ] } } },
+    { "name": "Get per-niche report", "type": "n8n-nodes-base.httpRequest", "parameters": { "method": "GET", "url": "https://quiltplankit-sales.sales-webhook.workers.dev/report?days=7", "sendHeaders": true, "headerParameters": { "parameters": [ { "name": "x-forge-token", "value": "={{ $json.value }}" } ] } } },
+    { "name": "Get published pins", "type": "n8n-nodes-base.dataTable", "parameters": { "operation": "get" } },
+    { "name": "Build per-niche report", "type": "n8n-nodes-base.code", "parameters": { "jsCode": "// ... const send = activity > 0 || isMonday || failed; return [{ json: { send, subject, body } }];" } },
+    { "name": "Activity or Monday?", "type": "n8n-nodes-base.if", "parameters": { "conditions": { "conditions": [ { "leftValue": "={{ $json.send }}", "operator": { "type": "boolean", "operation": "true" } } ] } } },
+    { "name": "Email James: report", "type": "n8n-nodes-base.gmail", "parameters": { "sendTo": "owner@example.com", "subject": "={{ $json.subject }}" } }
+  ],
+  "connections": {
+    "Activity or Monday?": { "main": [ [ { "node": "Email James: report" } ] ] },
+    "Sale from Cloudflare Worker": { "main": [ [ { "node": "Get forward secret" } ] ] },
+    "Get forward secret": { "main": [ [ { "node": "Compute expected signature" } ] ] },
+    "Compute expected signature": { "main": [ [ { "node": "Signature valid?" } ] ] },
+    "Signature valid?": { "main": [ [ { "node": "Respond 200" } ], [ { "node": "Respond 401" } ] ] },
+    "Respond 200": { "main": [ [ { "node": "Email James: sale or refund" } ] ] },
+    "Build per-niche report": { "main": [ [ { "node": "Activity or Monday?" } ] ] },
+    "Daily 8:00": { "main": [ [ { "node": "Get report token" } ] ] },
+    "Get report token": { "main": [ [ { "node": "Get per-niche report" } ] ] },
+    "Get per-niche report": { "main": [ [ { "node": "Get published pins" } ] ] },
+    "Get published pins": { "main": [ [ { "node": "Build per-niche report" } ] ] }
+  }
+}
