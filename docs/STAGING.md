@@ -30,7 +30,11 @@ These limits apply per invocation, which is why the cron fans out:
 
 A job that still exceeds these on its own has to split its work into child jobs, as `ops.seo_audit` does.
 
-## Heartbeats from n8n (not connected yet)
+## Connections (approved 2026-11-10)
+
+`scripts/staging-connect.ps1` (run by the owner on the PC) sets `MAILERLITE_API_KEY` and a new `HEARTBEAT_SECRET` on the staging Worker and walks through the Access service token and its Service Auth policy, then tests it. Secrets are typed or generated locally and saved in 1Password; none pass through chat. A service token gets past Access but has no email, so every owner route still answers 403; only `/ingest/heartbeat` (HMAC-checked) is useful to it.
+
+## Heartbeats from n8n
 
 `POST /api/v1/ingest/heartbeat` is behind Access like everything else. To let n8n reach it:
 
