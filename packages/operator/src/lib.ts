@@ -7,7 +7,8 @@ export { newId, nowIso };
  *  nothing about the target. Callers record UNKNOWN for it, never "down" (QA-008 ST1). */
 export interface FetchResult { ok: boolean; status: number | null; text: string; latencyMs: number; error?: string; finalUrl?: string; probeError?: boolean }
 
-const PROBE_ERROR = /too many subrequests|subrequest|exceeded (its |the )?(cpu|memory|time)? ?limit|worker (exceeded|threw)|internal error|script will never generate a response|network connection lost|TypeError: fetch failed/i;
+// Only messages the Cloudflare runtime itself produces. DNS, TLS and refused connections are real outages and stay failures (QA-008 O1).
+const PROBE_ERROR = /too many subrequests|subrequest limit|exceeded (its |the )?(cpu|memory|time|wall)?\s?(time )?limit|worker exceeded|script will never generate a response/i;
 export const isProbeError = (message: string) => PROBE_ERROR.test(message);
 /** Injected HTTP reader. Read-only GETs only: Operator never POSTs to a site or platform without a publisher adapter. */
 export type Fetcher = (url: string, opts?: { timeoutMs?: number; maxBytes?: number }) => Promise<FetchResult>;

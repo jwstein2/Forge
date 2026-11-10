@@ -52,9 +52,17 @@ export function siteHealth(fetcher: Fetcher): HandlerDef {
         const budget = Math.min(Math.max(Number(input.maxFetches ?? 18), 1), 30);
         let used = 0; let halted: string | null = null; let failing = 0; let unknown = 0; let retried = 0;
         const stmts: D1PreparedStatement[] = []; const resolveAt: number[] = []; // every row goes out in one batch at the end
+        // Unknown never escalates by itself, so a target that stays unknown for 3 runs in a row gets a warning (QA-008 O1).
+        const prior = new Map<string, (number | null)[]>();
+        for (const r of (await db.prepare(`SELECT target, ok FROM (SELECT target, ok, ROW_NUMBER() OVER (PARTITION BY target ORDER BY checked_at DESC) AS rn FROM op_checks WHERE check_kind='site_health') WHERE rn <= 2`).all<{ target: string; ok: number | null }>()).results)
+          prior.set(r.target, [...(prior.get(r.target) ?? []), r.ok]);
         const probe = async (url: string) => { used++; return fetcher(url, { timeoutMs: 15000, maxBytes: 256_000 }); };
         const unknownCheck = async (t: HealthTarget, why: string, r?: { status: number | null; latencyMs: number }) => {
           unknown++;
+          const last = prior.get(t.url) ?? [];
+          if (last.length === 2 && last.every((x) => x === null))
+            stmts.push(alertStmt(db, { key: `ops:health:unknown:${t.url}`, severity: "warning", nicheId: t.nicheId, source: "ops.site_health", title: `${t.label}: health check has not run for 3 runs`,
+              detail: `The last 3 checks could not run (${why}), so FORGE cannot tell whether this target is up.`, nextAction: "Open the URL to confirm it is up; then check the Worker's subrequest budget and the job logs.", evidenceUrl: t.url }));
           stmts.push(checkStmt(db, { kind: "site_health", nicheId: t.nicheId, target: t.url, ok: null, status: r?.status ?? null, latencyMs: r?.latencyMs ?? null, jobId,
             findings: [{ code: "checker_error", severity: "info", message: `FORGE could not run this check (${why}). Site state UNKNOWN; no alert raised or cleared.` }] }));
         };
@@ -72,6 +80,7 @@ export function siteHealth(fetcher: Fetcher): HandlerDef {
           const blocking = findings.filter((x) => x.severity !== "info");
           stmts.push(checkStmt(db, { kind: "site_health", nicheId: t.nicheId, target: t.url, ok: blocking.length === 0, status: r.status, latencyMs: r.latencyMs, findings, jobId }));
           const key = `ops:health:${t.url}`;
+          stmts.push(resolveStmt(db, `ops:health:unknown:${t.url}`)); // a real answer ends the unknown streak
           if (!blocking.length) { resolveAt.push(stmts.length); stmts.push(resolveStmt(db, key)); }
           else {
             failing++;

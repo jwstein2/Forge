@@ -59,6 +59,8 @@ describe("site health", () => {
     expect(isProbeError("Worker exceeded CPU time limit.")).toBe(true);
     expect(isProbeError("The operation was aborted due to timeout")).toBe(false);
     expect(isProbeError("getaddrinfo ENOTFOUND bidline.pages.dev")).toBe(false);
+    expect(isProbeError("TypeError: fetch failed")).toBe(false); // real outages (DNS, TLS, refused) stay failures
+    expect(isProbeError("Network connection lost.")).toBe(false);
   });
 
   it("records UNKNOWN and raises no alert when FORGE itself cannot make the request (QA-008)", async () => {
@@ -75,6 +77,19 @@ describe("site health", () => {
     expect(calls).toBe(1); // stops after the first runtime error instead of burning more subrequests
     expect(await q(db, `SELECT * FROM alerts WHERE source='ops.site_health' AND dedupe_key<>'ops:health:https://bidline.pages.dev/'`)).toHaveLength(0);
     expect((await q(db, `SELECT state FROM alerts WHERE id='al_x'`))[0]!.state).toBe("open"); // unknown neither raises nor clears
+  });
+
+  it("warns when a target has been unknown for 3 runs in a row, and clears it on a real answer (QA-008 O1)", async () => {
+    const { env, db } = await makeEnv();
+    const limited: Fetcher = async () => ({ ok: false, status: null, text: "", latencyMs: 1, error: LIMIT, probeError: true });
+    const h = handlersWith({ fetcher: limited });
+    for (let i = 0; i < 3; i++) { await enqueue(db, h, { runAt: PAST, kind: "ops.site_health", createdBy: `t${i}` }); await run(env, h); }
+    const open = await q(db, `SELECT severity FROM alerts WHERE dedupe_key LIKE 'ops:health:unknown:%' AND state='open'`);
+    expect(open).toHaveLength(11);
+    expect(open.every((a) => a.severity === "warning")).toBe(true);
+    const ok = handlersWith({ fetcher: fakeFetcher(healthySites()) });
+    await enqueue(db, ok, { runAt: PAST, kind: "ops.site_health", createdBy: "t-ok" }); await run(env, ok);
+    expect(await q(db, `SELECT * FROM alerts WHERE dedupe_key LIKE 'ops:health:unknown:%' AND state='open'`)).toHaveLength(0);
   });
 
   it("re-checks a failure once before alerting, so a single dropped request raises nothing", async () => {
