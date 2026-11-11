@@ -1,8 +1,8 @@
 {
  "niche": "garden-planner",
- "version": "0.1.1",
+ "version": "0.2.0",
  "status": "PROPOSED",
- "blueprint_id": "bp_garden-planner_v1-0-3",
+ "blueprint_id": "bp_garden-planner_v1-0-4",
  "written_by": "builder (draft for G2 review)",
  "entries": [
   {
@@ -49,12 +49,11 @@
   },
   {
    "key": "*#faq.c_g_obj_cheap",
-   "text": "They do, from $1.99. Most give you pages; this one also gives you a calendar worked out from your own frost date, with the weather station and its distance shown so you can see where the date comes from.",
+   "text": "They do, from $1.99 off Etsy, and one is free. Most give you pages; this one also gives you a calendar worked out from your own frost date, with the weather station and its distance shown so you can see where the date comes from.",
    "basis": [
-    "c_g_obj_cheap",
-    "c_g_prices_offetsy"
+    "c_g_obj_cheap"
    ],
-   "note": "QA-021 B3-1: lowest observed price is $1.99 (c_g_prices_offetsy), not the $3.99 in c_g_obj_cheap."
+   "note": "Follows brief v1.0.4 c_g_obj_cheap (QA-021 B3-1)."
   },
   {
    "key": "/thank-you/#download.first",

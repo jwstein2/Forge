@@ -15,7 +15,7 @@ import type { LaunchBlueprint } from "../src/types.ts";
 
 const B = join(import.meta.dirname, "..");
 const read = (p: string) => JSON.parse(readFileSync(join(B, p), "utf8"));
-const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.3.json") as LaunchBlueprint;
+const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.4.json") as LaunchBlueprint;
 const brief = read("test/fixtures/garden-planner.brief.json");
 const brand = read("brands/garden-planner.brand.json") as Brand;
 const deck = read("copy/garden-planner.copy.json") as CopyDeck;
