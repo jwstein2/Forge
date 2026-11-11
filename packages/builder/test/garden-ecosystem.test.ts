@@ -117,6 +117,7 @@ describe("garden staging site with the calculator module and proposed copy", asy
     expect(r.manifest.modules).toEqual(["garden-planner-calendar@1.0.0"]);
     expect(r.manifest.pages.filter((p) => p.startsWith("/when-to-plant/")).length).toBe(31);
     expect(r.files["tools/index.html"]).toContain("data-garden-calc");
+    expect(r.files["tools/index.html"]).toContain('<div class="table-wrap" tabindex="0" role="region" aria-label='); // QA-021 B3-4
     expect(r.files["data/frost/554.json"]).toBeDefined();
     for (const [p, h] of html) expect(h, p).not.toMatch(/<script(?![^>]*\bsrc=)[^>]*>|\son[a-z]+=|\sstyle=/i);
   });
@@ -139,6 +140,10 @@ describe("garden staging site with the calculator module and proposed copy", asy
 describe("copy deck rules", () => {
   it("the garden deck passes", () => expect(validateCopyDeck(deck, bp, brief)).toEqual([]));
   const bad = (entries: CopyDeck["entries"]) => validateCopyDeck({ ...deck, entries }, bp, brief);
+  it("FAQ prices follow the lowest observed price (QA-021 B3-1)", () => {
+    expect(deck.entries.find((e) => e.key === "*#faq.c_g_obj_cheap")!.text).toContain("$1.99");
+    expect(deck.entries.find((e) => e.key === "*#faq.c_g_obj_free")!.text).not.toMatch(/don't include|do not include/);
+  });
   it("refuses proof the business does not have", () => {
     expect(bad([{ key: "*#picture.after", text: "Loved by gardeners: 5 stars from our reviews.", basis: [] }]).join()).toMatch(/proof/);
   });

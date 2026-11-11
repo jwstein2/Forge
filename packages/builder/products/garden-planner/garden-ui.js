@@ -15,7 +15,7 @@ function el(tag, text, attrs = {}) {
 function renderTable(out, lastFrost, list, heading) {
   const rows = buildCalendar(lastFrost, list);
   out.append(el("h3", heading));
-  const wrap = el("div", null, { class: "table-wrap" });
+  const wrap = el("div", null, { class: "table-wrap", tabindex: "0", role: "region", "aria-label": heading });
   const t = el("table");
   const head = el("thead"); const hr = el("tr");
   for (const h of ["When", "What", "Crop"]) hr.append(el("th", h, { scope: "col" }));

@@ -51,7 +51,7 @@ function exampleTable(crops: Crop[], filter: string[] | null, year: number): str
   const rows = buildCalendar(lf, filter ? crops.filter((c) => filter.includes(c.id)) : crops);
   const body = byMonth(rows).map((m) => `<tr><th colspan="3" scope="rowgroup">${esc(m.month)}</th></tr>${m.rows.map((x) => `<tr><td>${esc(range(x.from, x.to))}</td><td>${esc(x.label)}</td><td>${esc(x.name)}</td></tr>`).join("")}`).join("");
   return `<p>Example only: ZIP ${EXAMPLE_ZIP} (Minneapolis). Nearest frost-normals station: ${esc(s.name)}, ${r.km} km away. Estimated last spring frost ${esc(shortDate(lf))} (half of years have a later frost), first fall frost ${esc(shortDate(parseMonthDay(s.first_fall, year)!))}. Dates for the ${year} season.</p>
-<div class="table-wrap"><table><thead><tr><th scope="col">When</th><th scope="col">What</th><th scope="col">Crop</th></tr></thead><tbody>${body}</tbody></table></div>`;
+<div class="table-wrap" tabindex="0" role="region" aria-label="Example planting calendar"><table><thead><tr><th scope="col">When</th><th scope="col">What</th><th scope="col">Crop</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 function cropPage(c: Crop, data: CropData, year: number): { path: string; title: string; body: string } {

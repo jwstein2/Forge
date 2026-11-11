@@ -1,6 +1,6 @@
 {
  "niche": "garden-planner",
- "version": "0.1.0",
+ "version": "0.1.1",
  "status": "PROPOSED",
  "blueprint_id": "bp_garden-planner_v1-0-3",
  "written_by": "builder (draft for G2 review)",
@@ -35,22 +35,26 @@
   },
   {
    "key": "/products/garden-season-kit-working-name/#product.subhead",
-   "text": "A personal sowing and transplant calendar for about 30 common vegetables, timed from your last-frost date, with bed grids, a seed inventory, sowing and harvest logs and a succession planner. Prints on US Letter or A4.",
-   "basis": []
+   "text": "A personal sowing and transplant calendar for about 30 common vegetables and herbs, timed from your last-frost date, with bed grids, a seed inventory, sowing and harvest logs and a succession planner. Prints on US Letter or A4.",
+   "basis": [],
+   "note": "QA-021 B3-3: the 30 crops include 4 herbs."
   },
   {
    "key": "*#faq.c_g_obj_free",
-   "text": "They do, and ours is free too. The calculator gives you dates on a screen; the kit turns them into printed pages you can write on all season, next to the grid, logs and planner that free tools don't include.",
+   "text": "They do, and ours is free too. The calculator gives you dates on a screen; the kit puts them on printed pages you can write on all season, alongside a bed grid, seed and harvest logs and a succession planner.",
    "basis": [
     "c_g_obj_free"
-   ]
+   ],
+   "note": "QA-021 B3-2: no claim that free tools lack these pages (a free 41-page planner exists, c_g_prices_offetsy)."
   },
   {
    "key": "*#faq.c_g_obj_cheap",
-   "text": "They do, from $3.99. Most give you pages; this one also gives you a calendar worked out from your own frost date, with the weather station and its distance shown so you can see where the date comes from.",
+   "text": "They do, from $1.99. Most give you pages; this one also gives you a calendar worked out from your own frost date, with the weather station and its distance shown so you can see where the date comes from.",
    "basis": [
-    "c_g_obj_cheap"
-   ]
+    "c_g_obj_cheap",
+    "c_g_prices_offetsy"
+   ],
+   "note": "QA-021 B3-1: lowest observed price is $1.99 (c_g_prices_offetsy), not the $3.99 in c_g_obj_cheap."
   },
   {
    "key": "/thank-you/#download.first",
