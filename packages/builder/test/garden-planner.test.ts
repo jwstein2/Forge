@@ -12,8 +12,8 @@ import { loadBrief, registryProducts } from "./helpers.ts";
 
 const brief = loadBrief("garden-planner");
 const opts = {
-  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.5", supersedes: "bp_garden-planner_v1-0-4",
-  changelog: "Regenerated from brief v1.0.5: the calendar must-include names 30 common vegetables and herbs (QA-021 B3-3).",
+  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.6", supersedes: "bp_garden-planner_v1-0-5",
+  changelog: "Regenerated from brief v1.0.6: the owner named the business Frost Date Planting (domain frostdateplanting.com) on 2026-11-11; niche id stays garden-planner. Not launched.",
 };
 const brand = JSON.parse(readFileSync(join(import.meta.dirname, "..", "brands", "garden-planner.brand.json"), "utf8")) as Brand;
 
@@ -21,7 +21,7 @@ describe("garden-planner (new business) blueprint", () => {
   it("is valid, traceable, and matches the committed file", async () => {
     const bp = await generateBlueprint(brief, opts);
     expect(validateBlueprint(bp, brief).errors).toEqual([]);
-    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.5.json"), "utf8"));
+    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.6.json"), "utf8"));
     expect(await contentHash(committed)).toBe(await contentHash(bp));
   });
 

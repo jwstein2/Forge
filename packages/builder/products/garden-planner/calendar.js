@@ -1,5 +1,5 @@
 /**
- * Garden Planner planting calendar: pure functions shared by the browser calculator, the kit builder data export and the tests.
+ * Frost Date Planting planting calendar: pure functions shared by the browser calculator, the kit builder data export and the tests.
  * Plain ES module, no dependencies, no network. Dates are calendar dates (UTC), never times.
  *
  * Honesty rules: frost dates are 1991-2020 NOAA climate normals (50% last-spring 32F date) from the nearest station,

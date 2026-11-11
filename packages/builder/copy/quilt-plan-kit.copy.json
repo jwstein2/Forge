@@ -1,13 +1,13 @@
 {
  "niche": "quilt-plan-kit",
- "version": "0.1.1",
+ "version": "0.1.2",
  "status": "PROPOSED",
  "blueprint_id": "bp_quilt-plan-kit_v1-0-4",
  "written_by": "builder (draft for G2 review)",
  "entries": [
   {
    "key": "/#promise.subhead",
-   "text": "Free calculators for yardage, backing, binding and borders, and printable planners to keep every project on track.",
+   "text": "Free calculators for yardage, backing, binding and borders, and a printable planner to keep every project on track.",
    "basis": [
     "c_q_jtbd_math",
     "c_q_jtbd_plan"
@@ -50,7 +50,7 @@
   },
   {
    "key": "*#faq.c_q_obj_free",
-   "text": "They do, and our calculators are free too. The planner is for keeping the numbers, deadlines and unfinished projects together in one printed place.",
+   "text": "They do, and our calculators are free too. The planner keeps the numbers, dates and progress of each project together in one printed place.",
    "basis": [
     "c_q_obj_free"
    ]

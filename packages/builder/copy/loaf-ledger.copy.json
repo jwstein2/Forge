@@ -1,6 +1,6 @@
 {
  "niche": "loaf-ledger",
- "version": "0.1.0",
+ "version": "0.1.1",
  "status": "PROPOSED",
  "blueprint_id": "bp_loaf-ledger_v1-0-4",
  "written_by": "builder (draft for G2 review)",
@@ -40,7 +40,7 @@
   },
   {
    "key": "/products/loaf-ledger-bread-market-pricing-workbook/#product.subhead",
-   "text": "Costs your recipes by baker's percentage, adds packaging, market fees and mileage, sets wholesale, market and pre-order prices, and logs every market day: baked, sold, wasted and profit. Includes a printable stall price list and a worked sourdough example.",
+   "text": "Costs your recipes by baker's percentage, builds card fees into each price, sets wholesale, market and pre-order prices, and logs every market day: baked, sold, wasted, stall fee, mileage and profit. Includes a printable stall price list and a worked sourdough example.",
    "basis": [],
    "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
   },

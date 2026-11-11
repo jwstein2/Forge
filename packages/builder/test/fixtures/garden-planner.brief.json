@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_garden-planner_v1-0-5",
+  "brief_id": "brief_garden-planner_v1-0-6",
   "niche": "garden-planner",
-  "display_name": "Garden Planner (working name)",
-  "version": "1.0.5",
-  "supersedes": "brief_garden-planner_v1-0-4",
+  "display_name": "Frost Date Planting",
+  "version": "1.0.6",
+  "supersedes": "brief_garden-planner_v1-0-5",
   "status": "draft",
   "created_at": "2026-11-10T04:20:00Z",
-  "updated_at": "2026-11-11T02:11:48Z",
+  "updated_at": "2026-11-11T02:48:08Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
@@ -18,7 +18,7 @@
     "go_hold": {
       "date": "2026-11-10",
       "call": "go_with_changes",
-      "subject": "Garden Planner as the candidate fourth business (blueprint only, no launch)",
+      "subject": "Frost Date Planting (niche garden-planner) as the candidate fourth business (blueprint only, no launch)",
       "rationale": "Highest adjusted score in Scout run 2026-11-scout-01 and the only candidate with VERIFIED demand and price evidence that passes every gate. The changes: the free calculator must be the traffic engine, and the paid kit must do what free tools do not (a personal, printable season plan from one frost date).",
       "falsifying_test": "If the free planting-calendar pages get 500+ organic or Pinterest sessions between 2027-01-01 and 2027-03-15 and the kit sells nothing, hold the niche. Owner-adjustable rule, not a forecast.",
       "decided_by": "intelligence (recommendation)"
@@ -1534,6 +1534,14 @@
       "rationale": "See summary.",
       "falsifying_test": "See summary.",
       "decided_by": "intelligence (recommendation)"
+    },
+    {
+      "date": "2026-11-11",
+      "call": "go_with_changes",
+      "subject": "Business name: Frost Date Planting (frostdateplanting.com); niche id stays garden-planner",
+      "rationale": "Owner chose the name and domain on a decision card at 02:47 UTC with a $50 spending cap; the owner buys the domain. Still blueprint and staging only, not launched.",
+      "falsifying_test": "Not applicable (naming decision).",
+      "decided_by": "owner (James)"
     }
   ],
   "data_connectors": [
@@ -1808,6 +1816,12 @@
       "date": "2026-11-11",
       "author": "forge-intelligence",
       "change": "QA-021 B3-3: must-include now says '30 common vegetables and herbs' (the crop list is 26 vegetables and 4 herbs)."
+    },
+    {
+      "version": "1.0.6",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Owner named the business: display_name is now 'Frost Date Planting' (frostdateplanting.com). Niche id stays garden-planner. Evidence unchanged."
     }
   ]
 }

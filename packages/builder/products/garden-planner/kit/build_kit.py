@@ -32,7 +32,7 @@ class Doc:
         self.paper = paper
         self.c = canvas.Canvas(path, pagesize=(self.w, self.h), invariant=1, pageCompression=1)
         self.c.setTitle(title)
-        self.c.setAuthor("Garden Planner (working name)")
+        self.c.setAuthor("Frost Date Planting")
         self.c.setSubject(subject)
         self.c.setCreator("FORGE builder kit/build_kit.py")
         self.m = 0.6 * inch

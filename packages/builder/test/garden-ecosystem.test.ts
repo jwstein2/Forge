@@ -15,7 +15,7 @@ import type { LaunchBlueprint } from "../src/types.ts";
 
 const B = join(import.meta.dirname, "..");
 const read = (p: string) => JSON.parse(readFileSync(join(B, p), "utf8"));
-const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.5.json") as LaunchBlueprint;
+const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.6.json") as LaunchBlueprint;
 const brief = read("test/fixtures/garden-planner.brief.json");
 const brand = read("brands/garden-planner.brand.json") as Brand;
 const deck = read("copy/garden-planner.copy.json") as CopyDeck;
@@ -152,7 +152,10 @@ describe("copy decks for the three live businesses", () => {
     const bl = text("bidline");
     for (const bad of [/estimate-versus-actual/i, /worked example is a deck/i, /10 minutes/, /sets the price from the margin/i]) expect(bl).not.toMatch(bad);
     expect(bl).toMatch(/Job Cost Tracker/);
-    expect(text("quilt-plan-kit")).not.toMatch(/Print the result|quilt size in inches/);
+    expect(text("quilt-plan-kit")).not.toMatch(/Print the result|quilt size in inches|printable planners/);
+    // Carried back from the live-dollar staging check against the delivered files (copy-v1 FIX a-d).
+    expect(bl).not.toMatch(/labour|prices labor and materials from your own price book|true hourly cost/);
+    expect(text("loaf-ledger")).not.toMatch(/adds packaging, market fees and mileage/);
   });
 });
 
