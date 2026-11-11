@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { enqueueDue, latestSlot, seedSchedules, slotKey } from "../src/schedule.ts";
 import { OPERATOR_SCHEDULES } from "../src/index.ts";
-import { claimsLint, nextWindow, planFromBrief, policyFor, type Publisher } from "../src/handlers/content.ts";
+import { assetPlatform, claimsLint, nextWindow, planFromBrief, policyFor, type Publisher } from "../src/handlers/content.ts";
 import { runway, profileFeed, matchPins, parseRssItems } from "../src/handlers/pinterest.ts";
 import { auditPage } from "../src/handlers/seo.ts";
 import { previousWeek } from "../src/handlers/summary.ts";
@@ -343,6 +343,14 @@ describe("content planning from the briefs", () => {
     expect(items.every((i) => i.evidence === "INFERRED")).toBe(true);
     const bid = planFromBrief(brief("bidline"), T("2026-11-10T00:00:00Z"));
     expect(bid.some((i) => i.platform === "pinterest")).toBe(false); // brief rates Pinterest weak for contractors
+  });
+
+  it("plans an asset that names its channel only on that channel", () => {
+    const b = { niche: "quilt-plan-kit", version: "t", channel_fit: [{ channel: "Pinterest", fit: "strong" }, { channel: "Email list", fit: "strong" }, { channel: "Organic search", fit: "moderate" }],
+      demand: { seasonality: [{ event: "National Quilting Day", demand_window: "03-01/03-31", publish_by: "02-15", assets: ["Campaign pins", "Email", "Year-of-projects tracker"] }] } };
+    const got = planFromBrief(b, T("2026-11-10T00:00:00Z")).map((i) => `${i.title}@${i.platform}`).sort();
+    expect(got).toEqual(["Campaign pins@pinterest", "Email@email", "Year-of-projects tracker@email", "Year-of-projects tracker@pinterest", "Year-of-projects tracker@seo"]);
+    expect(assetPlatform("Gift guide (affiliate, after approval)")).toBeNull();
   });
 
   it("writes items idempotently and links existing channels", async () => {

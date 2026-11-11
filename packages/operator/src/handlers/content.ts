@@ -62,6 +62,16 @@ export function nextWindow(s: { demand_window: string; publish_by: string }, now
 
 export interface PlannedItem { planKey: string; nicheId: string; platform: string; title: string; event: string; briefRef: string; evidence: string; publishBy: string; windowStart: string; windowEnd: string; late: boolean }
 
+/** An asset that names its own channel ("Campaign pins", "Email", "YouTube video") is planned only for that channel. */
+export function assetPlatform(asset: string): string | null {
+  const a = asset.toLowerCase();
+  if (/\bpins?\b|pinterest/.test(a)) return "pinterest";
+  if (/\be-?mails?\b|newsletter/.test(a)) return "email";
+  if (/youtube|\bvideos?\b/.test(a)) return "youtube";
+  if (/instagram|\breels?\b/.test(a)) return "instagram";
+  return null;
+}
+
 export function planFromBrief(brief: BriefLike, now: Date, horizonDays = 120): PlannedItem[] {
   const platforms = [...new Set((brief.channel_fit ?? []).filter((c) => ["strong", "moderate"].includes(c.fit)).map((c) => platformFor(c.channel)).filter((p): p is string => !!p))];
   const out: PlannedItem[] = [];
@@ -70,6 +80,7 @@ export function planFromBrief(brief: BriefLike, now: Date, horizonDays = 120): P
     if (w.publishBy.getTime() - now.getTime() > horizonDays * DAY) continue;
     const late = now.getTime() > w.publishBy.getTime();
     for (const asset of s.assets ?? []) for (const p of platforms) {
+      const own = assetPlatform(asset); if (own && own !== p) continue;
       out.push({
         planKey: `${brief.niche}|${s.event}|${asset}|${p}|${w.start.getUTCFullYear()}`, nicheId: brief.niche, platform: p, title: asset, event: s.event,
         briefRef: `${brief.brief_id ?? brief.niche}@${brief.version}`, evidence: s.evidence?.evidence ?? "UNKNOWN",
