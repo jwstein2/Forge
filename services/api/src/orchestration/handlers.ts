@@ -138,7 +138,10 @@ export const seedDataJob: HandlerDef = {
     if (part === "brief") {
       const doc = GIT_BRIEFS[Number(input.index)];
       if (!doc) throw new NonRetryableError(`no git brief at index ${input.index}`);
-      return { output: await seedBriefs(db, [doc]) };
+      const out = await seedBriefs(db, [doc]);
+      // An invalid git brief fails this child job, which raises the engine's job alert (QA-019 I2-2); the cron tick itself only enqueues.
+      if (out.invalid.length) throw new NonRetryableError(`git brief invalid: ${out.invalid.join("; ")}`);
+      return { output: out };
     }
     throw new NonRetryableError(`unknown seed part: ${part}`);
   } }],
