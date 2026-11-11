@@ -17,13 +17,14 @@ export const STATE_LABEL: Record<MetricState, string> = {
 /** Format a metric's value. Null values render as an em dash; the state chip says why. */
 export function formatValue(m: Metric, opts: { cents?: boolean } = {}): string {
   if (m.value === null) return '—';
+  const v = Object.is(m.value, -0) ? 0 : m.value; // never print "-$0.00"
   const prefix = m.state === 'estimated' || m.state === 'inferred' ? '~' : '';
   if (m.unit === 'usd') {
-    const whole = Number.isInteger(m.value) && !opts.cents;
-    return prefix + (whole ? usd0 : usd2).format(m.value);
+    const whole = Number.isInteger(v) && !opts.cents;
+    return prefix + (whole ? usd0 : usd2).format(v);
   }
-  if (m.unit === 'pct') return `${prefix}${(m.value * 100).toFixed(1)}%`;
-  return prefix + num.format(m.value);
+  if (m.unit === 'pct') return `${prefix}${(v * 100).toFixed(1)}%`;
+  return prefix + num.format(v);
 }
 
 export function formatMoney(v: number): string {

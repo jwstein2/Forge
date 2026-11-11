@@ -43,17 +43,35 @@ export function AlertList({ alerts, niches, limit }: { alerts: Alert[]; niches: 
   );
 }
 
-export function ActivityFeed({ events, niches }: { events: ActivityEvent[]; niches: Niche[] }) {
+/** Folds runs of the same job with the same outcome into one row ("×5, latest ..."), so routine ticks don't bury the rest. */
+export function groupActivity(events: ActivityEvent[]): (ActivityEvent & { count: number; earliest: string })[] {
+  const out: (ActivityEvent & { count: number; earliest: string })[] = [];
+  for (const e of events) {
+    const prev = out[out.length - 1];
+    if (prev && prev.summary === e.summary && prev.actor === e.actor && prev.nicheId === e.nicheId && prev.verified === e.verified) {
+      prev.count += 1;
+      prev.earliest = e.at < prev.earliest ? e.at : prev.earliest;
+    } else out.push({ ...e, count: 1, earliest: e.at });
+  }
+  return out;
+}
+
+export function ActivityFeed({ events, niches, limit }: { events: ActivityEvent[]; niches: Niche[]; limit?: number }) {
+  const rows = groupActivity(events).slice(0, limit);
   return (
     <ol className="feed">
-      {events.map((e) => (
+      {rows.map((e) => (
         <li key={e.id} className="feed__item">
           <span className={`feed__mark${e.verified ? ' is-verified' : ''}`} aria-hidden="true">
             <Icon name={e.verified ? 'check-circle' : 'question'} size={14} />
           </span>
           <div>
-            <p className="feed__text">{e.summary}</p>
+            <p className="feed__text">
+              {e.summary}
+              {e.count > 1 && <span className="feed__count"> ×{e.count}</span>}
+            </p>
             <p className="feed__meta">
+              {e.count > 1 && 'latest '}
               <time dateTime={e.at}>{formatDateTime(e.at)}</time> · <span className="mono">{e.actor}</span> · {nicheName(niches, e.nicheId)}
               {!e.verified && <span className="feed__unv"> · outcome not verified</span>}
             </p>

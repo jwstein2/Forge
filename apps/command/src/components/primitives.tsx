@@ -41,7 +41,7 @@ export function Provenance({ metric, hideSource = false }: { metric: Metric; hid
     <p className="provenance">
       <span>{metric.period.label}</span>
       <span aria-hidden="true">·</span>
-      <span title={metric.asOf ?? undefined}>{metric.asOf ? `as of ${freshness(metric.asOf, now)}` : 'never read'}</span>
+      <span title={metric.asOf ?? undefined}>{metric.asOf ? `as of ${freshness(metric.asOf, now)}` : 'date not recorded'}</span>
       {!hideSource && (
         <>
           <span aria-hidden="true">·</span>

@@ -192,17 +192,17 @@ export function SeasonBars({ months, peak, launchBy, source }: { months: (number
 }
 
 /** Horizontal meter for a 0–100 score component. */
-export function Meter({ label, value, weight }: { label: string; value: number; weight?: number }) {
+export function Meter({ label, value, weight, display }: { label: string; value: number; weight?: number; display?: string }) {
   return (
     <div className="meter">
       <div className="meter__row">
         <span>{label}</span>
         <span className="meter__val">
-          {value}
-          {weight !== undefined && <span className="meter__w"> × {Math.round(weight * 100)}%</span>}
+          {display ?? value}
+          {weight !== undefined && weight > 0 && <span className="meter__w"> × {Math.round(weight * 100)}%</span>}
         </span>
       </div>
-      <div className="meter__track" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}>
+      <div className="meter__track" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value} aria-valuetext={display}>
         <span className="meter__fill" style={{ width: `${value}%` }} />
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useResource } from '../data/DataContext';
-import type { BriefRef, EvidenceLabel, Opportunity, OpportunityBoard } from '../data/types';
+import type { BriefRef, EvidenceLabel, Opportunity, OpportunityBoard, ScoutRunInfo } from '../data/types';
 import { Meter, SeasonBars } from '../components/charts';
 import { Icon } from '../components/Icon';
 import { EmptyState, ErrorNote, Loading, PageHeader, SampleBanner, StateChip } from '../components/primitives';
@@ -50,8 +50,9 @@ export function OpportunitiesView({ board }: { board: OpportunityBoard }) {
       <PageHeader
         kicker="Opportunity intelligence"
         title={selected?.recommended ? `Strongest recommendation: ${selected.name}` : 'Ranked opportunities'}
-        lede={board.runAt ? `Scout run ${board.runAt}` : undefined}
+        lede={board.runAt ? `Scout run of ${formatDateTime(board.runAt)}${board.run?.status === 'partial' ? ', partial: some sources could not be reached' : ''}.` : undefined}
       />
+      {board.run && board.state !== 'sample' && <RunStrip run={board.run} />}
       {board.state === 'sample' && (
         <SampleBanner>
           {board.note} Names, scores and figures are placeholders for design review. <Link to="/opportunities">Show the real state</Link>
@@ -93,6 +94,32 @@ export function OpportunitiesView({ board }: { board: OpportunityBoard }) {
   );
 }
 
+/** How the Scout run behind this board went: which cited sources re-checked, which connectors are missing. */
+function RunStrip({ run }: { run: ScoutRunInfo }) {
+  const s = run.sources;
+  return (
+    <section className="run-strip" aria-label="Scout run provenance">
+      <div className="run-fact">
+        <span className="run-fact__label">Run</span>
+        <span className="run-fact__value">{run.status === 'succeeded' ? 'Complete' : run.status === 'partial' ? 'Partial' : run.status[0].toUpperCase() + run.status.slice(1)}</span>
+        <span className="run-fact__sub">Finished {run.finishedAt ? formatDateTime(run.finishedAt) : 'not yet'}</span>
+      </div>
+      <div className="run-fact">
+        <span className="run-fact__label">Cited sources re-checked</span>
+        <span className="run-fact__value">{s ? `${s.confirmed} of ${s.checked}` : '—'}</span>
+        <span className="run-fact__sub">
+          {s ? `confirmed; ${s.reachable} reachable but not confirmed, ${s.unreachable} unreachable${s.failed ? `, ${s.failed} contradicted` : ''}` : 'Not reported by this run'}
+        </span>
+      </div>
+      <div className="run-fact">
+        <span className="run-fact__label">Data connectors missing</span>
+        <span className="run-fact__value">{run.unconnected.length}</span>
+        <span className="run-fact__sub">{run.unconnected.length ? 'Search volume and trends are unknown until connected' : 'All connected'}</span>
+      </div>
+    </section>
+  );
+}
+
 const BRIEF_STATUS = { draft: 'Draft', approved: 'Approved', superseded: 'Superseded' } as const;
 const NICHE_NAME: Record<string, string> = { 'quilt-plan-kit': 'Quilt Plan Kit', bidline: 'Bidline', 'loaf-ledger': 'Loaf Ledger' };
 
@@ -125,7 +152,7 @@ function Briefs({ briefs }: { briefs?: BriefRef[] }) {
             <tbody>
               {current.map((b) => (
                 <tr key={b.id}>
-                  <th scope="row">{NICHE_NAME[b.nicheId] ?? b.nicheId}</th>
+                  <th scope="row">{NICHE_NAME[b.nicheId] ?? b.nicheId.split('-').map((w) => w[0].toUpperCase() + w.slice(1)).join(' ')}</th>
                   <td className="mono">{b.version}</td>
                   <td>
                     <span className={`tag tag--${b.status === 'approved' ? 'good' : 'outline'}`}>{BRIEF_STATUS[b.status]}</span>
@@ -151,8 +178,10 @@ function Claims({ items }: { items: Opportunity['demand'] }) {
       {items.map((c, i) => (
         <li key={i}>
           <span className={`evidence evidence--${c.label}`}>{EVIDENCE[c.label]}</span>
-          <span>{c.claim}</span>
-          {c.source && <span className="claims__src">{c.source}</span>}
+          <span className="claims__body">
+            {c.claim}
+            {c.source && <span className="claims__src">Sources: {c.source}</span>}
+          </span>
         </li>
       ))}
     </ul>
@@ -173,7 +202,9 @@ function OpportunityDetail({ o, sample }: { o: Opportunity; sample: boolean }) {
         <div className={`verdict verdict--${o.verdict}`}>
           <span className="verdict__label">Recommendation</span>
           <span className="verdict__value">{VERDICT[o.verdict]}</span>
-          <span className="verdict__conf">{o.confidence} confidence</span>
+          <span className="verdict__conf">
+            {o.confidence} confidence{o.strength && o.strength !== 'none' && o.recommended ? ` · ${o.strength} lead` : ''}
+          </span>
         </div>
       </header>
 
@@ -191,8 +222,28 @@ function OpportunityDetail({ o, sample }: { o: Opportunity; sample: boolean }) {
         <section aria-label="Score">
           <h3>Score {o.score.total}/100</h3>
           {o.score.components.map((c) => (
-            <Meter key={c.label} label={c.label} value={c.value} weight={c.weight} />
+            <Meter key={c.label} label={c.label} value={c.value} weight={c.weight} display={c.display} />
           ))}
+          {o.score.raw != null && o.score.raw !== o.score.total && (
+            <p className="muted small">
+              {o.score.raw} before the discount for inferred evidence{o.score.coverage != null ? ` · evidence coverage ${Math.round(o.score.coverage * 100)}%` : ''}.
+            </p>
+          )}
+          {o.score.components.some((c) => c.rationale) && (
+            <details className="why">
+              <summary>Why these scores</summary>
+              <dl>
+                {o.score.components
+                  .filter((c) => c.rationale)
+                  .map((c) => (
+                    <div key={c.label}>
+                      <dt>{c.label}</dt>
+                      <dd>{c.rationale}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </details>
+          )}
         </section>
         <section aria-label="Demand evidence">
           <h3>Demand evidence</h3>
@@ -225,9 +276,23 @@ function OpportunityDetail({ o, sample }: { o: Opportunity; sample: boolean }) {
           <h3>Product and offer</h3>
           <p>{o.productModel}</p>
           <p className="muted">
-            {o.offer.price} · {o.offer.monetization}
+            {o.offer.price} · {o.offer.monetization}{' '}
+            {o.priceEvidence && <span className={`evidence evidence--${o.priceEvidence}`}>{EVIDENCE[o.priceEvidence]} price</span>}
           </p>
         </section>
+        {(o.effort || o.supportLoad) && (
+          <section aria-label="Launch effort">
+            <h3>Launch effort</h3>
+            {o.effort && <p>{o.effort}</p>}
+            {o.supportLoad && <p className="muted small">Support: {o.supportLoad}</p>}
+          </section>
+        )}
+        {o.falsifyingTest && (
+          <section aria-label="What would prove it wrong">
+            <h3>What would prove it wrong</h3>
+            <p>{o.falsifyingTest}</p>
+          </section>
+        )}
         <section aria-label="Distribution">
           <h3>Distribution</h3>
           {o.distribution.length ? (

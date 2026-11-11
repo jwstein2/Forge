@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useResource } from '../data/DataContext';
-import type { Niche, PortfolioSummary } from '../data/types';
-import { ActivityFeed, AlertList, ChannelMatrix } from '../components/blocks';
+import type { Niche, OpportunityBoard, PortfolioSummary } from '../data/types';
+import { BusinessMoney } from '../components/BusinessMoney';
+import { ActivityFeed, AlertList, ChannelMatrix, groupActivity } from '../components/blocks';
 import { TrendChart } from '../components/charts';
 import { Icon } from '../components/Icon';
 import {
@@ -22,12 +23,15 @@ import type { Metric } from '../data/types';
 
 export function PortfolioScreen() {
   const [res] = useResource((s) => s.getPortfolio(), []);
+  const [opp] = useResource((s) => s.getOpportunities({ sample: false }), []);
   if (res.status === 'loading') return <Loading label="Loading portfolio" />;
   if (res.status === 'error') return <ErrorNote error={res.error} />;
-  return <PortfolioView p={res.data} />;
+  return <PortfolioView p={res.data} opportunities={opp.status === 'ready' ? opp.data : null} />;
 }
 
-export function PortfolioView({ p }: { p: PortfolioSummary }) {
+const ACTIVITY_PREVIEW = 8;
+
+export function PortfolioView({ p, opportunities = null }: { p: PortfolioSummary; opportunities?: OpportunityBoard | null }) {
   const head = portfolioHeadline(p);
   const allChannels = p.niches.flatMap((n) => n.channels);
   const ch = channelCounts(allChannels);
@@ -72,8 +76,14 @@ export function PortfolioView({ p }: { p: PortfolioSummary }) {
         </ul>
       </Section>
 
+      {opportunities && <NextBusiness board={opportunities} />}
+
+      <Section title="Money by business" kicker={`${p.financials.period.label} · known costs only, never guessed`} id="money-by-business">
+        <BusinessMoney niches={p.niches} total={p.financials} />
+      </Section>
+
       <div className="grid-2">
-        <Section title="Where the money stands" kicker="Contribution" id="money">
+        <Section title="Where the money stands" kicker="Contribution, all businesses" id="money">
           <Statement fs={p.financials} title="All businesses" />
         </Section>
         <Section
@@ -95,8 +105,19 @@ export function PortfolioView({ p }: { p: PortfolioSummary }) {
           {revenueTrend && <TrendChart series={revenueTrend} />}
           <TrafficTable niches={p.niches} />
         </Section>
-        <Section title="Recent verified activity" kicker="Autonomous work" id="activity">
-          <ActivityFeed events={p.activity} niches={p.niches} />
+        <Section
+          title="Recent verified activity"
+          kicker="Autonomous work"
+          id="activity"
+          actions={
+            groupActivity(p.activity).length > ACTIVITY_PREVIEW ? (
+              <Link className="text-link" to="/operations#jobs">
+                All jobs <Icon name="arrow" size={14} />
+              </Link>
+            ) : undefined
+          }
+        >
+          <ActivityFeed events={p.activity} niches={p.niches} limit={ACTIVITY_PREVIEW} />
         </Section>
       </div>
 
@@ -113,6 +134,32 @@ export function PortfolioView({ p }: { p: PortfolioSummary }) {
         </div>
       </Section>
     </div>
+  );
+}
+
+/** The Scout's strongest candidate for the next business, or an honest "not run". Sample data never appears here. */
+function NextBusiness({ board }: { board: OpportunityBoard }) {
+  if (board.state === 'sample') return null;
+  const top = [...board.opportunities].sort((a, b) => a.rank - b.rank).find((o) => o.recommended);
+  return (
+    <section className="next-biz" aria-labelledby="next-biz-title">
+      <div>
+        <p className="kicker">Opportunity Scout</p>
+        <h2 id="next-biz-title" className="next-biz__title">
+          {board.state === 'not_run' ? 'The Scout has not run yet' : top ? `Strongest next business: ${top.name}` : 'No candidate cleared the bar in the last run'}
+        </h2>
+        <p className="muted small">
+          {board.state === 'not_run'
+            ? 'Ranked opportunities appear once it runs.'
+            : `${board.opportunities.length} ranked${top ? ` · score ${top.score.total}/100 · ${top.confidence} confidence${top.strength && top.strength !== 'none' ? ` · ${top.strength} lead` : ''}` : ''}${board.run?.status === 'partial' ? ' · some sources unreachable' : ''}${board.runAt ? ` · run ${formatDateTime(board.runAt)}` : ''}. Launching always needs your approval.`}
+        </p>
+      </div>
+      {board.state !== 'not_run' && (
+        <Link className="btn btn--quiet" to="/opportunities">
+          See the ranking <Icon name="arrow" size={14} />
+        </Link>
+      )}
+    </section>
   );
 }
 
