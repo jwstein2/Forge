@@ -10,6 +10,12 @@ const ago = (min: number) => new Date(Date.now() - min * 60000).toISOString();
 let n = 0;
 const addRun = (db: D1Database, reg: string, status: string, finished: string, error: string | null = null, source = "heartbeat") =>
   db.prepare(`INSERT INTO runs (id,registry_id,started_at,finished_at,status,error,source,external_id) VALUES (?,?,?,?,?,?,?,?)`).bind(`run_t${++n}`, reg, finished, finished, status, error, source, `x${n}`).run();
+/** A FORGE run the way the engine records it: external_id '<job id>:<attempt>', the job carrying the kind. */
+const addJobRun = async (db: D1Database, reg: string, kind: string, status: string, finished: string, error: string | null = null) => {
+  const job = `job_t${++n}`;
+  await db.prepare(`INSERT INTO jobs (id,kind,registry_id,status,next_run_at,created_by,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?)`).bind(job, kind, reg, status === "success" ? "succeeded" : "failed", finished, "t", finished, finished).run();
+  await db.prepare(`INSERT INTO runs (id,registry_id,started_at,finished_at,status,error,source,external_id) VALUES (?,?,?,?,?,?,'forge',?)`).bind(`run_t${n}`, reg, finished, finished, status, error, `${job}:1`).run();
+};
 
 async function evaluate(env: any, db: D1Database) {
   const h = handlersWith({});
@@ -29,8 +35,8 @@ describe("failed-run alerts", () => {
       { registry_id: "B", name: "B", niche_id: null, status: "failed", finished: "1", error: "x", source: "forge", rn: 2 },
     ];
     expect(failureStates(rows)).toEqual([
-      { registryId: "A", name: "A", nicheId: null, latest: "failed", streak: 2, lastError: "boom", at: "3", source: "heartbeat" },
-      { registryId: "B", name: "B", nicheId: null, latest: "success", streak: 0, lastError: null, at: "2", source: "forge" },
+      { registryId: "A", kind: null, name: "A", nicheId: null, latest: "failed", streak: 2, lastError: "boom", at: "3", source: "heartbeat" },
+      { registryId: "B", kind: null, name: "B", nicheId: null, latest: "success", streak: 0, lastError: null, at: "2", source: "forge" },
     ]);
   });
 
@@ -62,14 +68,44 @@ describe("failed-run alerts", () => {
   it("clears the engine's stale job-failure alert once the job succeeds again, but not a newer one", async () => {
     const { env, db } = await makeEnv();
     const ins = (key: string, lastSeen: string) => db.prepare(`INSERT INTO alerts (id,severity,source,title,state,dedupe_key,first_seen,last_seen) VALUES (?,?,?,?,'open',?,?,?)`).bind(`al_${key}`, "warning", "orchestration", "Job failed", key, lastSeen, lastSeen).run();
-    await ins("job:ops.site_health:OPS-SITE-HEALTH", ago(120));
+    const failedAt = ago(120);
+    await ins("job:ops.site_health:OPS-SITE-HEALTH", failedAt);
     await ins("job:ops.seo_audit:OPS-SEO-AUDIT", ago(5));
-    await addRun(db, "OPS-SITE-HEALTH", "success", ago(30), null, "forge");
-    await addRun(db, "OPS-SEO-AUDIT", "success", ago(60), null, "forge");
+    await addJobRun(db, "OPS-SITE-HEALTH", "ops.site_health", "success", ago(30));
+    await addJobRun(db, "OPS-SEO-AUDIT", "ops.seo_audit", "success", ago(60));
     const out = await evaluate(env, db);
     expect(out.staleJobAlertsCleared).toBe(1);
-    expect((await q(db, `SELECT state FROM alerts WHERE dedupe_key='job:ops.site_health:OPS-SITE-HEALTH'`))[0]!.state).toBe("resolved");
+    const [cleared] = await q(db, `SELECT state, last_seen, detail FROM alerts WHERE dedupe_key='job:ops.site_health:OPS-SITE-HEALTH'`);
+    expect(cleared!.state).toBe("resolved");
+    expect(cleared!.last_seen).toBe(failedAt); // failure time kept (QA-018 R4-2)
+    expect(cleared!.detail).toContain("a later run succeeded");
     expect((await q(db, `SELECT state FROM alerts WHERE dedupe_key='job:ops.seo_audit:OPS-SEO-AUDIT'`))[0]!.state).toBe("open");
+  });
+
+  it("keeps job kinds that share a registry entry apart (QA-018 R4-1)", async () => {
+    const { env, db } = await makeEnv();
+    const ins = (key: string, lastSeen: string) => db.prepare(`INSERT INTO alerts (id,severity,source,title,state,dedupe_key,first_seen,last_seen) VALUES (?,?,?,?,'open',?,?,?)`).bind(`al_${key}`, "warning", "orchestration", "Job failed", key, lastSeen, lastSeen).run();
+    await addJobRun(db, "OPS-SEO-AUDIT", "ops.seo_batch", "failed", ago(40), "Too many subrequests");
+    await ins("job:ops.seo_batch:OPS-SEO-AUDIT", ago(40));
+    await addJobRun(db, "OPS-SEO-AUDIT", "ops.seo_finalize", "success", ago(20));
+    const out = await evaluate(env, db);
+    expect(out.failing).toEqual(["OPS-SEO-AUDIT:ops.seo_batch"]);
+    expect(out.staleJobAlertsCleared).toBe(0);
+    expect((await q(db, `SELECT state FROM alerts WHERE dedupe_key='job:ops.seo_batch:OPS-SEO-AUDIT'`))[0]!.state).toBe("open");
+    const [a] = await q(db, `SELECT title, detail FROM alerts WHERE dedupe_key='ops:run_failed:OPS-SEO-AUDIT:ops.seo_batch'`);
+    expect(a!.title).toContain("(ops.seo_batch) failed its last run");
+    expect(a!.detail).toContain("in FORGE: Too many subrequests");
+  });
+
+  it("closes a failure alert, with a note, once its entry has no runs left in the window (QA-018 R4-2)", async () => {
+    const { env, db } = await makeEnv();
+    await db.prepare(`INSERT INTO alerts (id,severity,source,title,detail,state,dedupe_key,first_seen,last_seen) VALUES ('al_old','warning','ops.run_failures','N8N-05 failed its last run','Last run finished long ago.','open','ops:run_failed:N8N-05',?,?)`).bind(ago(30 * 1440), ago(20 * 1440)).run();
+    await addRun(db, "N8N-05", "failed", ago(20 * 1440), "old");
+    const out = await evaluate(env, db);
+    expect(out.agedOut).toBe(1);
+    const [a] = await q(db, `SELECT state, detail FROM alerts WHERE dedupe_key='ops:run_failed:N8N-05'`);
+    expect(a).toMatchObject({ state: "resolved" });
+    expect(a!.detail).toContain("no finished run in the last 14 days");
   });
 
   it("sorts runs reported with a local offset by their real time", async () => {
