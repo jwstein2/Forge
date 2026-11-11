@@ -31,7 +31,7 @@ export class BlueprintRefused extends Error {}
 
 /** URL-safe slug, at most 48 characters, cut at a word boundary so it never ends mid-word or on a joining word. */
 const slug = (s: string) => {
-  const full = s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const full = s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   if (full.length <= 48) return full;
   const cut = full.slice(0, 49); const at = cut.lastIndexOf("-");
   return at > 0 ? cut.slice(0, at).replace(/(-(and|or|the|of|with|plus|for|a))+$/, "") : full.slice(0, 48);
