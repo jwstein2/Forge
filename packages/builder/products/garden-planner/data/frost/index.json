@@ -1,0 +1,29 @@
+{
+ "kind": "garden-planner-frost-lookup",
+ "version": "1.0.0",
+ "max_km": 150,
+ "element": "ANN-TMIN-PRBLST-T32FP50 (50% probability last spring 32F date), ANN-TMIN-PRBFST-T32FP50 (50% first fall 32F date), ANN-TMIN-PRBOCC-LSTH032 (% of years with a 32F freeze)",
+ "rare_freeze_rule": "When freeze_chance_pct < 50, a 32F freeze happens in fewer than half of years, so the calculator does not build a frost-keyed calendar automatically.",
+ "sources": [
+  {
+   "id": "src_ncei_normals_1991_2020",
+   "title": "NOAA NCEI U.S. Climate Normals 1991-2020, annual/seasonal by station",
+   "licence": "CC0 1.0 (public domain)",
+   "url": "https://noaa-normals-pds.s3.amazonaws.com/normals-annualseasonal/1991-2020/archive/us-climate-normals_1991-2020_v1.0.1_annualseasonal_multivariate_by-station_c20230404.tar.gz",
+   "files": 15616,
+   "files_sha256": "01ec2fc05e65c3aa5c492cfb68738eb318908c3ff4d3e0fa52d77c30ff24903f"
+  },
+  {
+   "id": "src_census_zcta_2025",
+   "title": "US Census Bureau 2025 ZCTA Gazetteer internal points (via us-zip-centroids 1.2.0)",
+   "licence": "Public domain (US Government work)",
+   "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_zcta_national.zip",
+   "sha256": "1caf6177213be118f3cd5dda92c2ff24a85bdac3093bca0c908dac4c164f2c02"
+  }
+ ],
+ "stations_with_freeze_dates": 6949,
+ "stations_skipped": 8667,
+ "zips": 33791,
+ "zips_with_station": 33538,
+ "shards": 896
+}

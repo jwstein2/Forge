@@ -18,7 +18,7 @@ const build = async (n: string, operator = true) => {
   return { bp, r: await scaffoldSite(bp, brand(n), cfg(n, operator)) };
 };
 const r0css = readFileSync(join(import.meta.dirname, "..", "src", "site", "brand.ts"), "utf8");
-const html = (files: Record<string, string>) => Object.entries(files).filter(([p]) => p.endsWith(".html"));
+const html = (files: Record<string, string | Uint8Array>) => Object.entries(files).filter(([p]) => p.endsWith(".html")) as [string, string][];
 const visibleText = (h: string) => h.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
 describe("site scaffold generator", () => {
@@ -77,9 +77,9 @@ describe("site scaffold generator", () => {
       expect(r.manifest.deployable_to_production).toBe(false);
       expect(r.manifest.gates.every((g) => g.result === "NOT_RUN")).toBe(true);
       // QA-009 S1: hashes are of the raw bytes, so `sha256sum` on the written files matches.
-      for (const f of r.manifest.files) expect(createHash("sha256").update(r.files[f.path]!, "utf8").digest("hex"), f.path).toBe(f.sha256);
+      for (const f of r.manifest.files) expect(createHash("sha256").update(r.files[f.path]!).digest("hex"), f.path).toBe(f.sha256);
       expect(r.manifest.copy_gaps).toBe(r.copyGaps.length);
-      expect(r.files["COPY_GAPS.md"]!.split("\n").filter((l) => l.startsWith("| `")).length).toBe(r.copyGaps.length);
+      expect((r.files["COPY_GAPS.md"] as string).split("\n").filter((l: string) => l.startsWith("| `")).length).toBe(r.copyGaps.length);
     });
 
     it(`${n}: brand passes WCAG AA contrast checks`, () => expect(checkBrand(brand(n))).toEqual([]));
@@ -121,7 +121,7 @@ describe("site scaffold generator", () => {
   it("V2: the hero has at most one button and links to the product page, not checkout", async () => {
     for (const n of NICHES) {
       const { r } = await build(n);
-      const hero = r.files["index.html"]!.match(/<section class="hero">[\s\S]*?<\/section>/)![0];
+      const hero = (r.files["index.html"] as string).match(/<section class="hero">[\s\S]*?<\/section>/)![0];
       expect((hero.match(/class="btn/g) ?? []).length).toBeLessThanOrEqual(1);
       expect(hero).not.toContain("data-checkout");
     }

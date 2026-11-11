@@ -109,6 +109,20 @@ footer.site{border-top:1px solid var(--line);color:var(--muted);font-size:.9rem;
 footer.site ul{display:flex;flex-wrap:wrap;gap:.25rem 1.2rem;list-style:none;padding:0}
 footer.site a{color:var(--muted)}
 .legal{max-width:44rem}
+.table-wrap{overflow-x:auto;margin:1rem 0}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th,td{text-align:left;padding:.45rem .6rem;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-family:var(--f-head)}
+tbody th[scope=rowgroup]{background:var(--highlight);color:var(--ink);font-family:var(--f-head)}
+form.calc{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:end}
+form.calc label{display:flex;flex-direction:column;gap:.25rem;flex:1 1 min(12rem,100%);min-width:0}
+form.calc input{width:100%;font:inherit;padding:.7rem .8rem;border:1px solid var(--muted);border-radius:var(--r);background:var(--surface);color:var(--ink);min-height:44px}
+form.calc input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.calc-or{margin:0 0 .7rem;color:var(--muted)}
+.calc-msg{border-left:4px solid var(--gold);padding-left:.9rem}
+.calc-print{margin-top:.5rem}
+.previews figure{margin:0;padding:.75rem}.previews img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:calc(var(--r) / 2)}
+ul.crop-list{columns:3 11rem;padding-left:1.2rem}ul.crop-list li{margin:.25rem 0;break-inside:avoid}
 .hero{margin-top:2rem}.hero .ctas{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;align-items:center;margin-top:1.25rem}
 .btn-warm{background:var(--gold);color:var(--ink)}
 ${l.hero === "dark-grid" ? `.hero{background:var(--accent);color:var(--surface);border-radius:var(--r-card);padding:clamp(1.5rem,5vw,3.5rem);
@@ -117,6 +131,6 @@ background-image:linear-gradient(rgb(255 255 255 / .07) 1px,transparent 1px),lin
 .hero h1::after{content:"";display:block;width:4rem;height:4px;background:var(--gold);margin-top:.9rem;border-radius:2px}` : `.hero h1::after{content:"";display:block;width:4rem;height:4px;background:var(--gold);margin-top:.9rem;border-radius:2px}`}
 ${MOTIF[b.motif](c)}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
-@media print{.staging,nav,form.signup,.btn{display:none}}
+@media print{.staging,nav,form.signup,form.calc,.btn,footer.site,.motif{display:none}body{background:#fff}}
 `;
 }

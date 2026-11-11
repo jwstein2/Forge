@@ -1,0 +1,67 @@
+{
+ "niche": "garden-planner",
+ "version": "0.1.0",
+ "status": "PROPOSED",
+ "blueprint_id": "bp_garden-planner_v1-0-3",
+ "written_by": "builder (draft for G2 review)",
+ "entries": [
+  {
+   "key": "/#promise.subhead",
+   "text": "For home vegetable gardeners: a planting calendar worked out from your own last-frost date, plus the printable pages to plan beds, track seeds and log the harvest.",
+   "basis": [
+    "c_g_jtbd_dates",
+    "c_g_jtbd_layout",
+    "c_g_jtbd_record"
+   ]
+  },
+  {
+   "key": "*#pain.voice",
+   "text": "Planning a garden takes time most people don't have in March, and the results from last year are usually in nobody's notebook. Dates copied from an old chart may not match your area any more.",
+   "basis": [
+    "c_g_pain_time",
+    "c_g_pain_tracking",
+    "c_g_pain_zone"
+   ],
+   "note": "Rewrites the three pain claims; the zone line stays hedged because c_g_pain_zone is INFERRED."
+  },
+  {
+   "key": "*#picture.after",
+   "text": "Before seed-starting time, one sheet on the fridge says what to start indoors this week, what goes out next, and what to sow straight into the ground. At the end of the season your log says what to grow again.",
+   "basis": [
+    "c_g_out",
+    "c_g_jtbd_record"
+   ],
+   "note": "Describes the after-state the brief names (c_g_out); no promise of yields or results."
+  },
+  {
+   "key": "/products/garden-season-kit-working-name/#product.subhead",
+   "text": "A personal sowing and transplant calendar for about 30 common vegetables, timed from your last-frost date, with bed grids, a seed inventory, sowing and harvest logs and a succession planner. Prints on US Letter or A4.",
+   "basis": []
+  },
+  {
+   "key": "*#faq.c_g_obj_free",
+   "text": "They do, and ours is free too. The calculator gives you dates on a screen; the kit turns them into printed pages you can write on all season, next to the grid, logs and planner that free tools don't include.",
+   "basis": [
+    "c_g_obj_free"
+   ]
+  },
+  {
+   "key": "*#faq.c_g_obj_cheap",
+   "text": "They do, from $3.99. Most give you pages; this one also gives you a calendar worked out from your own frost date, with the weather station and its distance shown so you can see where the date comes from.",
+   "basis": [
+    "c_g_obj_cheap"
+   ]
+  },
+  {
+   "key": "/thank-you/#download.first",
+   "text": "Open the kit and fill in the planting calendar worksheet first: write your last-frost date at the top (the free calculator on this site will estimate it from your ZIP code), then the dates for the crops you plan to grow.",
+   "basis": []
+  },
+  {
+   "key": "/terms/#terms.disclaimer",
+   "text": "Frost dates are estimates from 30-year climate records at the nearest weather station, not forecasts. Planting times are general guidance; check seed packets, your local forecast and your local extension office. Nothing here is pesticide or legal advice.",
+   "basis": [],
+   "note": "30-year: the NOAA 1991-2020 normals period; the figure 30 also appears in the product's must-include."
+  }
+ ]
+}

@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_loaf-ledger_v1-0-2",
+  "brief_id": "brief_loaf-ledger_v1-0-4",
   "niche": "loaf-ledger",
   "display_name": "Loaf Ledger",
-  "version": "1.0.2",
-  "supersedes": "brief_loaf-ledger_v1-0-1",
+  "version": "1.0.4",
+  "supersedes": "brief_loaf-ledger_v1-0-3",
   "status": "draft",
   "created_at": "2026-11-10T03:00:00Z",
-  "updated_at": "2026-11-10T02:50:00Z",
+  "updated_at": "2026-11-11T02:00:00Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence"
@@ -76,16 +76,18 @@
       },
       {
         "id": "c_ll_kf_cake",
-        "statement": "Paid template titles are overwhelmingly cake, cookie and custom-order focused; bread, sourdough and market-stall pricing is underserved.",
+        "statement": "Paid bakery templates are mostly cake, cookie and custom-order focused, but bread is no longer empty: a free sourdough pricer (Feb 2026), a $47 sourdough calculator and a community 'Price Your Loaf' tool now exist.",
         "evidence": "INFERRED",
         "confidence": "medium",
         "method": "search_result_observation",
         "source_ids": [
-          "src_serp_bakery_templates",
-          "src_serp_cake_calcs"
+          "src_serp_cake_calcs",
+          "src_freshloaf_pricer",
+          "src_stan_sourdoughgirlie",
+          "src_skool_crustcrumb"
         ],
         "observed_at": "2026-11-10",
-        "notes": "Based on result titles, not a full census of listings."
+        "notes": "Revised 2026-11-11 (v1.0.3). The gap is narrower than v1.0.2 said: the differentiator must be the market-day loop (log, waste, profit per market, price ladder), not the hourly-wage readout alone."
       },
       {
         "id": "c_ll_kf_pain",
@@ -110,6 +112,31 @@
           "src_homegrown"
         ],
         "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_kf_free_bread",
+        "statement": "A free, no-signup sourdough pricing calculator launched in February 2026; it breaks cost per loaf into ingredients, starter, labour by task, packaging and energy, and shows the effective hourly wage at a chosen price.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "forum_mining",
+        "source_ids": [
+          "src_freshloaf_pricer"
+        ],
+        "observed_at": "2026-11-11",
+        "notes": "Described from the creator's forum post; the tool's site was not fetched (robots)."
+      },
+      {
+        "id": "c_ll_kf_paid_bread",
+        "statement": "Bread-specific paid pricing tools are priced well above spreadsheets: $47 for a sourdough calculator on Stan, $20 for a Gumroad recipe pricing calculator; an Etsy home-baker calculator at $7.95 shows 0 sales.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_stan_sourdoughgirlie",
+          "src_gumroad_smallbatch",
+          "src_etsy_homebaker_4578823822"
+        ],
+        "observed_at": "2026-11-11"
       }
     ]
   },
@@ -179,7 +206,7 @@
             "confidence": "medium",
             "method": "search_result_observation",
             "source_ids": [
-              "src_serp_bakery_templates"
+              "src_serp_cake_calcs"
             ],
             "observed_at": "2026-11-10",
             "segment_id": "custom-cake-baker"
@@ -493,12 +520,13 @@
         },
         "evidence": {
           "id": "c_ll_kw2",
-          "statement": "Etsy and Payhip titles use it.",
+          "statement": "Paid templates use this phrasing (Etsy 'Recipe Cost Calculator for Home Bakers', Gumroad recipe pricing calculator).",
           "evidence": "VERIFIED",
           "confidence": "medium",
           "method": "search_result_observation",
           "source_ids": [
-            "src_serp_bakery_templates"
+            "src_etsy_homebaker_4578823822",
+            "src_gumroad_smallbatch"
           ],
           "observed_at": "2026-11-10"
         }
@@ -537,12 +565,12 @@
         },
         "evidence": {
           "id": "c_ll_kw4",
-          "statement": "Appears in search results; few dedicated tools.",
+          "statement": "A 2026 forum post asks exactly this and announces a free sourdough pricing tool.",
           "evidence": "VERIFIED",
           "confidence": "medium",
           "method": "search_result_observation",
           "source_ids": [
-            "src_serp_bakery_templates"
+            "src_freshloaf_pricer"
           ],
           "observed_at": "2026-11-10"
         }
@@ -581,12 +609,13 @@
         },
         "evidence": {
           "id": "c_ll_kw6",
-          "statement": "Common in template titles.",
+          "statement": "Recipe cost calculators are sold as templates for home bakers and food makers.",
           "evidence": "VERIFIED",
           "confidence": "medium",
           "method": "search_result_observation",
           "source_ids": [
-            "src_serp_bakery_templates"
+            "src_etsy_homebaker_4578823822",
+            "src_gumroad_smallbatch"
           ],
           "observed_at": "2026-11-10"
         }
@@ -1166,6 +1195,180 @@
         "to_resolve": "No public figure; do not estimate"
       },
       "positioning": "Same free-calculator model as Loaf Ledger."
+    },
+    {
+      "id": "sourdough-pricer",
+      "name": "Sourdough Pricer (free web tool)",
+      "url": "https://www.thefreshloaf.com/comment/550691",
+      "type": "free_tool",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Sourdough pricing calculator",
+          "format": "Web, no signup",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_freshloaf_pricer"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_freshloaf_pricer"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Per-loaf costing with labour by sourdough task and effective hourly wage; the same headline readout Loaf Ledger planned.",
+      "gaps": [
+        "No market-day log, waste tracking or price ladder (from the post's description)"
+      ]
+    },
+    {
+      "id": "sourdoughgirlie",
+      "name": "@sourdoughgirlie (Stan)",
+      "url": "https://stan.store/sourdoughgirlie/p/calculator-86ld5h7a",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Sourdough Bread Pricing Calculator",
+          "format": "Not stated",
+          "price": {
+            "value": 47,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_stan_sourdoughgirlie"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_stan_sourdoughgirlie"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Creator-led product sold to a sourdough audience."
+    },
+    {
+      "id": "crust-crumb-academy",
+      "name": "Crust & Crumb Academy (Skool)",
+      "url": "https://www.skool.com/crust-crumb-academy-7621/new-tool-price-your-loaf-calculator",
+      "type": "publisher_or_media",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Price Your Loaf Calculator (inside community)",
+          "format": "Web tool",
+          "price": {
+            "value": 5,
+            "evidence": "INFERRED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_skool_crustcrumb"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_skool_crustcrumb"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Cost per sellable loaf, floor price and 60% margin price, including market, travel and unsold bread."
+    },
+    {
+      "id": "small-batch-empire",
+      "name": "Small Batch Empire (Gumroad)",
+      "url": "https://smallbatchempire.gumroad.com/l/recipecalculator",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Ingredient costs and Recipe pricing calculator",
+          "format": "Document",
+          "price": {
+            "value": 20,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_smallbatch"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_gumroad_smallbatch"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
     }
   ],
   "pricing_map": [
@@ -1175,12 +1378,13 @@
       "median": 19,
       "high": 29,
       "currency": "USD",
-      "n_observations": 3,
+      "n_observations": 5,
       "evidence": "VERIFIED",
       "competitor_ids": [
         "etsy-cake-calc",
         "practicalkitlab",
-        "atori-cafe"
+        "atori-cafe",
+        "small-batch-empire"
       ]
     },
     {
@@ -1194,6 +1398,20 @@
       "competitor_ids": [
         "bakers-pricing-calc-app",
         "cakeboss"
+      ]
+    },
+    {
+      "format": "Bread-specific pricing tool",
+      "low": 0,
+      "median": 20,
+      "high": 47,
+      "currency": "USD",
+      "n_observations": 3,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "sourdough-pricer",
+        "small-batch-empire",
+        "sourdoughgirlie"
       ]
     }
   ],
@@ -1223,7 +1441,7 @@
           "method": "analyst_inference",
           "source_ids": [
             "src_payhip_pkl",
-            "src_serp_bakery_templates"
+            "src_gumroad_smallbatch"
           ],
           "observed_at": "2026-11-10"
         }
@@ -1312,11 +1530,12 @@
       "Ingredient library in grams with cost per gram and automatic unit conversion",
       "Recipe costing by baker's percentage and batch yield",
       "Packaging, market fee and mileage costs",
-      "'What am I paying myself per hour' readout as the headline",
+      "'What am I paying myself per hour' readout (now table stakes: a free sourdough pricer shows it)",
       "Price ladder: wholesale, market and pre-order",
       "Market-day log: loaves baked, sold, wasted, profit per market",
       "Printable price list for the stall",
-      "Worked example: a sourdough country loaf"
+      "Worked example: a sourdough country loaf",
+      "Lead with what free tools lack: the market-day loop (baked, sold, wasted, profit per market) and a wholesale/market/pre-order price ladder"
     ],
     "must_not": [
       "Give legal advice on cottage food rules (link to state resources instead)",
@@ -1388,6 +1607,19 @@
           "src_profitable_baker"
         ],
         "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_pp_e3",
+        "statement": "Free and paid bread pricing tools now cover cost-per-loaf and hourly wage; none observed covers the market-day loop.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_freshloaf_pricer",
+          "src_skool_crustcrumb",
+          "src_stan_sourdoughgirlie"
+        ],
+        "observed_at": "2026-11-11"
       }
     ]
   },
@@ -1405,6 +1637,19 @@
         "observed_at": "2026-11-10",
         "value": 15.65,
         "unit": "USD"
+      },
+      {
+        "id": "c_ll_ue_breakeven",
+        "statement": "At about $15.65 net per $17 sale, $100 a month needs 7 sales and $400 a month needs 26 sales. This is arithmetic on the estimated fee, not a forecast.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-11",
+        "value": 26,
+        "unit": "sales/month for $400"
       }
     ],
     "scenarios": {
@@ -1503,6 +1748,14 @@
       "subject": "Build the bread & market workbook as Loaf Ledger's paid product",
       "rationale": "See summary.",
       "falsifying_test": "See summary.",
+      "decided_by": "intelligence (recommendation)"
+    },
+    {
+      "date": "2026-11-11",
+      "call": "go_with_changes",
+      "subject": "Loaf Ledger paid product after new bread competitors",
+      "rationale": "Bread-specific pricing tools now exist (one free). The workbook is still justified by the market-day loop, which none of them shows, and paid bread tools sell at $20-$47.",
+      "falsifying_test": "Unchanged: 300+ sessions in 60 days with zero sales means hold.",
       "decided_by": "intelligence (recommendation)"
     }
   ],
@@ -1686,7 +1939,7 @@
       "url": "https://www.etsy.com/listing/4591782333",
       "accessed_at": "2026-11-10",
       "kind": "search_results",
-      "reliability_note": "Most paid template titles are cake/cookie focused."
+      "reliability_note": "Listing removed by 2026-11-11 (assisted re-check). No longer cited; kept for the change history."
     },
     {
       "id": "src_ls_fees",
@@ -1701,6 +1954,44 @@
       "url": "/mnt/project-files/audit/WS4_MARKET_DESIGN_MARKETING.md",
       "accessed_at": "2026-11-10",
       "kind": "internal_doc"
+    },
+    {
+      "id": "src_freshloaf_pricer",
+      "title": "The Fresh Loaf forum: 'I built a free sourdough pricing calculator after years of guessing what to charge'",
+      "url": "https://www.thefreshloaf.com/comment/550691",
+      "accessed_at": "2026-11-11",
+      "kind": "forum_or_community",
+      "published": "2026-02-16",
+      "reliability_note": "Forum post announcing a free tool (sourdoughpricer.com). The tool's own site is robots-disallowed to the fetch tool, so it is described from the post only."
+    },
+    {
+      "id": "src_stan_sourdoughgirlie",
+      "title": "Stan: Sourdough Bread Pricing Calculator (@sourdoughgirlie)",
+      "url": "https://stan.store/sourdoughgirlie/p/calculator-86ld5h7a",
+      "accessed_at": "2026-11-11",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_skool_crustcrumb",
+      "title": "Skool: Crust & Crumb Academy, 'New Tool: Price Your Loaf Calculator'",
+      "url": "https://www.skool.com/crust-crumb-academy-7621/new-tool-price-your-loaf-calculator",
+      "accessed_at": "2026-11-11",
+      "kind": "forum_or_community",
+      "reliability_note": "Shared inside a community with a $5/month join button; post year not shown."
+    },
+    {
+      "id": "src_gumroad_smallbatch",
+      "title": "Gumroad: Ingredient costs and Recipe pricing calculator (Small Batch Empire)",
+      "url": "https://smallbatchempire.gumroad.com/l/recipecalculator",
+      "accessed_at": "2026-11-11",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_etsy_homebaker_4578823822",
+      "title": "Etsy: Recipe Cost Calculator for Home Bakers (Excel & Google Sheets)",
+      "url": "https://www.etsy.com/listing/4578823822",
+      "accessed_at": "2026-11-11",
+      "kind": "marketplace_listing"
     }
   ],
   "open_questions": [
@@ -1725,6 +2016,18 @@
       "date": "2026-11-10",
       "author": "forge-intelligence",
       "change": "QA-001 retest R1: CakeBoss split out of the VERIFIED key finding into its own ESTIMATED claim."
+    },
+    {
+      "version": "1.0.3",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Assisted re-check on 2026-11-11 found the listing behind src_serp_bakery_templates removed. Re-cited the 6 claims that used it. New competitors: a free sourdough pricer (Feb 2026), a $47 Stan calculator, a community tool and a $20 Gumroad calculator. The 'bread gap' finding is narrowed and the premium product must lead with the market-day loop. Break-even sales added."
+    },
+    {
+      "version": "1.0.4",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Duplicate claim id fixed: the INFERRED market-day-loop claim in premium_product_recommendation.evidence is now c_ll_pp_e3 (it reused c_ll_pp_e2). No content change."
     }
   ]
 }

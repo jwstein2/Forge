@@ -40,7 +40,7 @@ describe("builder job handlers on the platform engine", () => {
     const job = await run(ctx, "builder.blueprint.generate", { nicheId: "quilt-plan-kit", version: "1.0.0" });
     expect(job.status).toBe("succeeded");
     const row = await ctx.db.prepare(`SELECT * FROM launch_blueprints WHERE niche_id='quilt-plan-kit'`).first<any>();
-    expect(row).toMatchObject({ id: "bp_quilt-plan-kit_v1-0-0", status: "draft", version: "1.0.0", brief_ref: "brief_quilt-plan-kit_v1-0-2" });
+    expect(row).toMatchObject({ id: "bp_quilt-plan-kit_v1-0-0", status: "draft", version: "1.0.0", brief_ref: "brief_quilt-plan-kit_v1-0-3" });
     const bp = JSON.parse(row.content_json) as LaunchBlueprint;
     expect(bp.products.find((p) => p.tier === "entry")!.registry_product_id).toBe("prd_qpk_planner");
     expect(row.content_hash).toBe(await contentHash(bp));

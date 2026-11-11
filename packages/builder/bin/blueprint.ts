@@ -16,6 +16,8 @@ const CHANGELOG: Record<string, string> = {
   "1.0.1": "Picture no longer repeats the promise when the brief has a single desired outcome (left as a copy gap).",
   "garden-planner@1.0.1": "Regenerated from brief v1.0.1: frost dates from NOAA 1991-2020 Climate Normals (CC0), station name and distance shown.",
   "garden-planner@1.0.2": "Regenerated from brief v1.0.2: Almanac competitor shows three plans (software band $35-$168/yr); USDA zone claim split into fact and inference. Offer, must-includes and price unchanged.",
+  "garden-planner@1.0.3": "Regenerated from brief v1.0.3: break-even sales counts and off-Etsy price sources added. Positioning, offer and prices unchanged.",
+  "1.0.4": "Regenerated from the latest briefs (Bidline v1.0.2, Quilt Plan Kit v1.0.3, Loaf Ledger v1.0.4): break-even sales counts and off-Etsy price sources; Loaf Ledger adds competitors and leads its must-includes with the market-day loop.",
   "1.0.3": "Existing products use their registry name (what the live site and file call them) instead of the brief's working name; any difference is listed as an unknown (QA-014 B7-1).",
   "1.0.2": "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
 };

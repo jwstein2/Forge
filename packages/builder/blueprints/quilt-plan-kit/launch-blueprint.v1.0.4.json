@@ -1,0 +1,1379 @@
+{
+  "schema_version": "1.0.0",
+  "blueprint_id": "bp_quilt-plan-kit_v1-0-4",
+  "niche": "quilt-plan-kit",
+  "display_name": "Quilt Plan Kit",
+  "version": "1.0.4",
+  "supersedes": "bp_quilt-plan-kit_v1-0-3",
+  "status": "draft",
+  "implementation_status": "PROPOSED",
+  "created_at": "2026-11-11T03:00:00Z",
+  "approved_by": null,
+  "generated_by": {
+    "tool": "@forge/builder",
+    "tool_version": "1.0.0",
+    "deterministic": true
+  },
+  "business_kind": "existing_niche",
+  "source_brief": {
+    "brief_id": "brief_quilt-plan-kit_v1-0-3",
+    "version": "1.0.3",
+    "status": "draft",
+    "content_hash": "sha256:1f711450b438ffdeeec40f68ed5e9083f2aa897bd446abd674cebedb280490b4"
+  },
+  "opportunity_ref": null,
+  "launch_policy": {
+    "auto_launch": false,
+    "owner_approval_required_for": [
+      "Production deploy and launch",
+      "New accounts and credential connections",
+      "Live checkout",
+      "Any spend",
+      "Price changes",
+      "Publishing outside approved campaigns"
+    ]
+  },
+  "go_hold": {
+    "call": "go",
+    "subject": "Quilt Plan Kit $8 planner and offer ladder",
+    "rationale": "Strongest evidence of the three: a measured audience (9-11 million active consumers, 2025 survey), a $4.5B industry estimate, and many paid planners at $5-$19 plus patterns at about $5-$20. QPK also has the only live channel (Pinterest).",
+    "falsifying_test": "If checkout is live and QPK gets 300+ sessions to the planner page in 60 days with zero sales, revisit price and offer. Owner-adjustable rule, not a forecast."
+  },
+  "positioning": {
+    "one_line": "Quilting is a large, stable, older and well-off hobby audience that pays for patterns, planners and design tools; quilt calculators are free everywhere, so QPK's calculators are a traffic engine and the money is in planners, patterns and the KDP book.",
+    "primary_segment_id": "dedicated-hobby-quilter",
+    "segments": [
+      {
+        "id": "dedicated-hobby-quilter",
+        "name": "Dedicated hobby quilter",
+        "priority": "primary"
+      },
+      {
+        "id": "new-quilter",
+        "name": "New quilter",
+        "priority": "secondary"
+      },
+      {
+        "id": "gift-quilter",
+        "name": "Gift and holiday quilter",
+        "priority": "exploratory"
+      }
+    ],
+    "desired_outcomes": [
+      {
+        "claim_id": "c_q_out_finish",
+        "statement": "Finish more quilts with less waste and stress.",
+        "evidence": "INFERRED"
+      }
+    ]
+  },
+  "offer_ladder": [
+    {
+      "tier": "free",
+      "item": "Calculators, guides, cheat sheet",
+      "price": {
+        "value": 0,
+        "currency": "USD",
+        "evidence": "VERIFIED"
+      },
+      "product_id": null,
+      "playbook": "free-resource"
+    },
+    {
+      "tier": "entry",
+      "item": "The Quilt Planner — Printable PDF",
+      "price": {
+        "value": 8,
+        "currency": "USD",
+        "evidence": "VERIFIED"
+      },
+      "product_id": "prd_quilt-plan-kit_the-quilt-planner-printable-pdf",
+      "playbook": "printable-pdf"
+    },
+    {
+      "tier": "core",
+      "item": "Planner + pattern bundle",
+      "price": {
+        "value": 18,
+        "currency": "USD",
+        "evidence": "INFERRED"
+      },
+      "product_id": "prd_quilt-plan-kit_planner-pattern-bundle",
+      "playbook": "bundle"
+    },
+    {
+      "tier": "premium",
+      "item": "KDP paperback",
+      "price": {
+        "value": 9.99,
+        "currency": "USD",
+        "evidence": "INFERRED",
+        "note": "Price from internal docs; confirm the Amazon listing is live"
+      },
+      "product_id": "prd_quilt-plan-kit_kdp-paperback",
+      "playbook": "kdp-book"
+    }
+  ],
+  "products": [
+    {
+      "product_id": "prd_quilt-plan-kit_the-quilt-planner-printable-pdf",
+      "name": "The Quilt Planner — Printable PDF",
+      "tier": "entry",
+      "playbook": "printable-pdf",
+      "format": "Paid printable / PDF",
+      "price": {
+        "value": 8,
+        "currency": "USD",
+        "evidence": "VERIFIED"
+      },
+      "target_segment_id": null,
+      "must_include": [],
+      "must_not": [],
+      "deliverables": [
+        {
+          "kind": "printable",
+          "file_format": "pdf",
+          "spec": "Print-tested at Letter and A4; page count and contents match the sales page; accessible type size for the audience."
+        },
+        {
+          "kind": "preview-images",
+          "file_format": "png",
+          "spec": "Real page renders for the sales page (no mock-ups of pages that do not exist)."
+        }
+      ],
+      "gates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G13"
+      ],
+      "status": "PROPOSED",
+      "basis": [],
+      "falsifying_test": null,
+      "registry_product_id": "prd_qpk_planner"
+    },
+    {
+      "product_id": "prd_quilt-plan-kit_planner-pattern-bundle",
+      "name": "Quilt Plan Kit Planner + Pattern bundle",
+      "tier": "core",
+      "playbook": "bundle",
+      "format": "Printable PDF planner (large type) + one original pattern with cutting charts generated from QPK's tested maths",
+      "price": {
+        "value": 18,
+        "currency": "USD",
+        "evidence": "INFERRED"
+      },
+      "target_segment_id": "dedicated-hobby-quilter",
+      "must_include": [
+        "Everything in the $8 planner",
+        "Gift-quilt deadline planner (work back from the date)",
+        "Yardage and cutting worksheets for crib to king",
+        "UFO tracker",
+        "One original, tested pattern in several sizes",
+        "Printer-friendly, large type"
+      ],
+      "must_not": [
+        "Use unlicensed imagery (QPK hero photo provenance is unrecorded, per WS4)",
+        "Copy any designer's pattern"
+      ],
+      "deliverables": [
+        {
+          "kind": "bundle-manifest",
+          "file_format": "json",
+          "spec": "Lists every component (existing products and any new item built for the bundle) with file hashes; every component passes G4 on its own."
+        },
+        {
+          "kind": "bundle-archive",
+          "file_format": "zip",
+          "spec": "Delivered archive equals the reviewed archive (hash match)."
+        }
+      ],
+      "gates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G13"
+      ],
+      "status": "PROPOSED",
+      "basis": [
+        {
+          "claim_id": "c_q_pp_e1",
+          "statement": "Planners at $5-$19 and patterns at about $5-$20 are verified price points.",
+          "evidence": "VERIFIED"
+        }
+      ],
+      "falsifying_test": "After the $8 planner is buyable, fewer than 1 in 3 buyers take a bundle offer in the first 30 bundle-eligible orders: stay with the $8 planner and invest in traffic instead.",
+      "registry_product_id": null
+    },
+    {
+      "product_id": "prd_quilt-plan-kit_kdp-paperback",
+      "name": "KDP paperback",
+      "tier": "premium",
+      "playbook": "kdp-book",
+      "format": "Amazon KDP paperback",
+      "price": {
+        "value": 9.99,
+        "currency": "USD",
+        "evidence": "INFERRED",
+        "note": "Price from internal docs; confirm the Amazon listing is live"
+      },
+      "target_segment_id": null,
+      "must_include": [],
+      "must_not": [],
+      "deliverables": [
+        {
+          "kind": "interior",
+          "file_format": "pdf",
+          "spec": "KDP trim and bleed spec; fonts embedded."
+        },
+        {
+          "kind": "cover",
+          "file_format": "pdf",
+          "spec": "Licensed or original artwork only; spine width from page count."
+        }
+      ],
+      "gates": [
+        "G4",
+        "G8",
+        "G13"
+      ],
+      "status": "PROPOSED",
+      "basis": [],
+      "falsifying_test": null,
+      "registry_product_id": "prd_qpk_paperback"
+    }
+  ],
+  "brand": {
+    "direction": [
+      {
+        "claim_id": "c_q_vis_print",
+        "statement": "Older, print-oriented audience: large type, printable pages and clear diagrams matter.",
+        "evidence": "INFERRED"
+      },
+      {
+        "claim_id": "c_q_vis_warm",
+        "statement": "Warm, craft-oriented, human imagery fits better than the current plain live design.",
+        "evidence": "INFERRED"
+      }
+    ],
+    "requirements": [
+      "Designed for this audience, distinct from the other FORGE niches; no generic AI layout",
+      "Licensed or original imagery only, each asset recorded in SOURCES_AND_LICENSES.md",
+      "Accessible type and contrast (WCAG 2.2 AA); readable at 320 px",
+      "Real product previews rendered from the actual files",
+      "Products styled to the same standard as the site that sells them"
+    ],
+    "asset_rights_policy": "Unknown provenance is a G8 FAIL. No asset ships without source URL, author, licence, commercial-use terms and attribution recorded.",
+    "status": "PROPOSED"
+  },
+  "sales_framework": {
+    "promise": {
+      "draft": "Finish more quilts with less waste and stress.",
+      "basis": [
+        {
+          "claim_id": "c_q_out_finish",
+          "statement": "Finish more quilts with less waste and stress.",
+          "evidence": "INFERRED"
+        }
+      ]
+    },
+    "pain": [
+      {
+        "claim_id": "c_q_pain_ufo",
+        "statement": "Unfinished projects pile up (planners sell UFO trackers).",
+        "evidence": "VERIFIED"
+      },
+      {
+        "claim_id": "c_q_pain_math",
+        "statement": "Fabric maths errors waste costly fabric.",
+        "evidence": "INFERRED"
+      }
+    ],
+    "proof": {
+      "allowed_kinds": [
+        "Previews rendered from the real product files",
+        "Worked example with clearly labelled sample data",
+        "Verified facts from the brief, cited",
+        "Customer feedback only once it exists, with permission"
+      ],
+      "items": [
+        {
+          "claim_id": "c_q_pp_e1",
+          "statement": "Planners at $5-$19 and patterns at about $5-$20 are verified price points.",
+          "evidence": "VERIFIED"
+        }
+      ],
+      "status": "has_candidates",
+      "rule": "No testimonials, ratings, sales counts, user numbers or results until they exist and are verified."
+    },
+    "plan": [
+      "Get the Quilt Plan Kit Planner + Pattern bundle for $18",
+      "Download it straight from the confirmation email",
+      "Start with: Everything in the $8 planner"
+    ],
+    "picture": {
+      "draft": "",
+      "basis": []
+    },
+    "cta": {
+      "label": "Get the Quilt Plan Kit Planner + Pattern bundle",
+      "product_id": "prd_quilt-plan-kit_planner-pattern-bundle"
+    },
+    "objections": [
+      {
+        "claim": {
+          "claim_id": "c_q_obj_free",
+          "statement": "Free printable quilt planners and free calculators exist widely.",
+          "evidence": "VERIFIED"
+        },
+        "response": null
+      },
+      {
+        "claim": {
+          "claim_id": "c_q_obj_shop",
+          "statement": "Buys supplies in person at local shops, so less online buying habit.",
+          "evidence": "VERIFIED"
+        },
+        "response": null
+      }
+    ],
+    "customer_language": []
+  },
+  "page_map": [
+    {
+      "path": "/",
+      "purpose": "Home: the promise, the free tools and the paid offer",
+      "template": "home",
+      "sections": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "free-tools",
+        "paid-offer",
+        "email-capture"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G9"
+      ]
+    },
+    {
+      "path": "/tools/",
+      "purpose": "Free calculators, guides and templates (traffic and trust)",
+      "template": "resource",
+      "sections": [
+        "tool",
+        "how-to-use",
+        "worked-example",
+        "related-resources",
+        "email-capture",
+        "paid-upgrade-cta"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G3",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/products/the-quilt-planner-printable-pdf/",
+      "purpose": "Sales page for The Quilt Planner — Printable PDF",
+      "template": "product",
+      "sections": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "whats-inside-previews",
+        "price-and-cta",
+        "faq-objections",
+        "refund-policy-link"
+      ],
+      "required_for_launch": false,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G5",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/products/quilt-plan-kit-planner-pattern-bundle/",
+      "purpose": "Sales page for Quilt Plan Kit Planner + Pattern bundle",
+      "template": "product",
+      "sections": [
+        "promise",
+        "pain",
+        "proof",
+        "plan",
+        "picture",
+        "whats-inside-previews",
+        "price-and-cta",
+        "faq-objections",
+        "refund-policy-link"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G5",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/products/kdp-paperback/",
+      "purpose": "Sales page for KDP paperback",
+      "template": "book",
+      "sections": [
+        "promise",
+        "whats-inside-previews",
+        "amazon-link"
+      ],
+      "required_for_launch": false,
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G5",
+        "G8",
+        "G9"
+      ]
+    },
+    {
+      "path": "/thank-you/",
+      "purpose": "Post-purchase delivery instructions",
+      "template": "transactional",
+      "sections": [
+        "download-steps",
+        "support-contact"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G5"
+      ]
+    },
+    {
+      "path": "/about/",
+      "purpose": "Who runs this and why (real operator, no invented story)",
+      "template": "content",
+      "sections": [
+        "operator",
+        "mission"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G2"
+      ]
+    },
+    {
+      "path": "/contact/",
+      "purpose": "Support contact",
+      "template": "content",
+      "sections": [
+        "contact"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G1",
+        "G7"
+      ]
+    },
+    {
+      "path": "/privacy/",
+      "purpose": "Privacy policy matching actual data flows",
+      "template": "legal",
+      "sections": [
+        "legal"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G7"
+      ]
+    },
+    {
+      "path": "/terms/",
+      "purpose": "Terms of sale",
+      "template": "legal",
+      "sections": [
+        "legal"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G7"
+      ]
+    },
+    {
+      "path": "/refunds/",
+      "purpose": "Refund policy",
+      "template": "legal",
+      "sections": [
+        "legal"
+      ],
+      "required_for_launch": true,
+      "gates": [
+        "G7"
+      ]
+    }
+  ],
+  "channel_plan": [
+    {
+      "channel": "Pinterest",
+      "fit": "moderate",
+      "priority": "launch",
+      "owner_role": "Marketing & Distribution",
+      "integration_required": "Pinterest",
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_q_ch_pin",
+        "statement": "Only verified live FORGE channel, but only 3 pins published and very low views so far; fit is plausible, not yet proven.",
+        "evidence": "VERIFIED"
+      }
+    },
+    {
+      "channel": "Organic search",
+      "fit": "strong",
+      "priority": "launch",
+      "owner_role": "Marketing & Distribution",
+      "integration_required": "Google Search Console",
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_q_ch_seo",
+        "statement": "QPK has 48 URLs including tested calculators and answer pages.",
+        "evidence": "VERIFIED"
+      }
+    },
+    {
+      "channel": "Email",
+      "fit": "strong",
+      "priority": "launch",
+      "owner_role": "Marketing & Distribution",
+      "integration_required": "MailerLite",
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_q_ch_email",
+        "statement": "Older hobby audience reads newsletters; MailerLite account exists, wiring unverified.",
+        "evidence": "INFERRED"
+      }
+    },
+    {
+      "channel": "Facebook groups",
+      "fit": "moderate",
+      "priority": "after_launch",
+      "owner_role": "Owner (personal participation only; no automated posting)",
+      "integration_required": null,
+      "owner_approval_required": true,
+      "cadence": null,
+      "basis": {
+        "claim_id": "c_q_ch_fb",
+        "statement": "Large quilting groups exist; owner participation only.",
+        "evidence": "INFERRED"
+      }
+    }
+  ],
+  "integrations": [
+    {
+      "id": "checkout",
+      "service": "Lemon Squeezy",
+      "purpose": "Checkout and merchant of record",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": "checkout-button",
+      "note": "Store activation and any live checkout need the owner."
+    },
+    {
+      "id": "delivery",
+      "service": "Lemon Squeezy file delivery",
+      "purpose": "Deliver the reviewed file (hash-matched)",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Same account as checkout."
+    },
+    {
+      "id": "ledger",
+      "service": "FORGE ledger (Worker + D1)",
+      "purpose": "Signed sale webhooks and page beacons with vertical \"quilt-plan-kit\"",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": "ledger-beacon",
+      "note": "Production Worker change."
+    },
+    {
+      "id": "email",
+      "service": "MailerLite",
+      "purpose": "Permission-based email capture and nurture",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": "email-capture",
+      "note": "Connector connection is the owner's."
+    },
+    {
+      "id": "search-console",
+      "service": "Google Search Console",
+      "purpose": "Indexing and query data",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Needs the owner's Google account."
+    },
+    {
+      "id": "hosting",
+      "service": "Cloudflare Pages",
+      "purpose": "Staging previews; production only on owner approval",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Staging preview is allowed; production deploy is not."
+    },
+    {
+      "id": "pinterest",
+      "service": "Pinterest",
+      "purpose": "Publishing for Pinterest",
+      "status": "unconnected",
+      "owner_approval_required": true,
+      "shared_component": null,
+      "note": "Official API or platform-sanctioned method only."
+    }
+  ],
+  "measurement": {
+    "ledger_vertical": "quilt-plan-kit",
+    "beacon_path_prefix": "/quilt-plan-kit/",
+    "kpis": [
+      {
+        "id": "product_page_sessions",
+        "label": "Sessions on the core product page",
+        "target": null,
+        "unit": "count",
+        "state": "unknown"
+      },
+      {
+        "id": "conversion_rate",
+        "label": "Product page to purchase",
+        "target": null,
+        "unit": "pct",
+        "state": "unknown"
+      },
+      {
+        "id": "orders",
+        "label": "Verified live orders (excludes test and owner-test)",
+        "target": null,
+        "unit": "count",
+        "state": "unknown"
+      },
+      {
+        "id": "gross_revenue",
+        "label": "Verified gross revenue",
+        "target": null,
+        "unit": "usd",
+        "state": "unknown"
+      },
+      {
+        "id": "refund_rate",
+        "label": "Refunds as share of orders",
+        "target": null,
+        "unit": "pct",
+        "state": "unknown"
+      },
+      {
+        "id": "email_signups",
+        "label": "Confirmed email signups",
+        "target": null,
+        "unit": "count",
+        "state": "unknown"
+      },
+      {
+        "id": "contribution",
+        "label": "Estimated contribution (withheld while any cost line is unknown)",
+        "target": null,
+        "unit": "usd",
+        "state": "unknown"
+      }
+    ],
+    "falsifying_tests": [
+      "If checkout is live and QPK gets 300+ sessions to the planner page in 60 days with zero sales, revisit price and offer. Owner-adjustable rule, not a forecast.",
+      "After the $8 planner is buyable, fewer than 1 in 3 buyers take a bundle offer in the first 30 bundle-eligible orders: stay with the $8 planner and invest in traffic instead."
+    ]
+  },
+  "economics": {
+    "note": "Scenarios copied from brief 1.0.3. They are hypotheses with the brief's evidence labels, not forecasts.",
+    "scenarios": {
+      "downside": {
+        "monthly_orders": 0,
+        "average_order_value": 8,
+        "monthly_gross": 0,
+        "monthly_contribution": 0,
+        "assumptions": [
+          "Checkout not yet live; Pinterest queue empty"
+        ],
+        "evidence": "INFERRED"
+      },
+      "base": {
+        "monthly_orders": 15,
+        "average_order_value": 10,
+        "monthly_gross": 150,
+        "monthly_contribution": 135,
+        "assumptions": [
+          "Hypothesis only: Pinterest refilled and organic calculator traffic converting a small share to the planner"
+        ],
+        "evidence": "INFERRED"
+      },
+      "upside": {
+        "monthly_orders": 50,
+        "average_order_value": 13,
+        "monthly_gross": 650,
+        "monthly_contribution": 592.5,
+        "assumptions": [
+          "Hypothesis only: bundle and KDP cross-sell lift AOV; seasonal gift campaigns"
+        ],
+        "evidence": "INFERRED"
+      }
+    }
+  },
+  "budget": {
+    "ceiling_cents": null,
+    "state": "owner_to_set",
+    "spend_authorized": false
+  },
+  "permissions": {
+    "allowed": [
+      "Local development and tests",
+      "Generating product files and previews",
+      "Staging preview deploys",
+      "Draft content and copy",
+      "Test-mode checkout once the owner has connected the account",
+      "Writing FORGE database records for this build"
+    ],
+    "requires_owner_approval": [
+      "Production deploy or launch",
+      "New accounts or credential connections",
+      "Any purchase or subscription",
+      "Turning on live checkout",
+      "Price changes",
+      "Publishing outside approved campaigns",
+      "Changes to customer data or permissions"
+    ],
+    "prohibited": [
+      "Fabricated testimonials, reviews, sales counts or results",
+      "Unlicensed images, fonts or text",
+      "Copying another designer's or competitor's work",
+      "Spam, purchased lists or prohibited scraping",
+      "Storing secrets in the repo or dashboard",
+      "Writing sales rows to the ledger",
+      "Touching businesses outside FORGE"
+    ]
+  },
+  "stages": [
+    {
+      "stage": "research",
+      "goal": "Confirm the Audience & Market Brief is fit to build from.",
+      "depends_on": [],
+      "inputs": [
+        "Audience & Market Brief (exact version and content hash)",
+        "Opportunity record, if this build came from the Scout"
+      ],
+      "tasks": [
+        {
+          "id": "research-1",
+          "title": "Check every claim the blueprint relies on has an evidence label and a source",
+          "role": "Market & Opportunity Intelligence",
+          "kind": "deterministic"
+        },
+        {
+          "id": "research-2",
+          "title": "Independent research review of the brief",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "B0 gate receipt"
+      ],
+      "gates": [
+        "B0"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "blueprint",
+      "goal": "Agree the complete plan: offer, products, brand, pages, channels, integrations, gates and budget.",
+      "depends_on": [
+        "research"
+      ],
+      "inputs": [
+        "B0 receipt",
+        "This Launch Blueprint"
+      ],
+      "tasks": [
+        {
+          "id": "blueprint-1",
+          "title": "Generate blueprint deterministically from the brief",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "blueprint-2",
+          "title": "Validate against launch-blueprint.schema.json and semantic rules",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "blueprint-3",
+          "title": "Independent blueprint review",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Approved blueprint version",
+        "B1 gate receipt"
+      ],
+      "gates": [
+        "B1"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "products",
+      "goal": "Build every paid and free product to its spec, reproducibly.",
+      "depends_on": [
+        "blueprint"
+      ],
+      "inputs": [
+        "Product specs in this blueprint",
+        "Brand tokens once available"
+      ],
+      "tasks": [
+        {
+          "id": "products-1",
+          "title": "The Quilt Planner — Printable PDF: Outline pages from must_include",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-2",
+          "title": "The Quilt Planner — Printable PDF: Build reproducible PDF source (HTML/CSS or script)",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-3",
+          "title": "The Quilt Planner — Printable PDF: Print test",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-4",
+          "title": "The Quilt Planner — Printable PDF: Render previews",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-5",
+          "title": "Quilt Plan Kit Planner + Pattern bundle: Build components first",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-6",
+          "title": "Quilt Plan Kit Planner + Pattern bundle: Assemble archive with manifest and hashes",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-7",
+          "title": "Quilt Plan Kit Planner + Pattern bundle: Check bundle price against component prices",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-8",
+          "title": "KDP paperback: Build interior from tested content",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-9",
+          "title": "KDP paperback: Build cover",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-10",
+          "title": "KDP paperback: Owner uploads to KDP",
+          "role": "Product & Offer",
+          "kind": "model"
+        },
+        {
+          "id": "products-11",
+          "title": "Record file hashes of reviewed deliverables",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "products-12",
+          "title": "Independent product review (formulas, contents, file integrity)",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Product files with hashes",
+        "Previews rendered from the real files",
+        "G4 receipts"
+      ],
+      "gates": [
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G13"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "brand",
+      "goal": "Create a distinctive, audience-specific brand system with licensed assets.",
+      "depends_on": [
+        "blueprint"
+      ],
+      "inputs": [
+        "Brand direction claims from the brief",
+        "Customer language"
+      ],
+      "tasks": [
+        {
+          "id": "brand-1",
+          "title": "Propose 2 visual directions grounded in the brief",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "brand-2",
+          "title": "Build tokens (type, colour, spacing) and component samples",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "brand-3",
+          "title": "Record every asset in SOURCES_AND_LICENSES.md",
+          "role": "Website, Brand & CX",
+          "kind": "deterministic"
+        },
+        {
+          "id": "brand-4",
+          "title": "Independent visual and licence review",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Brand tokens",
+        "Asset licence ledger",
+        "G2 and G8 receipts"
+      ],
+      "gates": [
+        "G2",
+        "G8"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "website",
+      "goal": "Build every page in the page map on a staging preview.",
+      "depends_on": [
+        "brand",
+        "products"
+      ],
+      "inputs": [
+        "Page map",
+        "Sales framework",
+        "Brand tokens",
+        "Product previews"
+      ],
+      "tasks": [
+        {
+          "id": "website-1",
+          "title": "Build pages from the page map in the site template",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "website-2",
+          "title": "Write copy to the Promise, Pain, Proof, Plan, Picture framework using only genuine proof",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "website-3",
+          "title": "Technical SEO: canonical, sitemap, robots, JSON-LD",
+          "role": "Marketing & Distribution",
+          "kind": "deterministic"
+        },
+        {
+          "id": "website-4",
+          "title": "Deploy to a staging preview (no production)",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "website-5",
+          "title": "Independent rendered-page review at 320, 390 and 1366 px",
+          "role": "Independent QA",
+          "kind": "model"
+        }
+      ],
+      "outputs": [
+        "Staging preview URL",
+        "Crawl report",
+        "Screenshots",
+        "Gate receipts"
+      ],
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G8",
+        "G9",
+        "G12",
+        "G15"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "integrations",
+      "goal": "Wire checkout, delivery, ledger, email and analytics in test mode.",
+      "depends_on": [
+        "website"
+      ],
+      "inputs": [
+        "Integration list",
+        "Shared components: checkout button, email capture, ledger beacon"
+      ],
+      "tasks": [
+        {
+          "id": "integrations-1",
+          "title": "Place shared checkout, email and beacon components",
+          "role": "Business Operations, Finance & Infrastructure",
+          "kind": "deterministic"
+        },
+        {
+          "id": "integrations-2",
+          "title": "Run a test-mode purchase end to end (webhook, ledger row, delivery email, file opens, refund)",
+          "role": "Business Operations, Finance & Infrastructure",
+          "kind": "deterministic"
+        },
+        {
+          "id": "integrations-3",
+          "title": "Write legal pages with the owner's operator name and jurisdiction",
+          "role": "Website, Brand & CX",
+          "kind": "model"
+        },
+        {
+          "id": "integrations-4",
+          "title": "Owner connects or approves: Lemon Squeezy",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-5",
+          "title": "Owner connects or approves: Lemon Squeezy file delivery",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-6",
+          "title": "Owner connects or approves: FORGE ledger (Worker + D1)",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-7",
+          "title": "Owner connects or approves: MailerLite",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-8",
+          "title": "Owner connects or approves: Google Search Console",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-9",
+          "title": "Owner connects or approves: Cloudflare Pages",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "integrations-10",
+          "title": "Owner connects or approves: Pinterest",
+          "role": "Owner",
+          "kind": "owner"
+        }
+      ],
+      "outputs": [
+        "Test-mode order evidence",
+        "Legal pages",
+        "G5, G6, G7, G12 receipts"
+      ],
+      "gates": [
+        "G5",
+        "G6",
+        "G7",
+        "G12"
+      ],
+      "owner_approvals": [
+        "Lemon Squeezy",
+        "Lemon Squeezy file delivery",
+        "FORGE ledger (Worker + D1)",
+        "MailerLite",
+        "Google Search Console",
+        "Cloudflare Pages",
+        "Pinterest"
+      ]
+    },
+    {
+      "stage": "marketing",
+      "goal": "Prepare launch channels with owners, cadences, receipts and heartbeats.",
+      "depends_on": [
+        "website"
+      ],
+      "inputs": [
+        "Channel plan",
+        "Seasonal windows from the brief"
+      ],
+      "tasks": [
+        {
+          "id": "marketing-1",
+          "title": "Prepare first content batch per launch channel from the brief",
+          "role": "Marketing & Distribution",
+          "kind": "model"
+        },
+        {
+          "id": "marketing-2",
+          "title": "Register each scheduled job with owner, cost cap, retry budget, kill switch",
+          "role": "Business Operations, Finance & Infrastructure",
+          "kind": "deterministic"
+        },
+        {
+          "id": "marketing-3",
+          "title": "Force one failure per job and confirm the watchdog raises an alert",
+          "role": "Independent QA",
+          "kind": "deterministic"
+        },
+        {
+          "id": "marketing-4",
+          "title": "Owner approves channel account or publishing: Pinterest",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "marketing-5",
+          "title": "Owner approves channel account or publishing: Organic search",
+          "role": "Owner",
+          "kind": "owner"
+        },
+        {
+          "id": "marketing-6",
+          "title": "Owner approves channel account or publishing: Email",
+          "role": "Owner",
+          "kind": "owner"
+        }
+      ],
+      "outputs": [
+        "Content batch",
+        "Registry entries",
+        "G10, G11, G14 receipts"
+      ],
+      "gates": [
+        "G10",
+        "G11",
+        "G14"
+      ],
+      "owner_approvals": [
+        "Pinterest",
+        "Organic search",
+        "Email"
+      ]
+    },
+    {
+      "stage": "testing",
+      "goal": "Prove the whole customer journey works on staging, from first visit to delivered file.",
+      "depends_on": [
+        "integrations",
+        "marketing"
+      ],
+      "inputs": [
+        "Staging preview",
+        "Test-mode checkout"
+      ],
+      "tasks": [
+        {
+          "id": "testing-1",
+          "title": "Full customer-journey walkthrough on phone and desktop",
+          "role": "Independent QA",
+          "kind": "model"
+        },
+        {
+          "id": "testing-2",
+          "title": "Confirm the change is a reviewed commit with a documented rollback",
+          "role": "Independent QA",
+          "kind": "deterministic"
+        }
+      ],
+      "outputs": [
+        "Journey evidence",
+        "G1, G5, G13 receipts"
+      ],
+      "gates": [
+        "G1",
+        "G5",
+        "G13"
+      ],
+      "owner_approvals": []
+    },
+    {
+      "stage": "launch_readiness",
+      "goal": "Assemble every gate receipt and present the launch decision to the owner. FORGE never launches on its own.",
+      "depends_on": [
+        "testing"
+      ],
+      "inputs": [
+        "All gate receipts",
+        "Owner test purchase and refund per product (tagged owner test)"
+      ],
+      "tasks": [
+        {
+          "id": "launch_readiness-1",
+          "title": "Compile the launch readiness report from receipts",
+          "role": "Ecosystem Builder",
+          "kind": "deterministic"
+        },
+        {
+          "id": "launch_readiness-2",
+          "title": "Owner decides whether to launch",
+          "role": "Owner",
+          "kind": "owner"
+        }
+      ],
+      "outputs": [
+        "Launch readiness report"
+      ],
+      "gates": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8",
+        "G9",
+        "G10",
+        "G11",
+        "G12",
+        "G13",
+        "G14",
+        "G15"
+      ],
+      "owner_approvals": [
+        "Production deploy and launch"
+      ]
+    }
+  ],
+  "done_criteria": [
+    "Every required page passes its gates on a staging preview",
+    "Every paid product passes G4 and its delivered file hash equals the reviewed file",
+    "A test-mode purchase reaches the ledger with the right vertical, sends the delivery email, and the file opens; refund recorded",
+    "Measurement live: beacons and sales attributed to this niche",
+    "At least one launch channel prepared with receipts and a heartbeat-covered schedule",
+    "All launch_readiness gates PASS with independent receipts",
+    "Owner has explicitly approved the launch"
+  ],
+  "unknowns": [
+    {
+      "field": "products.prd_quilt-plan-kit_the-quilt-planner-printable-pdf.must_include",
+      "statement": "\"The Quilt Planner — Printable PDF\" already exists as prd_qpk_planner; the brief gives no spec, so audit the existing file rather than rebuild it.",
+      "resolve_by": "Product & Offer inventories the existing product; reviewed at B1"
+    },
+    {
+      "field": "offer_ladder.core.price",
+      "statement": "$18 for \"Planner + pattern bundle\" is a hypothesis (INFERRED), not a tested price.",
+      "resolve_by": "Owner sets launch price; falsifying test decides changes"
+    },
+    {
+      "field": "products.prd_quilt-plan-kit_kdp-paperback.must_include",
+      "statement": "\"KDP paperback\" already exists as prd_qpk_paperback; the brief gives no spec, so audit the existing file rather than rebuild it.",
+      "resolve_by": "Product & Offer inventories the existing product; reviewed at B1"
+    },
+    {
+      "field": "products.prd_quilt-plan-kit_kdp-paperback.account",
+      "statement": "Needs Amazon KDP (owner's account; publishing is a manual owner step).",
+      "resolve_by": "Owner"
+    },
+    {
+      "field": "offer_ladder.premium.price",
+      "statement": "$9.99 for \"KDP paperback\" is a hypothesis (INFERRED), not a tested price.",
+      "resolve_by": "Owner sets launch price; falsifying test decides changes"
+    },
+    {
+      "field": "offer_ladder.premium.price",
+      "statement": "Price from internal docs; confirm the Amazon listing is live",
+      "resolve_by": "Owner"
+    },
+    {
+      "field": "source_brief.status",
+      "statement": "Brief 1.0.3 is draft; the research stage needs an independent B0 review.",
+      "resolve_by": "Independent QA"
+    },
+    {
+      "field": "brief.open_questions",
+      "statement": "Is the KDP paperback live, and at what price?",
+      "resolve_by": "Owner or Intelligence"
+    },
+    {
+      "field": "brief.open_questions",
+      "statement": "Where did the redesign hero photo come from?",
+      "resolve_by": "Owner or Intelligence"
+    },
+    {
+      "field": "brief.open_questions",
+      "statement": "Can Search Console for quiltplankit.pages.dev be read (docs say it is verified)?",
+      "resolve_by": "Owner or Intelligence"
+    },
+    {
+      "field": "budget.ceiling_cents",
+      "statement": "No budget ceiling set for this build.",
+      "resolve_by": "Owner"
+    }
+  ],
+  "changelog": [
+    {
+      "version": "1.0.4",
+      "date": "2026-11-11",
+      "change": "Regenerated from the latest briefs (Bidline v1.0.2, Quilt Plan Kit v1.0.3, Loaf Ledger v1.0.4): break-even sales counts and off-Etsy price sources; Loaf Ledger adds competitors and leads its must-includes with the market-day loop."
+    }
+  ]
+}

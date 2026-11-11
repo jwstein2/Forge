@@ -7,6 +7,10 @@ import { classifyPlaybook } from "../src/playbooks.ts";
 import { validateBlueprint } from "../src/validate.ts";
 import { NICHES, clone, loadBrief, registryProducts, syntheticNewBusinessBrief } from "./helpers.ts";
 
+const B74 = "Regenerated from the latest briefs (Bidline v1.0.2, Quilt Plan Kit v1.0.3, Loaf Ledger v1.0.4): break-even sales counts and off-Etsy price sources; Loaf Ledger adds competitors and leads its must-includes with the market-day loop.";
+/** Current committed blueprint per niche. */
+const CURRENT: Record<string, { version: string; changelog: string }> = { bidline: { version: "1.0.4", changelog: B74 }, "quilt-plan-kit": { version: "1.0.4", changelog: B74 }, "loaf-ledger": { version: "1.0.4", changelog: B74 } };
+
 describe("blueprint generator on the three real v1 briefs", () => {
   for (const niche of NICHES) {
     it(`${niche}: valid against schema, semantics and the brief`, async () => {
@@ -28,10 +32,10 @@ describe("blueprint generator on the three real v1 briefs", () => {
     });
 
     it(`${niche}: committed blueprint matches a fresh generation (no drift)`, async () => {
-      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.3.json"), "utf8"));
+      const { version, changelog } = CURRENT[niche]!;
+      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, `launch-blueprint.v${version}.json`), "utf8"));
       const fresh = await generateBlueprint(loadBrief(niche), {
-        registryProducts: registryProducts(), version: "1.0.3", supersedes: `bp_${niche}_v1-0-2`,
-        changelog: "Existing products use their registry name (what the live site and file call them) instead of the brief's working name; any difference is listed as an unknown (QA-014 B7-1).",
+        registryProducts: registryProducts(), version, supersedes: `bp_${niche}_v${version.replace(/\d+$/, (d) => String(Number(d) - 1)).replace(/\./g, "-")}`, changelog,
       });
       expect(await contentHash(committed)).toBe(await contentHash(fresh));
     });

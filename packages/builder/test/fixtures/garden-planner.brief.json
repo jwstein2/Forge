@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_garden-planner_v1-0-2",
+  "brief_id": "brief_garden-planner_v1-0-3",
   "niche": "garden-planner",
   "display_name": "Garden Planner (working name)",
-  "version": "1.0.2",
-  "supersedes": "brief_garden-planner_v1-0-1",
+  "version": "1.0.3",
+  "supersedes": "brief_garden-planner_v1-0-2",
   "status": "draft",
   "created_at": "2026-11-10T04:20:00Z",
-  "updated_at": "2026-11-10T05:00:00Z",
+  "updated_at": "2026-11-11T03:00:00Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
@@ -50,6 +50,21 @@
           "src_etsy_garden_650687408"
         ],
         "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_g_prices_offetsy",
+        "statement": "Off Etsy, garden planners sell at $1.99 (Payhip, 40 pages, no reviews yet), $7 (Gumroad, 44 pages) and GBP 5 (Gumroad, UK), and a 41-page planner is given away free on Gumroad.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_payhip_farmverse",
+          "src_gumroad_backyardhomesteader",
+          "src_gumroad_veggiepatch",
+          "src_gumroad_natashalh"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "These pages can be re-checked by the Worker, unlike Etsy; they show prices but not sales."
       },
       {
         "id": "c_g_prices_software",
@@ -810,6 +825,135 @@
       }
     },
     {
+      "id": "backyardhomesteader",
+      "name": "Backyard Homesteader (Gumroad)",
+      "url": "https://backyardhomesteader.gumroad.com/l/mpfwdl",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "44 Page Garden Journal",
+          "format": "PDF",
+          "price": {
+            "value": 7,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_backyardhomesteader"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_gumroad_backyardhomesteader"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "farmverse",
+      "name": "FarmVerse (Payhip)",
+      "url": "https://payhip.com/b/CF8x9",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Vegetable Garden Planner (40 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 1.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_payhip_farmverse"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_payhip_farmverse"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "gaps": [
+        "No reviews yet"
+      ]
+    },
+    {
+      "id": "natashalh",
+      "name": "natashalh (Gumroad)",
+      "url": "https://natashalh.gumroad.com/l/MVcZD",
+      "type": "free_tool",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Garden Planner (41 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_natashalh"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_gumroad_natashalh"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
       "id": "almanac-garden-planner",
       "name": "Almanac Garden Planner",
       "url": "https://gardenplanner.almanac.com/",
@@ -1051,14 +1195,16 @@
   "pricing_map": [
     {
       "format": "Printable garden planner",
-      "low": 3.99,
-      "median": 7.05,
+      "low": 1.99,
+      "median": 7,
       "high": 18,
       "currency": "USD",
-      "n_observations": 3,
+      "n_observations": 5,
       "evidence": "VERIFIED",
       "competitor_ids": [
+        "farmverse",
         "eboneivoryarts",
+        "backyardhomesteader",
         "missmikesplace",
         "reformstead"
       ]
@@ -1270,6 +1416,19 @@
         "observed_at": "2026-11-10",
         "value": 13.75,
         "unit": "USD"
+      },
+      {
+        "id": "c_g_ue_breakeven",
+        "statement": "At about $13.75 net per sale, $100 a month needs 8 sales and $400 a month needs 30. Because demand is seasonal, most of a year's sales would likely fall between January and May. This is arithmetic on the estimated fee, not a forecast.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 30,
+        "unit": "sales/month for $400"
       }
     ],
     "scenarios": {
@@ -1417,8 +1576,8 @@
     {
       "name": "Etsy Open API",
       "status": "requires_owner_account",
-      "cost": "free developer account",
-      "would_add": "Systematic listing prices, review counts and favourites. Until then, individual listing pages are cited and re-checked."
+      "cost": "free developer account (new account: owner approval)",
+      "would_add": "Automated re-check of Etsy listing state and price from the Worker. Until then Etsy pages return 403 to the Worker and are re-checked by an analyst session at human volume, recorded as dated observations."
     },
     {
       "name": "Reddit API",
@@ -1469,6 +1628,35 @@
       "url": "https://www.etsy.com/listing/1490379686",
       "accessed_at": "2026-11-10",
       "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_gumroad_backyardhomesteader",
+      "title": "Gumroad: 44 Page Garden Journal (backyardhomesteader)",
+      "url": "https://backyardhomesteader.gumroad.com/l/mpfwdl",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_gumroad_natashalh",
+      "title": "Gumroad: Garden Planner, 41 pages, free (natashalh)",
+      "url": "https://natashalh.gumroad.com/l/MVcZD",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_payhip_farmverse",
+      "title": "Payhip: Vegetable Garden Planner, 40 pages (FarmVerse)",
+      "url": "https://payhip.com/b/CF8x9",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_gumroad_veggiepatch",
+      "title": "Gumroad: Vegetable Season Planner, UK (veggiepatchideas)",
+      "url": "https://veggiepatchideas.gumroad.com/l/douxou",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page",
+      "reliability_note": "Priced in GBP (5.00)."
     },
     {
       "id": "src_almanac_gp_pricing",
@@ -1600,6 +1788,12 @@
       "date": "2026-11-10",
       "author": "forge-intelligence",
       "change": "QA-013: c_g_zones keeps only the verified USDA fact (the planting-date inference stays in pain g_pain_zone, INFERRED); Almanac's $35/yr auto-renew plan added to the price claim, competitor offers and pricing map; review counts added to the re-check expectations."
+    },
+    {
+      "version": "1.0.3",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Added four off-Etsy price sources that the Worker can re-check (Gumroad and Payhip, $0-$7), widened the printable price band to $1.99-$18, and added break-even sales. All Etsy figures were re-observed on 2026-11-11 and still match."
     }
   ]
 }
