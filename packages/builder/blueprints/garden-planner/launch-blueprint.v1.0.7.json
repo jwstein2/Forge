@@ -100,7 +100,7 @@
         "currency": "USD",
         "evidence": "INFERRED"
       },
-      "product_id": "prd_garden-planner_frost-date-garden-planner-succession-and-preserv",
+      "product_id": "prd_garden-planner_frost-date-garden-planner-succession",
       "playbook": "bundle"
     }
   ],
@@ -163,7 +163,7 @@
       "registry_product_id": null
     },
     {
-      "product_id": "prd_garden-planner_frost-date-garden-planner-succession-and-preserv",
+      "product_id": "prd_garden-planner_frost-date-garden-planner-succession",
       "name": "Frost Date Garden Planner + succession and preserving add-on",
       "tier": "premium",
       "playbook": "bundle",
@@ -371,7 +371,7 @@
       ]
     },
     {
-      "path": "/products/frost-date-garden-planner-succession-and-preserv/",
+      "path": "/products/frost-date-garden-planner-succession/",
       "purpose": "Sales page for Frost Date Garden Planner + succession and preserving add-on",
       "template": "product",
       "sections": [
@@ -1280,7 +1280,7 @@
       "resolve_by": "Owner sets launch price; falsifying test decides changes"
     },
     {
-      "field": "products.prd_garden-planner_frost-date-garden-planner-succession-and-preserv.must_include",
+      "field": "products.prd_garden-planner_frost-date-garden-planner-succession.must_include",
       "statement": "The brief gives no contents for \"Frost Date Garden Planner + succession and preserving add-on\".",
       "resolve_by": "Product & Offer proposes contents; reviewed at B1"
     },

@@ -60,7 +60,7 @@ Gates: G4, G5, G6, G7, G8, G13
 
 Falsifying test: Fewer than 1 sale per 200 kit-page sessions over the first 1,000 sessions: lower the price to $9 or sell the calendar alone.
 
-### Frost Date Garden Planner + succession and preserving add-on (`prd_garden-planner_frost-date-garden-planner-succession-and-preserv`)
+### Frost Date Garden Planner + succession and preserving add-on (`prd_garden-planner_frost-date-garden-planner-succession`)
 
 premium tier · $24 (INFERRED) · playbook `bundle` · PROPOSED
 
@@ -131,7 +131,7 @@ Unknown provenance is a G8 FAIL. No asset ships without source URL, author, lice
 | `/` | Home: the promise, the free tools and the paid offer | home | required | G1, G2, G3, G9 |
 | `/tools/` | Free calculators, guides and templates (traffic and trust) | resource | required | G1, G3, G8, G9 |
 | `/products/frost-date-garden-planner/` | Sales page for Frost Date Garden Planner | product | required | G1, G2, G3, G5, G8, G9 |
-| `/products/frost-date-garden-planner-succession-and-preserv/` | Sales page for Frost Date Garden Planner + succession and preserving add-on | product | later | G1, G2, G3, G5, G8, G9 |
+| `/products/frost-date-garden-planner-succession/` | Sales page for Frost Date Garden Planner + succession and preserving add-on | product | later | G1, G2, G3, G5, G8, G9 |
 | `/thank-you/` | Post-purchase delivery instructions | transactional | required | G1, G5 |
 | `/about/` | Who runs this and why (real operator, no invented story) | content | required | G1, G2 |
 | `/contact/` | Support contact | content | required | G1, G7 |
@@ -369,7 +369,7 @@ Owner approvals:
 | Field | What is missing | Resolve by |
 |---|---|---|
 | `offer_ladder.core.price` | $15 for "Frost Date Garden Planner" is a hypothesis (INFERRED), not a tested price. | Owner sets launch price; falsifying test decides changes |
-| `products.prd_garden-planner_frost-date-garden-planner-succession-and-preserv.must_include` | The brief gives no contents for "Frost Date Garden Planner + succession and preserving add-on". | Product & Offer proposes contents; reviewed at B1 |
+| `products.prd_garden-planner_frost-date-garden-planner-succession.must_include` | The brief gives no contents for "Frost Date Garden Planner + succession and preserving add-on". | Product & Offer proposes contents; reviewed at B1 |
 | `offer_ladder.premium.price` | $24 for "Frost Date Garden Planner + succession and preserving add-on" is a hypothesis (INFERRED), not a tested price. | Owner sets launch price; falsifying test decides changes |
 | `source_brief.status` | Brief 1.0.7 is draft; the research stage needs an independent B0 review. | Independent QA |
 | `brief.open_questions` | ZIP-to-station mapping: use Census ZCTA centroids (Gazetteer files, public) and the nearest normals station with freeze elements. Confirm the CSV date encoding and coverage when building. | Owner or Intelligence |

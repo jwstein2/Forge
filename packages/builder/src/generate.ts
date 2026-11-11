@@ -29,7 +29,13 @@ export interface GenerateOptions {
 
 export class BlueprintRefused extends Error {}
 
-const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
+/** URL-safe slug, at most 48 characters, cut at a word boundary so it never ends mid-word or on a joining word. */
+const slug = (s: string) => {
+  const full = s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (full.length <= 48) return full;
+  const cut = full.slice(0, 49); const at = cut.lastIndexOf("-");
+  return at > 0 ? cut.slice(0, at).replace(/(-(and|or|the|of|with|plus|for|a))+$/, "") : full.slice(0, 48);
+};
 const ref = (c: BriefClaim): ClaimRef => ({ claim_id: c.id, statement: c.statement, evidence: c.evidence });
 const EVIDENCE_RANK = { VERIFIED: 0, ESTIMATED: 1, INFERRED: 2, UNKNOWN: 3 } as const;
 const byEvidence = (a: BriefClaim, b: BriefClaim) => EVIDENCE_RANK[a.evidence] - EVIDENCE_RANK[b.evidence];

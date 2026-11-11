@@ -28,6 +28,8 @@ describe("garden-planner (new business) blueprint", () => {
   it("an add-on tier that starts with the core name stays its own product (no duplicate page)", async () => {
     const bp = await generateBlueprint(brief, opts);
     expect(bp.products.map((p) => [p.name, p.tier])).toEqual([["Frost Date Garden Planner", "core"], ["Frost Date Garden Planner + succession and preserving add-on", "premium"]]);
+    // Long names are cut at a word boundary, never mid-word or on a joining word.
+    expect(bp.page_map.map((p) => p.path).filter((p) => p.startsWith("/products/"))).toEqual(["/products/frost-date-garden-planner/", "/products/frost-date-garden-planner-succession/"]);
   });
 
   it("needs the owner to select it, set a budget, approve every channel, and approve launch", async () => {
