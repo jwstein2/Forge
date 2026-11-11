@@ -1,4 +1,4 @@
-# FORGE Platform Contracts (API v1.3.0)
+# FORGE Platform Contracts (API v1.4.0)
 
 **Date:** 2026-11-10 · **Owner:** Platform Architecture & Backend · Types: `packages/contracts/src/index.ts` (`@forge/contracts`) is authoritative; this page summarizes it.
 
@@ -68,6 +68,7 @@ Rules: `verified`/`estimated` always have a value; `null` only with `unknown`/`u
 | POST `/status` `{subjectType: product\|registry, subjectId, toStatus, evidence?:{claim,source,url}}` | `{from,to,evidenceId}` | **422** for TESTED/LIVE without evidence |
 | GET `/opportunities` | `OpportunityBoard` | `state: not_run` until the Scout writes a run |
 | GET `/briefs?niche=` · POST `/briefs` | `MarketBriefEnvelope[]` | POST validates against `brief.schema.json`, stores as draft |
+| GET `/system/scheduler` | scheduler status | owner; cron liveness and queue backlog (1.4.0) |
 | GET `/intelligence/connectors` | `ConnectorState[]` | Scout data sources and their state (`connected`, `blocked`, `requires_owner_account`, `requires_paid_access`); never a number for an unconnected source (workstream B) |
 | POST `/intelligence/scout-runs` `{pack}` | `{packId, jobId, created}` | owner only; **422** for an invalid evidence pack (`forge.evidence-pack/1`); idempotent on pack content; enqueues `intel.scout.run` |
 | GET `/intelligence/runs` · `/intelligence/runs/:id` | runs with report; detail adds `sourceChecks[]`, `signals[]` | Scout and weekly source re-check runs. Results also appear on `/opportunities` and `/briefs` |
@@ -96,6 +97,7 @@ FORGE reads the existing ledger D1 `quiltplankit-sales` and never writes to it. 
 
 ## 8. Changelog
 
+* 1.4.0 (2026-11-11): additive. GET `/system/scheduler` (owner): `{state: ok|backlog|stale|never_observed, minutesSinceTick, lastTick, queue{queued,running,oldestQueuedAt,oldestQueuedKind,failed24h,backlogMinutes}, thresholds}`. Each cron tick records `system_controls['cron:last_tick']`; a runnable job waiting over 45 min raises warning alert `system:scheduler:backlog` (auto-resolved). `stale` (no tick for 35 min) can only be shown by a client, never alerted from inside the Worker.
 * 1.3.0 (2026-11-10): additive only. `/intelligence/*` routes (connectors, scout-runs, runs) and `intel.*` job kinds from @forge/intelligence (migration 0200); brief method enum adds `public_dataset` and `keyword_volume`. Operator phase 2 routes `/operator/policies/proposal[/apply]`, `/operator/lifecycle`, `/operator/recommendations[/decide]`; weekly summary adds `recommendations`. Optional `MAILERLITE_API_KEY` (unset = lifecycle `unconnected`). Clients on 1.2.0 keep working.
 * 1.2.0 (2026-11-10): `RegistryEntry.heartbeat` adds `stale` (judged from a snapshot older than 2x the interval; current health unknown, render like unknown, never as ok). Loaf Ledger page views are `unconnected` (no beacon). Security headers on all responses. Ledger import now reads the live `sales.owner_test` flag; owner verification purchases never count as revenue. Account vault links must be 1Password links.
 * 1.1.0 (2026-11-10): `Alert.needsOwner`; `GET /series` daily trend series; dev-server CORS allows credentials. Severity stays three levels (critical, warning, info).

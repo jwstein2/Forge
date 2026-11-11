@@ -39,14 +39,18 @@ function main() {
   const outIdx = argv.indexOf("--out");
   const outDir = outIdx >= 0 ? argv[outIdx + 1]! : join(process.cwd(), "backups");
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19) + "Z";
-  const steps = plan(outDir, stamp);
+  const onlyIdx = argv.indexOf("--only");
+  const only = onlyIdx >= 0 ? argv[onlyIdx + 1] : null; // e.g. --only forge-staging (restore drills need no production data)
+  const targets = only ? TARGETS.filter((t) => t.database === only) : TARGETS;
+  if (only && !targets.length) { console.error(`unknown database for --only: ${only}`); process.exit(2); }
+  const steps = plan(outDir, stamp, targets);
   console.log(`${execute ? "EXECUTE" : "PLAN (nothing will run)"}: ${steps.length} database export(s) to ${outDir}`);
   for (const s of steps) console.log(`  npx ${s.args.join(" ")}`);
   if (!execute) { console.log("Re-run with --execute on the owner's machine to export. Exports are read-only."); return; }
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
   const manifest: { database: string; file: string; bytes: number; sha256: string; at: string; ok: boolean; error?: string }[] = [];
   for (const [i, s] of steps.entries()) {
-    const t = TARGETS[i]!;
+    const t = targets[i]!;
     try {
       execFileSync("npx", s.args, { stdio: "inherit", shell: process.platform === "win32" });
       const buf = readFileSync(s.file);
@@ -57,7 +61,7 @@ function main() {
   }
   writeFileSync(join(outDir, `manifest-${stamp}.json`), JSON.stringify(manifest, null, 2));
   const files = readdirSync(outDir).filter((f) => statSync(join(outDir, f)).isFile());
-  for (const t of TARGETS) {
+  for (const t of targets) {
     const old = prunable(files, t.database);
     if (old.length) console.log(`Prunable (older than the newest ${RETAIN}; delete by hand if you want): ${old.join(", ")}`);
   }
