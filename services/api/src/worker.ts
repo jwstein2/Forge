@@ -3,6 +3,7 @@ import { createApp } from "./app.ts";
 import type { Env } from "./lib/env.ts";
 import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
+import { recordTick } from "./orchestration/scheduler-health.ts";
 import { hmacSha256Hex, timingSafeEqualHex } from "./lib/util.ts";
 import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
@@ -50,16 +51,20 @@ export async function scheduledTick(env: Env, now = new Date()): Promise<void> {
   // one invocation and hit "Too many subrequests". So each job runs in its OWN invocation via the SELF service binding;
   // without the binding (dev, tests) jobs run inline. At most CRON_MAX_JOBS per tick; the rest wait (jobs are durable).
   const token = await internalToken(env);
+  let ran = 0;
   for (let i = 0; i < CRON_MAX_JOBS; i++) {
     if (env.SELF && token) {
       const res = await env.SELF.fetch(INTERNAL_TICK_URL, { method: "POST", headers: { [INTERNAL_HEADER]: token } });
       const body = (await res.json().catch(() => null)) as { ran?: number } | null;
       if (!res.ok || !body?.ran) break; // nothing runnable (or the child failed): stop for this tick
     } else {
-      const ran = await tick(env.DB, env, handlers, { workerId: "cron", now, maxJobs: 1 });
-      if (!ran.length) break;
+      const done = await tick(env.DB, env, handlers, { workerId: "cron", now, maxJobs: 1 });
+      if (!done.length) break;
     }
+    ran++;
   }
+  // Scheduler health snapshot + backlog alert, one batch. Never let it fail the tick.
+  await recordTick(env.DB, new Date(), ran).catch((e) => console.error("recordTick failed", String(e)));
 }
 
 const INTERNAL_TICK_URL = "https://forge.internal/api/internal/tick"; // under /api/* so static assets never answer it

@@ -300,3 +300,33 @@ describe("heartbeat watchdog", () => {
     expect(a.state).toBe("resolved");
   });
 });
+
+describe("scheduler health (backlog alert, stale cron)", () => {
+  it("records each tick, raises one backlog alert for a job waiting over 45 min, and clears it when drained", async () => {
+    const { env } = await makeEnv({ seed: false }); const { call } = makeApp();
+    expect((await call(env, "GET", "/system/scheduler")).json.data.state).toBe("never_observed");
+    env.SELF = { fetch: async () => new Response(JSON.stringify({ ran: 0 }), { status: 200 }) } as unknown as Fetcher; // children run nothing
+    const old = new Date(Date.now() - 60 * 60000).toISOString();
+    await env.DB.prepare(`INSERT INTO jobs (id,kind,status,priority,input_json,max_attempts,next_run_at,created_by,created_at,updated_at) VALUES ('job_old','n8n.sync','queued',100,'{}',3,?,'t',?,?)`).bind(old, old, old).run();
+    await scheduledTick(env, new Date());
+    const a = await env.DB.prepare(`SELECT state, severity, title FROM alerts WHERE dedupe_key='system:scheduler:backlog'`).first<{ state: string; severity: string; title: string }>();
+    expect(a).toMatchObject({ state: "open", severity: "warning" });
+    const s = (await call(env, "GET", "/system/scheduler")).json.data;
+    expect(s.state).toBe("backlog");
+    expect(s.lastTick.oldestQueuedKind).toBeTruthy();
+    await env.DB.prepare(`UPDATE jobs SET status='succeeded'`).run();
+    await scheduledTick(env, new Date());
+    await env.DB.prepare(`UPDATE jobs SET status='succeeded'`).run();
+    await scheduledTick(env, new Date());
+    expect((await env.DB.prepare(`SELECT state FROM alerts WHERE dedupe_key='system:scheduler:backlog'`).first<{ state: string }>())!.state).toBe("resolved");
+  });
+
+  it("reports stale when the last tick is older than 35 minutes", async () => {
+    const { env } = await makeEnv({ seed: false }); const { call } = makeApp();
+    const at = new Date(Date.now() - 50 * 60000).toISOString();
+    await env.DB.prepare(`INSERT INTO system_controls (key,value_json,updated_by,updated_at) VALUES ('cron:last_tick',?,'cron',?)`).bind(JSON.stringify({ at, queued: 0, running: 0, oldestQueuedAt: null, oldestQueuedKind: null, failed24h: 0, ran: 0 }), at).run();
+    const s = (await call(env, "GET", "/system/scheduler")).json.data;
+    expect(s.state).toBe("stale");
+    expect(s.minutesSinceTick).toBeGreaterThanOrEqual(49);
+  });
+});

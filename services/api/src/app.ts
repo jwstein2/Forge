@@ -19,6 +19,7 @@ import { evidenceFor, listAccounts, listAlerts, listBudgets, listChannels, listC
 import { buildBoard, buildDetail, listBriefs, opportunityBoard, storeBrief, validateBrief } from "./domain/intelligence.ts";
 import { operatorRoutes } from "@forge/operator";
 import { intelligenceRoutes } from "@forge/intelligence";
+import { schedulerStatus } from "./orchestration/scheduler-health.ts";
 import { decideApproval, enqueue, EnqueueError, getJob, tick, type HandlerDef } from "./orchestration/engine.ts";
 
 type Vars = { me: Me };
@@ -94,6 +95,7 @@ export function createApp(deps: AppDeps) {
   });
 
   app.get("/me", (c) => ok(c, c.get("me")));
+  app.get("/system/scheduler", async (c) => ok(c, await schedulerStatus(c.env.DB)));
   app.get("/sources", async (c) => ok(c, (await sources(c)).all));
 
   const portfolio = async (c: C) => ok(c, await portfolioSummary(c.env.DB, parsePeriod(c.req.query("period")), await sources(c)));
