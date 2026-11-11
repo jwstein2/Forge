@@ -242,7 +242,7 @@ describe("scheduler entry (cron)", () => {
     const { env } = await makeEnv({ seed: false });
     const now = new Date();
     await scheduledTick(env, now); await scheduledTick(env, now);
-    const jobs = (await env.DB.prepare("SELECT kind, status FROM jobs ORDER BY kind").all<any>()).results;
+    const jobs = (await env.DB.prepare("SELECT kind, status FROM jobs WHERE kind NOT LIKE 'system.%' ORDER BY kind").all<any>()).results; // first tick also plans git seed data (system.seed_data)
     expect(jobs).toEqual([{ kind: "heartbeat.watchdog", status: "succeeded" }, { kind: "ledger.sync", status: "succeeded" }, { kind: "n8n.sync", status: "succeeded" }]);
   });
 });
@@ -258,9 +258,19 @@ describe("cron fan-out: one job per invocation (free-plan per-invocation limits)
       return res;
     } } as unknown as Fetcher;
     await scheduledTick(env, new Date());
-    expect(children).toEqual([1, 1, 1, 0]); // three recurring jobs, each in its own invocation; the 4th probe finds none and stops
-    const done = (await env.DB.prepare("SELECT COUNT(*) AS n FROM jobs WHERE status='succeeded'").first<{ n: number }>())!.n;
-    expect(done).toBe(3);
+    // Each job runs in its own invocation, capped at CRON_MAX_JOBS (6): watchdog, ledger, n8n, then the seed plan and its first children.
+    expect(children).toEqual([1, 1, 1, 1, 1, 1]);
+    const done = (await env.DB.prepare("SELECT kind FROM jobs WHERE status='succeeded' ORDER BY priority, kind").all<{ kind: string }>()).results.map((r) => r.kind);
+    expect(done.slice(0, 4)).toEqual(["heartbeat.watchdog", "ledger.sync", "n8n.sync", "system.seed_data"]);
+    // The remaining seed children run on the next tick; nothing is lost and the plan is not re-enqueued.
+    children.length = 0; await scheduledTick(env, new Date());
+    const left = (await env.DB.prepare("SELECT COUNT(*) AS n FROM jobs WHERE kind='system.seed_data' AND status<>'succeeded'").first<{ n: number }>())!.n;
+    expect(left).toBe(0);
+    const plans = (await env.DB.prepare("SELECT COUNT(*) AS n FROM jobs WHERE kind='system.seed_data' AND json_extract(input_json,'$.part')='plan'").first<{ n: number }>())!.n;
+    expect(plans).toBe(1);
+    const packs = (await env.DB.prepare("SELECT COUNT(*) AS n FROM research_packs").first<{ n: number }>())!.n;
+    const obs = (await env.DB.prepare("SELECT COUNT(*) AS n FROM research_source_observations").first<{ n: number }>())!.n;
+    expect(packs).toBeGreaterThan(0); expect(obs).toBeGreaterThan(0);
   });
 
   it("keeps a single queued watchdog and runs it before batch work (QA-008 ST4)", async () => {

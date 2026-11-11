@@ -8,7 +8,7 @@ import { hmacSha256Hex, timingSafeEqualHex } from "./lib/util.ts";
 import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
-import { seedIntelligenceRegistry, seedIntelligenceData, INTEL_SCHEDULES, GIT_PACKS, GIT_OBSERVATIONS, GIT_BRIEFS } from "@forge/intelligence";
+import { seedIntelligenceRegistry, INTEL_SCHEDULES, GIT_PACKS, GIT_OBSERVATIONS, GIT_BRIEFS } from "@forge/intelligence";
 
 const handlers = defaultHandlers();
 export const CRON_MAX_JOBS = 6; // ~576 job slots a day vs ~180 recurring plus fan-out bursts (SEO, Scout). Each job is its own child
@@ -30,7 +30,8 @@ async function seedIfChanged(env: Env): Promise<void> {
   await seedSchedules(env.DB, OPERATOR_SCHEDULES);
   await seedIntelligenceRegistry(env.DB);
   await seedSchedules(env.DB, INTEL_SCHEDULES);
-  await seedIntelligenceData(env.DB); // evidence packs + Etsy observations kept in git (content-hash deduped)
+  // Evidence packs, Etsy observations and briefs kept in git: a planner child job fans out one small job per part.
+  await enqueue(env.DB, handlers, { kind: "system.seed_data", input: { part: "plan", print: seedPrint }, priority: 40, idempotencyKey: `seed:${seedPrint}:plan`, createdBy: "cron" });
   await env.DB.prepare(`INSERT INTO system_controls (key,value_json,updated_by,updated_at) VALUES ('seed:fingerprint',?,'cron',?)
     ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json, updated_at=excluded.updated_at`).bind(JSON.stringify(seedPrint), new Date().toISOString()).run();
 }
