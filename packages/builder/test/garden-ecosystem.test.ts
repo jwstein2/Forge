@@ -147,6 +147,13 @@ describe("copy decks for the three live businesses", () => {
       expect(site.copyUsed.length).toBe(d.entries.length);
     });
   }
+  it("wording matches the delivered files (QA-022)", () => {
+    const text = (n: string) => (read(`copy/${n}.copy.json`) as CopyDeck).entries.map((e) => e.text).join("\n");
+    const bl = text("bidline");
+    for (const bad of [/estimate-versus-actual/i, /worked example is a deck/i, /10 minutes/, /sets the price from the margin/i]) expect(bl).not.toMatch(bad);
+    expect(bl).toMatch(/Job Cost Tracker/);
+    expect(text("quilt-plan-kit")).not.toMatch(/Print the result|quilt size in inches/);
+  });
 });
 
 describe("copy deck rules", () => {

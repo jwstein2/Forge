@@ -1,13 +1,13 @@
 {
  "niche": "bidline",
- "version": "0.1.0",
+ "version": "0.1.1",
  "status": "PROPOSED",
  "blueprint_id": "bp_bidline_v1-0-4",
  "written_by": "builder (draft for G2 review)",
  "entries": [
   {
    "key": "/#promise.subhead",
-   "text": "For trade contractors who price their own jobs: a spreadsheet kit that works out labour, materials and overhead, then sets the price from the margin you want.",
+   "text": "For trade contractors who price their own jobs: a spreadsheet kit that works out labour, materials and overhead, then sets the price from your markup and shows the price that hits the margin you want.",
    "basis": [
     "c_bl_jtbd_price"
    ],
@@ -25,7 +25,7 @@
   },
   {
    "key": "*#picture.after",
-   "text": "Before the quote goes out, you can see what the job really earns. After it is done, the estimate-versus-actual tab shows where you were off, and the price book is better for the next one.",
+   "text": "Before the quote goes out, you can see what the job really earns. After it is done, the Job Cost Tracker shows budget versus actual for each line, and the price book is better for the next one.",
    "basis": [
     "c_bl_out_margin",
     "c_bl_jtbd_learn"
@@ -42,13 +42,13 @@
   },
   {
    "key": "/products/bidline-estimating-kit/#product.subhead",
-   "text": "Works out a year of overhead per billable hour, prices labour and materials from your own price book, and prints a client-ready quote. Includes a complete worked example so it is useful in 10 minutes.",
+   "text": "Works out a year of overhead per billable hour, prices labour and materials from your own price book, and prints a client-ready quote. Includes a complete worked example to start from.",
    "basis": [],
    "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
   },
   {
    "key": "*#faq.c_bl_obj_free",
-   "text": "Free templates are a fine start, and ours is free on this site. The kit adds what a blank template leaves to you: overhead recovery, pricing by target margin, a price book and an estimate-versus-actual tab.",
+   "text": "Free templates are a fine start, and ours is free on this site. The kit adds what a blank template leaves to you: overhead recovery, markup pricing with a target-margin check, a price book and a Job Cost Tracker that shows budget versus actual for each line.",
    "basis": [
     "c_bl_obj_free"
    ],
@@ -64,7 +64,7 @@
   },
   {
    "key": "*#faq.c_bl_obj_fit",
-   "text": "The price book is yours: you enter your own unit costs and labour rates, so it fits your trade rather than a generic list. The worked example is a deck; change the lines to match your jobs.",
+   "text": "The price book is yours: you enter your own unit costs and labour rates, so it fits your trade rather than a generic list. The worked example is an interior refresh (drywall and paint); change the lines to match your jobs.",
    "basis": [
     "c_bl_obj_fit"
    ],

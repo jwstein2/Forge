@@ -1,6 +1,6 @@
 {
  "niche": "quilt-plan-kit",
- "version": "0.1.0",
+ "version": "0.1.1",
  "status": "PROPOSED",
  "blueprint_id": "bp_quilt-plan-kit_v1-0-4",
  "written_by": "builder (draft for G2 review)",
@@ -32,7 +32,7 @@
   },
   {
    "key": "/tools/#howto",
-   "text": "Pick the calculator for the job, enter your quilt size in inches, and it gives the fabric and cutting figures. Print the result or copy it into your planner.",
+   "text": "Pick the calculator for the job, enter your sizes, and it gives the fabric and cutting figures.",
    "basis": [],
    "note": "Check against the live calculators' inputs before shipping."
   },
