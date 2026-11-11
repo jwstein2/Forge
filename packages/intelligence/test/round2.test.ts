@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { Hono } from "hono";
 import { enqueue } from "../../../services/api/src/orchestration/engine.ts";
 import { opportunityBoard } from "../../../services/api/src/domain/intelligence.ts";
-import { intelligenceRoutes, seedIntelligenceData, storeObservations, storePack, GIT_PACKS, GIT_BRIEFS, INTEL_SCHEDULES, seedBriefs } from "../src/index.ts";
+import { intelligenceRoutes, seedIntelligenceData, storeObservations, storePack, GIT_PACKS, GIT_BRIEFS, INTEL_SCHEDULES, seedBriefs, duplicateClaimIds } from "../src/index.ts";
 import { etsyApiCheck, etsyListingId } from "../src/etsy.ts";
 import { isAssisted } from "../src/observations.ts";
 import { drain, fakeFetcher, fixture, handlersWith, listingPage, makeEnv, pageviewsJson, testPack } from "./helpers.ts";
@@ -74,6 +74,10 @@ describe("Etsy substitute: assisted re-check with dated observations", () => {
     expect(live.note).toContain("not checkable via API: 27 reviews");
     const gone = await etsyApiCheck(fakeFetcher({ [api]: JSON.stringify({ state: "removed" }) }), "k", { id: "s", url: ETSY, expect: ["7.05"] });
     expect(gone.outcome).toBe("dead");
+    // QA-019 I2-1: a non-USD price is not compared with USD figures
+    const cad = await etsyApiCheck(fakeFetcher({ [api]: JSON.stringify({ state: "active", price: { amount: 705, divisor: 100, currency_code: "CAD" } }) }), "k", { id: "s", url: ETSY, expect: ["7.05"] });
+    expect(cad.outcome).toBe("reachable");
+    expect(cad.note).toMatch(/CAD/);
     const moved = await etsyApiCheck(fakeFetcher({ [api]: JSON.stringify({ state: "active", price: { amount: 999, divisor: 100 } }) }), "k", { id: "s", url: ETSY, expect: ["7.05"] });
     expect(moved).toMatchObject({ outcome: "mismatch", missing: ["7.05"] });
     const f = fakeFetcher({ ...others(), [api]: JSON.stringify({ state: "active", price: { amount: 1800, divisor: 100 } }) });
@@ -153,5 +157,41 @@ describe("git briefs seeded for staging planners", () => {
     const r = await seedBriefs(db, [{ niche: "x", version: "0.0.1" }]);
     expect(r.stored).toBe(0);
     expect(r.invalid).toHaveLength(1);
+  });
+});
+
+describe("brief claim ids", () => {
+  it("every git brief has unique claim ids, and a duplicate is refused", async () => {
+    for (const b of GIT_BRIEFS) expect(duplicateClaimIds(b), b.niche).toEqual([]);
+    const bad = structuredClone(GIT_BRIEFS[0]!);
+    bad.version = "9.9.9";
+    const claims: any[] = [];
+    JSON.stringify(bad, (_k, v) => { if (v && typeof v === "object" && typeof v.statement === "string" && typeof v.id === "string") claims.push(v); return v; });
+    claims[1].id = claims[0].id;
+    expect(duplicateClaimIds(bad)).toEqual([claims[0].id]);
+    const { db } = await makeEnv();
+    const r = await seedBriefs(db, [bad]);
+    expect(r.stored).toBe(0);
+    expect(r.invalid[0]).toMatch(/duplicate claim ids/);
+  });
+});
+
+describe("seeding never stops the scheduler (QA-019 I2-2)", () => {
+  it("an invalid observation raises one alert and the rest still seeds; a clean seed resolves it", async () => {
+    const mod = await import("../src/index.ts");
+    const { db } = await makeEnv();
+    const saved = [...mod.GIT_OBSERVATIONS];
+    mod.GIT_OBSERVATIONS.push({ url: "not a url" } as any);
+    try {
+      const r = await mod.seedIntelligenceData(db);
+      expect(r.errors.length).toBe(1);
+      expect(r.packs).toBe(GIT_PACKS.length);
+      expect(r.briefs.stored).toBe(GIT_BRIEFS.length);
+      const a = await db.prepare(`SELECT state FROM alerts WHERE dedupe_key = 'intel:seed:failed'`).first<{ state: string }>();
+      expect(a!.state).toBe("open");
+    } finally { mod.GIT_OBSERVATIONS.length = 0; mod.GIT_OBSERVATIONS.push(...saved); }
+    const ok = await mod.seedIntelligenceData(db);
+    expect(ok.errors).toEqual([]);
+    expect((await db.prepare(`SELECT state FROM alerts WHERE dedupe_key = 'intel:seed:failed'`).first<{ state: string }>())!.state).toBe("resolved");
   });
 });

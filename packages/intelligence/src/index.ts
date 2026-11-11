@@ -14,6 +14,8 @@ import { scoutHandlers } from "./handlers/scout.ts";
 import { briefHandlers } from "./handlers/briefs.ts";
 import { storePack } from "./handlers/scout.ts";
 import { storeObservations, type Observation } from "./observations.ts";
+import { duplicateClaimIds } from "./brief-ids.ts";
+import { newId } from "../../../services/api/src/lib/util.ts";
 import { storeBrief, validateBrief } from "../../../services/api/src/domain/intelligence.ts";
 import type { EvidencePack } from "./types.ts";
 // Evidence kept in git and seeded on deploy (same idea as the registry): packs feed the monthly Scout, observations stand in
@@ -35,6 +37,7 @@ export { rank, scoreCandidate, type ScoringModel } from "./score.ts";
 export { validatePack } from "./pack.ts";
 export { storePack, latestDiscoveryPack } from "./handlers/scout.ts";
 export { storeObservations, effectiveChecks, OBS_MAX_AGE_DAYS } from "./observations.ts";
+export { duplicateClaimIds } from "./brief-ids.ts";
 export { NICHE_SIGNAL_ARTICLES } from "./handlers/briefs.ts";
 export type { EvidencePack, PackCandidate, Claim } from "./types.ts";
 export type { Fetcher } from "./fetch.ts";
@@ -71,6 +74,8 @@ export async function seedBriefs(db: D1Database, briefs: Record<string, any>[] =
   let stored = 0, existing = 0; const invalid: string[] = [];
   for (const doc of briefs) {
     const errs = validateBrief(doc);
+    const dups = duplicateClaimIds(doc);
+    if (dups.length) errs.push(`duplicate claim ids: ${dups.join(", ")}`);
     if (errs.length) { invalid.push(`${doc.niche}@${doc.version}: ${errs[0]}`); continue; }
     const dup = await db.prepare(`SELECT id FROM market_briefs WHERE niche_id = ? AND version = ?`).bind(doc.niche, doc.version).first();
     if (dup) { existing++; continue; }
@@ -79,10 +84,33 @@ export async function seedBriefs(db: D1Database, briefs: Record<string, any>[] =
   return { stored, existing, invalid };
 }
 
-export async function seedIntelligenceData(db: D1Database): Promise<{ packs: number; observations: { stored: number; duplicates: number }; briefs: { stored: number; existing: number; invalid: string[] } }> {
-  for (const p of GIT_PACKS) await storePack(db, p, "git");
-  const observations = await storeObservations(db, GIT_OBSERVATIONS);
-  return { packs: GIT_PACKS.length, observations, briefs: await seedBriefs(db) };
+export type SeedResult = { packs: number; observations: { stored: number; duplicates: number }; briefs: { stored: number; existing: number; invalid: string[] }; errors: string[] };
+
+/**
+ * Seeds the evidence kept in git. It never throws: it runs before every cron tick, so one bad file must not stop the
+ * scheduler (QA-019 I2-2). Failures and invalid briefs raise one alert instead, resolved by the next clean seed.
+ */
+export async function seedIntelligenceData(db: D1Database): Promise<SeedResult> {
+  const errors: string[] = [];
+  const res: SeedResult = { packs: 0, observations: { stored: 0, duplicates: 0 }, briefs: { stored: 0, existing: 0, invalid: [] }, errors };
+  for (const p of GIT_PACKS) {
+    try { await storePack(db, p, "git"); res.packs++; } catch (e) { errors.push(`pack ${p.label}: ${(e as Error).message}`); }
+  }
+  try { res.observations = await storeObservations(db, GIT_OBSERVATIONS); } catch (e) { errors.push(`observations: ${(e as Error).message}`); }
+  try { res.briefs = await seedBriefs(db); } catch (e) { errors.push(`briefs: ${(e as Error).message}`); }
+  const problems = [...errors, ...res.briefs.invalid.map((x) => `brief ${x}`)];
+  const key = "intel:seed:failed", at = new Date().toISOString();
+  try {
+    if (problems.length) {
+      await db.prepare(`INSERT INTO alerts (id,severity,niche_id,source,title,detail,state,dedupe_key,first_seen,last_seen,next_action) VALUES (?,?,?,?,?,?,'open',?,?,?,?)
+        ON CONFLICT(dedupe_key) DO UPDATE SET last_seen=excluded.last_seen, detail=excluded.detail, state=CASE WHEN alerts.state='resolved' THEN 'open' ELSE alerts.state END`)
+        .bind(newId("al"), "warning", null, "intel.seed", "Some Intelligence evidence in git could not be loaded",
+          problems.slice(0, 20).join("\n").slice(0, 1000), key, at, at, "Fix the named pack, observation or brief file in packages/intelligence and redeploy.").run();
+    } else {
+      await db.prepare(`UPDATE alerts SET state='resolved', last_seen=? WHERE dedupe_key=? AND state<>'resolved'`).bind(at, key).run();
+    }
+  } catch (e) { errors.push(`alert: ${(e as Error).message}`); }
+  return res;
 }
 
 export async function seedIntelligenceRegistry(db: D1Database, at = new Date().toISOString()): Promise<number> {

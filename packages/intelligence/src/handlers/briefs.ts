@@ -7,6 +7,7 @@ import { storeBrief, validateBrief } from "../../../../services/api/src/domain/i
 import { newId, nowIso, parseJson } from "../../../../services/api/src/lib/util.ts";
 import { SOURCE_BATCH } from "./scout.ts";
 import { effectiveChecks } from "../observations.ts";
+import { duplicateClaimIds } from "../brief-ids.ts";
 
 /** Free interest signals collected for each niche by the weekly re-check (Wikimedia pageviews; an interest proxy, not search volume). */
 export const NICHE_SIGNAL_ARTICLES: Record<string, string[]> = {
@@ -25,6 +26,8 @@ export function briefHandlers(handlers: () => Map<string, HandlerDef>): HandlerD
         const doc = input.brief as Record<string, any> | undefined;
         if (!doc) throw new NonRetryableError("input.brief required");
         const errs = validateBrief(doc);
+        const dups = duplicateClaimIds(doc);
+        if (dups.length) errs.push(`duplicate claim ids: ${dups.join(", ")}`);
         if (errs.length) throw new NonRetryableError(`brief invalid: ${errs.slice(0, 5).join("; ")}`);
         const dup = await db.prepare(`SELECT id, content_hash FROM market_briefs WHERE niche_id = ? AND version = ?`).bind(doc.niche, doc.version).first<{ id: string }>();
         if (dup) return { output: { briefId: dup.id, created: false, note: "this niche and version is already stored; bump the semver to change it" } };
