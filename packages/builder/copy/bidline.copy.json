@@ -1,8 +1,8 @@
 {
  "niche": "bidline",
- "version": "0.1.1",
+ "version": "0.1.2",
  "status": "PROPOSED",
- "blueprint_id": "bp_bidline_v1-0-4",
+ "blueprint_id": "bp_bidline_v1-0-5",
  "written_by": "builder (draft for G2 review)",
  "entries": [
   {

@@ -19,6 +19,7 @@ const CHANGELOG: Record<string, string> = {
   "garden-planner@1.0.3": "Regenerated from brief v1.0.3: break-even sales counts and off-Etsy price sources added. Positioning, offer and prices unchanged.",
   "garden-planner@1.0.5": "Regenerated from brief v1.0.5: the calendar must-include names 30 common vegetables and herbs (QA-021 B3-3).",
   "garden-planner@1.0.4": "Regenerated from brief v1.0.4: c_g_obj_cheap now records planners from $1.99 off Etsy and a free 41-page planner (QA-021).",
+  "bidline@1.0.5": "Regenerated from brief v1.0.3: the worked-example must-include no longer names a deck or a 10-minute claim (QA-022).",
   "1.0.4": "Regenerated from the latest briefs (Bidline v1.0.2, Quilt Plan Kit v1.0.3, Loaf Ledger v1.0.4): break-even sales counts and off-Etsy price sources; Loaf Ledger adds competitors and leads its must-includes with the market-day loop.",
   "1.0.3": "Existing products use their registry name (what the live site and file call them) instead of the brief's working name; any difference is listed as an unknown (QA-014 B7-1).",
   "1.0.2": "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",

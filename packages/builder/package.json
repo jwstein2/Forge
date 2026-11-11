@@ -15,7 +15,7 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json",
     "blueprint": "node --disable-warning=ExperimentalWarning --experimental-strip-types bin/blueprint.ts",
-    "blueprints": "for nv in bidline:1.0.4 quilt-plan-kit:1.0.4 loaf-ledger:1.0.4 garden-planner:1.0.5; do n=${nv%%:*}; v=${nv##*:}; nb=; [ $n = garden-planner ] && nb=--new-business; node --disable-warning=ExperimentalWarning --experimental-strip-types bin/blueprint.ts test/fixtures/$n.brief.json --registry ../../registry/products.json --version $v --supersedes-previous $nb || exit 1; done",
+    "blueprints": "for nv in bidline:1.0.5 quilt-plan-kit:1.0.4 loaf-ledger:1.0.4 garden-planner:1.0.5; do n=${nv%%:*}; v=${nv##*:}; nb=; [ $n = garden-planner ] && nb=--new-business; node --disable-warning=ExperimentalWarning --experimental-strip-types bin/blueprint.ts test/fixtures/$n.brief.json --registry ../../registry/products.json --version $v --supersedes-previous $nb || exit 1; done",
     "scaffold": "node --disable-warning=ExperimentalWarning --experimental-strip-types bin/scaffold.ts",
     "kit": "node --disable-warning=ExperimentalWarning --experimental-strip-types products/garden-planner/kit/build.ts",
     "kit:test": "vitest run test/garden-ecosystem.test.ts -t 'Garden Season Kit'",

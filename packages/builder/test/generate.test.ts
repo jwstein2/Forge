@@ -9,7 +9,7 @@ import { NICHES, clone, loadBrief, registryProducts, syntheticNewBusinessBrief }
 
 const B74 = "Regenerated from the latest briefs (Bidline v1.0.2, Quilt Plan Kit v1.0.3, Loaf Ledger v1.0.4): break-even sales counts and off-Etsy price sources; Loaf Ledger adds competitors and leads its must-includes with the market-day loop.";
 /** Current committed blueprint per niche. */
-const CURRENT: Record<string, { version: string; changelog: string }> = { bidline: { version: "1.0.4", changelog: B74 }, "quilt-plan-kit": { version: "1.0.4", changelog: B74 }, "loaf-ledger": { version: "1.0.4", changelog: B74 } };
+const CURRENT: Record<string, { version: string; changelog: string }> = { bidline: { version: "1.0.5", changelog: "Regenerated from brief v1.0.3: the worked-example must-include no longer names a deck or a 10-minute claim (QA-022)." }, "quilt-plan-kit": { version: "1.0.4", changelog: B74 }, "loaf-ledger": { version: "1.0.4", changelog: B74 } };
 
 describe("blueprint generator on the three real v1 briefs", () => {
   for (const niche of NICHES) {

@@ -139,8 +139,8 @@ describe("garden staging site with the calculator module and proposed copy", asy
 
 describe("copy decks for the three live businesses", () => {
   for (const n of ["bidline", "quilt-plan-kit", "loaf-ledger"]) {
-    it(`${n}: deck is PROPOSED, valid against blueprint v1.0.4 and its brief, and fills its markers`, async () => {
-      const d = read(`copy/${n}.copy.json`) as CopyDeck; const b = read(`blueprints/${n}/launch-blueprint.v1.0.4.json`) as LaunchBlueprint;
+    it(`${n}: deck is PROPOSED, valid against its current blueprint and brief, and fills its markers`, async () => {
+      const d = read(`copy/${n}.copy.json`) as CopyDeck; const b = read(`blueprints/${n}/launch-blueprint.v${n === "bidline" ? "1.0.5" : "1.0.4"}.json`) as LaunchBlueprint;
       expect(d.status).toBe("PROPOSED");
       expect(validateCopyDeck(d, b, read(`test/fixtures/${n}.brief.json`))).toEqual([]);
       const site = await scaffoldSite(b, read(`brands/${n}.brand.json`) as Brand, { ...cfg, runtime: { ...cfg.runtime, beacon: { ...cfg.runtime.beacon, site: n } } }, { copy: d });
