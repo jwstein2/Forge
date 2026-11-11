@@ -79,9 +79,12 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
   // ---------- offer ladder and products ----------
   const products: ProductSpec[] = [];
   let coreId: string | null = null;
-  const ladder: OfferTier[] = rec.offer_ladder.map((t) => {
+  // A tier named exactly like the recommendation is the core product; otherwise fall back to a substring match.
+  // Without this, an add-on tier such as "<core name> + add-on" would also be taken as the core product (duplicate page).
+  const exactRec = rec.offer_ladder.findIndex((t) => t.item.trim().toLowerCase() === rec.name.trim().toLowerCase());
+  const ladder: OfferTier[] = rec.offer_ladder.map((t, i) => {
     const p = price(t.price);
-    const matchesRec = rec.name.toLowerCase().includes(t.item.toLowerCase()) || t.item.toLowerCase().includes(rec.name.toLowerCase());
+    const matchesRec = exactRec >= 0 ? i === exactRec : rec.name.toLowerCase().includes(t.item.toLowerCase()) || t.item.toLowerCase().includes(rec.name.toLowerCase());
     // "A or B" in an offer item is an undecided choice, not a product: never build a page for it (QA-009 S3).
     const undecided = !matchesRec && /\bor\b/i.test(t.item);
     const playbook = undecided ? "unsupported" : classifyPlaybook(t.item, t.tier, p.value, { formatHint: matchesRec ? rec.format : undefined });

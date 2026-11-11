@@ -15,7 +15,7 @@ import type { LaunchBlueprint } from "../src/types.ts";
 
 const B = join(import.meta.dirname, "..");
 const read = (p: string) => JSON.parse(readFileSync(join(B, p), "utf8"));
-const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.6.json") as LaunchBlueprint;
+const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.7.json") as LaunchBlueprint;
 const brief = read("test/fixtures/garden-planner.brief.json");
 const brand = read("brands/garden-planner.brand.json") as Brand;
 const deck = read("copy/garden-planner.copy.json") as CopyDeck;
@@ -179,7 +179,7 @@ describe("copy deck rules", () => {
   });
 });
 
-describe("Garden Season Kit draft", () => {
+describe("Frost Date Garden Planner kit draft", () => {
   const data = kitData("2026-11-10T00:00:00Z");
   it("builds the sample sheet from the same calendar as the site", () => {
     expect(data.sample).toMatchObject({ zip: "55401", season: 2027 });
@@ -193,14 +193,14 @@ describe("Garden Season Kit draft", () => {
     writeFileSync(dataPath, JSON.stringify(data));
     execFileSync("python3", [join(B, "products/garden-planner/kit/build_kit.py"), "--data", dataPath, "--out", out]);
     const pages = (f: string) => Number(execFileSync("python3", ["-c", `import pypdf,sys;print(len(pypdf.PdfReader(sys.argv[1]).pages))`, join(out, f)], { encoding: "utf8" }).trim());
-    expect(pages("garden-season-kit.letter.pdf")).toBe(10);
-    expect(pages("garden-season-kit.a4.pdf")).toBe(10);
+    expect(pages("frost-date-garden-planner.letter.pdf")).toBe(10);
+    expect(pages("frost-date-garden-planner.a4.pdf")).toBe(10);
     const text = execFileSync("python3", ["-c", `import pypdf,sys;print(pypdf.PdfReader(sys.argv[1]).pages[0].extract_text())`, join(out, "personal-calendar.sample-55401.letter.pdf")], { encoding: "utf8" });
     expect(text).toContain("SAMPLE for ZIP 55401");
     expect(text).toMatch(/NOAA 1991-2020/);
-    const first = readFileSync(join(out, "garden-season-kit.letter.pdf"));
+    const first = readFileSync(join(out, "frost-date-garden-planner.letter.pdf"));
     execFileSync("python3", [join(B, "products/garden-planner/kit/build_kit.py"), "--data", dataPath, "--out", out]);
-    expect(readFileSync(join(out, "garden-season-kit.letter.pdf")).equals(first)).toBe(true);
+    expect(readFileSync(join(out, "frost-date-garden-planner.letter.pdf")).equals(first)).toBe(true);
     expect(PREVIEWS.length).toBe(4);
   });
 });

@@ -17,6 +17,7 @@ const CHANGELOG: Record<string, string> = {
   "garden-planner@1.0.1": "Regenerated from brief v1.0.1: frost dates from NOAA 1991-2020 Climate Normals (CC0), station name and distance shown.",
   "garden-planner@1.0.2": "Regenerated from brief v1.0.2: Almanac competitor shows three plans (software band $35-$168/yr); USDA zone claim split into fact and inference. Offer, must-includes and price unchanged.",
   "garden-planner@1.0.3": "Regenerated from brief v1.0.3: break-even sales counts and off-Etsy price sources added. Positioning, offer and prices unchanged.",
+  "garden-planner@1.0.7": "Regenerated from brief v1.0.7: the owner named the core product Frost Date Garden Planner on 2026-11-11. Not launched.",
   "garden-planner@1.0.6": "Regenerated from brief v1.0.6: the owner named the business Frost Date Planting (domain frostdateplanting.com) on 2026-11-11; niche id stays garden-planner. Not launched.",
   "garden-planner@1.0.5": "Regenerated from brief v1.0.5: the calendar must-include names 30 common vegetables and herbs (QA-021 B3-3).",
   "garden-planner@1.0.4": "Regenerated from brief v1.0.4: c_g_obj_cheap now records planners from $1.99 off Etsy and a free 41-page planner (QA-021).",

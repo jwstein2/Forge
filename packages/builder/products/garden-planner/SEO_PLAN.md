@@ -19,7 +19,7 @@ Status: **PROPOSED** (2026-11-11). Nothing here is live, indexed or approved. Se
 | `/tools/` Planting calendar | "garden planting calendar", "seed starting calculator" | Working ZIP calculator: NOAA 1991-2020 frost estimate with station and distance, about 30 crops dated, printable. |
 | `/when-to-plant/<crop>/` (30 pages) | "when to start <crop> seeds indoors", "when to plant <crop>" (long tail of "when to start seeds indoors") | Each page has its cited week offsets, a calculator filtered to that crop, and a worked example. Generated from data, so every page stays correct when the data changes. |
 | `/when-to-plant/` index | "when to start seeds indoors" | Links all 30 crops. |
-| `/products/garden-season-kit-working-name/` | "vegetable garden planner printable" | Real page previews of the kit, price, contents. |
+| `/products/frost-date-garden-planner/` | "vegetable garden planner printable" | Real page previews of the kit, price, contents. |
 
 Not built yet: the "zone pages" from the offer ladder. USDA hardiness zones need the zone map data, and the 2023 map's licence has not been checked. They also answer a different question (winter cold) than planting dates (frost). Proposed instead: one page per state, listing frost estimates for that state's stations, from the same NOAA data. That needs owner agreement because it changes the offer ladder's wording.
 

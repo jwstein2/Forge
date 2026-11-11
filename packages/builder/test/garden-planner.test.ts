@@ -12,8 +12,8 @@ import { loadBrief, registryProducts } from "./helpers.ts";
 
 const brief = loadBrief("garden-planner");
 const opts = {
-  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.6", supersedes: "bp_garden-planner_v1-0-5",
-  changelog: "Regenerated from brief v1.0.6: the owner named the business Frost Date Planting (domain frostdateplanting.com) on 2026-11-11; niche id stays garden-planner. Not launched.",
+  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.7", supersedes: "bp_garden-planner_v1-0-6",
+  changelog: "Regenerated from brief v1.0.7: the owner named the core product Frost Date Garden Planner on 2026-11-11. Not launched.",
 };
 const brand = JSON.parse(readFileSync(join(import.meta.dirname, "..", "brands", "garden-planner.brand.json"), "utf8")) as Brand;
 
@@ -21,8 +21,13 @@ describe("garden-planner (new business) blueprint", () => {
   it("is valid, traceable, and matches the committed file", async () => {
     const bp = await generateBlueprint(brief, opts);
     expect(validateBlueprint(bp, brief).errors).toEqual([]);
-    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.6.json"), "utf8"));
+    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.7.json"), "utf8"));
     expect(await contentHash(committed)).toBe(await contentHash(bp));
+  });
+
+  it("an add-on tier that starts with the core name stays its own product (no duplicate page)", async () => {
+    const bp = await generateBlueprint(brief, opts);
+    expect(bp.products.map((p) => [p.name, p.tier])).toEqual([["Frost Date Garden Planner", "core"], ["Frost Date Garden Planner + succession and preserving add-on", "premium"]]);
   });
 
   it("needs the owner to select it, set a budget, approve every channel, and approve launch", async () => {
