@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_garden-planner_v1-0-4",
+  "brief_id": "brief_garden-planner_v1-0-5",
   "niche": "garden-planner",
   "display_name": "Garden Planner (working name)",
-  "version": "1.0.4",
-  "supersedes": "brief_garden-planner_v1-0-3",
+  "version": "1.0.5",
+  "supersedes": "brief_garden-planner_v1-0-4",
   "status": "draft",
   "created_at": "2026-11-10T04:20:00Z",
-  "updated_at": "2026-11-11T02:10:00Z",
+  "updated_at": "2026-11-11T02:11:48Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
@@ -1339,7 +1339,7 @@
       ]
     },
     "must_include": [
-      "Personal sowing and transplant calendar for about 30 common vegetables from the buyer's last-frost date",
+      "Personal sowing and transplant calendar for 30 common vegetables and herbs from the buyer's last-frost date",
       "Bed grid and square-foot spacing pages",
       "Seed inventory and sowing log",
       "Harvest log with a 'next year' notes page",
@@ -1802,6 +1802,12 @@
       "date": "2026-11-11",
       "author": "forge-intelligence",
       "change": "QA-021: c_g_obj_cheap now says printables sell from $1.99 off Etsy and $3.99 on Etsy, with one free planner, matching c_g_prices_offetsy and the pricing map. 1.0.3's updated_at (03:00Z) was set ahead of the real time; 1.0.4 uses the real time."
+    },
+    {
+      "version": "1.0.5",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "QA-021 B3-3: must-include now says '30 common vegetables and herbs' (the crop list is 26 vegetables and 4 herbs)."
     }
   ]
 }
