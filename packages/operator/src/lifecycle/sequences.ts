@@ -111,7 +111,7 @@ export const SEQUENCES: Sequence[] = [
     emails: [
       { ref: "receipt", delayDays: 0, subject: "Your Bidline kit: where to start", preheader: "Start with the Overhead Calculator.",
         blocks: [h("Thanks for your order"), p("Your download link is above. The workbook is an .xlsx spreadsheet, tested in LibreOffice Calc. We have not tested it in Google Sheets yet."),
-          p("Open the kit and fill in the Overhead Calculator first: a year of overhead and your yearly billable hours give your overhead per billable hour and the overhead % to use on every estimate. Then add your business details in Settings, your usual unit costs in the Price Book, and price a first Estimate. The Worked Sample tab shows a finished job if you want to see where you're heading."),
+          p("Open the kit and fill in the Overhead Calculator first: a year of overhead, your expected yearly job costs and your billable hours give the overhead % to use on every estimate and your overhead per billable hour. Then add your business details in Settings, your usual unit costs in the Price Book, and price a first Estimate. The Worked Sample tab shows a finished job if you want to see where you're heading."),
           p("Reply to this email if anything doesn't open or doesn't add up.")] },
       { ref: "followup", delayDays: 10, subject: "After your first job: budget versus actual", preheader: "The tab that makes the next bid better.",
         blocks: [p("Once your first job priced with the kit is under way, fill in the Job Cost Tracker with what each line really cost. It shows budget versus actual and your projected profit, so you can see where the estimate missed and update your Price Book before the next bid."),
