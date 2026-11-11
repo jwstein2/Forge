@@ -118,6 +118,20 @@ export const SEQUENCES: Sequence[] = [
           p("If you have a minute, reply and tell me your trade and what you'd like the kit to do that it doesn't yet.")] },
     ],
   },
+  {
+    id: "LC-LOAF-PURCHASE", nicheId: "loaf-ledger", kind: "post_purchase", name: "Loaf Ledger Bread & Market Pricing Workbook · receipt note and follow-up", site: LOAF, status: "draft",
+    trigger: { lemonSqueezyProduct: "Loaf Ledger Bread & Market Pricing Workbook" },
+    notes: "For Lemon Squeezy receipt text and an optional follow-up. Buyers are not added to MailerLite. No price in the body (price PROPOSED until James decides).",
+    emails: [
+      { ref: "receipt", delayDays: 0, subject: "Your Loaf Ledger workbook: where to start", preheader: "Start with the ingredient library.",
+        blocks: [h("Thanks for your order"), p("Your download link is above. The workbook is an .xlsx spreadsheet, tested in LibreOffice Calc. We have not tested it in Excel or Google Sheets yet."),
+          p("Open the workbook and fill in the ingredient library first; every recipe and price uses it. The Start Here sheet walks through the rest, beginning with Settings and the Ingredients tab."),
+          p("Reply to this email if anything doesn't open or doesn't add up.")] },
+      { ref: "followup", delayDays: 10, subject: "After your next market day", preheader: "One tab, and one question.",
+        blocks: [p("After your next market or bake sale, add the day on the Market Days tab. Stall fees and mileage are counted there per market day, so you can see what the day really made."),
+          p("If you have a minute, reply and tell me what you bake and sell, and what you'd like the workbook to do that it doesn't yet.")] },
+    ],
+  },
 ];
 
 const PLACEHOLDER = /\b(lorem|ipsum|TODO|TBD|XXX|\[[^\]]*\])/i;
