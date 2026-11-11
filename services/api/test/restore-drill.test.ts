@@ -28,7 +28,13 @@ describe("restore drill (G13)", () => {
     const sql = exportSql(names.slice(0, -1));
     const r = drill({ sql, fileName: "a.sql", migrationsDir: dir, manifest: [{ file: "a.sql", ok: true, sha256: "0".repeat(64) }], expect: { niches: 3 } });
     expect(r.result).toBe("FAIL");
-    expect(r.checks.filter((c: { ok: boolean }) => !c.ok).map((c: { name: string }) => c.name)).toEqual(["manifest sha256 matches", "all migrations recorded", "row counts match live"]);
+    expect(r.checks.filter((c: { ok: boolean | null }) => c.ok === false).map((c: { name: string }) => c.name)).toEqual(["manifest sha256 matches", "all migrations recorded", "row counts match live"]);
     expect(drill({ sql: "CREATE TABLE x(", fileName: "b.sql" }).result).toBe("FAIL");
+  });
+  it("reports PARTIAL, with the skipped checks listed as not run, when --manifest or --expect is missing (QA-023 RD-1)", () => {
+    const r = drill({ sql: exportSql(names), fileName: "c.sql", migrationsDir: dir });
+    expect(r.result).toBe("PARTIAL");
+    expect(r.complete).toBe(false);
+    expect(r.checks.filter((c: { ok: boolean | null }) => c.ok === null).map((c: { name: string }) => c.name)).toEqual(["manifest sha256 matches", "row counts match live"]);
   });
 });

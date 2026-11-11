@@ -15,7 +15,7 @@ import type { LaunchBlueprint } from "../src/types.ts";
 
 const B = join(import.meta.dirname, "..");
 const read = (p: string) => JSON.parse(readFileSync(join(B, p), "utf8"));
-const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.4.json") as LaunchBlueprint;
+const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.7.json") as LaunchBlueprint;
 const brief = read("test/fixtures/garden-planner.brief.json");
 const brand = read("brands/garden-planner.brand.json") as Brand;
 const deck = read("copy/garden-planner.copy.json") as CopyDeck;
@@ -137,6 +137,28 @@ describe("garden staging site with the calculator module and proposed copy", asy
   });
 });
 
+describe("copy decks for the three live businesses", () => {
+  for (const n of ["bidline", "quilt-plan-kit", "loaf-ledger"]) {
+    it(`${n}: deck is PROPOSED, valid against its current blueprint and brief, and fills its markers`, async () => {
+      const d = read(`copy/${n}.copy.json`) as CopyDeck; const b = read(`blueprints/${n}/launch-blueprint.v${n === "bidline" ? "1.0.5" : "1.0.4"}.json`) as LaunchBlueprint;
+      expect(d.status).toBe("PROPOSED");
+      expect(validateCopyDeck(d, b, read(`test/fixtures/${n}.brief.json`))).toEqual([]);
+      const site = await scaffoldSite(b, read(`brands/${n}.brand.json`) as Brand, { ...cfg, runtime: { ...cfg.runtime, beacon: { ...cfg.runtime.beacon, site: n } } }, { copy: d });
+      expect(site.copyUsed.length).toBe(d.entries.length);
+    });
+  }
+  it("wording matches the delivered files (QA-022)", () => {
+    const text = (n: string) => (read(`copy/${n}.copy.json`) as CopyDeck).entries.map((e) => e.text).join("\n");
+    const bl = text("bidline");
+    for (const bad of [/estimate-versus-actual/i, /worked example is a deck/i, /10 minutes/, /sets the price from the margin/i]) expect(bl).not.toMatch(bad);
+    expect(bl).toMatch(/Job Cost Tracker/);
+    expect(text("quilt-plan-kit")).not.toMatch(/Print the result|quilt size in inches|printable planners/);
+    // Carried back from the live-dollar staging check against the delivered files (copy-v1 FIX a-d).
+    expect(bl).not.toMatch(/labour|prices labor and materials from your own price book|true hourly cost/);
+    expect(text("loaf-ledger")).not.toMatch(/adds packaging, market fees and mileage/);
+  });
+});
+
 describe("copy deck rules", () => {
   it("the garden deck passes", () => expect(validateCopyDeck(deck, bp, brief)).toEqual([]));
   const bad = (entries: CopyDeck["entries"]) => validateCopyDeck({ ...deck, entries }, bp, brief);
@@ -157,7 +179,7 @@ describe("copy deck rules", () => {
   });
 });
 
-describe("Garden Season Kit draft", () => {
+describe("Frost Date Garden Planner kit draft", () => {
   const data = kitData("2026-11-10T00:00:00Z");
   it("builds the sample sheet from the same calendar as the site", () => {
     expect(data.sample).toMatchObject({ zip: "55401", season: 2027 });
@@ -171,14 +193,14 @@ describe("Garden Season Kit draft", () => {
     writeFileSync(dataPath, JSON.stringify(data));
     execFileSync("python3", [join(B, "products/garden-planner/kit/build_kit.py"), "--data", dataPath, "--out", out]);
     const pages = (f: string) => Number(execFileSync("python3", ["-c", `import pypdf,sys;print(len(pypdf.PdfReader(sys.argv[1]).pages))`, join(out, f)], { encoding: "utf8" }).trim());
-    expect(pages("garden-season-kit.letter.pdf")).toBe(10);
-    expect(pages("garden-season-kit.a4.pdf")).toBe(10);
+    expect(pages("frost-date-garden-planner.letter.pdf")).toBe(10);
+    expect(pages("frost-date-garden-planner.a4.pdf")).toBe(10);
     const text = execFileSync("python3", ["-c", `import pypdf,sys;print(pypdf.PdfReader(sys.argv[1]).pages[0].extract_text())`, join(out, "personal-calendar.sample-55401.letter.pdf")], { encoding: "utf8" });
     expect(text).toContain("SAMPLE for ZIP 55401");
     expect(text).toMatch(/NOAA 1991-2020/);
-    const first = readFileSync(join(out, "garden-season-kit.letter.pdf"));
+    const first = readFileSync(join(out, "frost-date-garden-planner.letter.pdf"));
     execFileSync("python3", [join(B, "products/garden-planner/kit/build_kit.py"), "--data", dataPath, "--out", out]);
-    expect(readFileSync(join(out, "garden-season-kit.letter.pdf")).equals(first)).toBe(true);
+    expect(readFileSync(join(out, "frost-date-garden-planner.letter.pdf")).equals(first)).toBe(true);
     expect(PREVIEWS.length).toBe(4);
   });
 });

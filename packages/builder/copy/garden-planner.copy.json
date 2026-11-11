@@ -1,8 +1,8 @@
 {
  "niche": "garden-planner",
- "version": "0.2.0",
+ "version": "0.3.1",
  "status": "PROPOSED",
- "blueprint_id": "bp_garden-planner_v1-0-4",
+ "blueprint_id": "bp_garden-planner_v1-0-7",
  "written_by": "builder (draft for G2 review)",
  "entries": [
   {
@@ -34,7 +34,7 @@
    "note": "Describes the after-state the brief names (c_g_out); no promise of yields or results."
   },
   {
-   "key": "/products/garden-season-kit-working-name/#product.subhead",
+   "key": "/products/frost-date-garden-planner/#product.subhead",
    "text": "A personal sowing and transplant calendar for about 30 common vegetables and herbs, timed from your last-frost date, with bed grids, a seed inventory, sowing and harvest logs and a succession planner. Prints on US Letter or A4.",
    "basis": [],
    "note": "QA-021 B3-3: the 30 crops include 4 herbs."

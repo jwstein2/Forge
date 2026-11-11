@@ -1,10 +1,10 @@
-"""Garden Season Kit (working name): reproducible printable PDF build. PROPOSED product draft, never sold from here.
+"""Frost Date Garden Planner: reproducible printable PDF build. PROPOSED product draft, never sold from here.
 
     python3 build_kit.py --data kit-data.json --out <dir>
 
 kit-data.json is written by build.ts from data/crops.json and calendar.js (one source of truth for dates).
 Outputs, for US Letter and A4:
-  garden-season-kit.<paper>.pdf          the kit (fill-in calendar worksheet works with any frost date)
+  frost-date-garden-planner.<paper>.pdf        the kit (fill-in calendar worksheet works with any frost date)
   personal-calendar.sample-<zip>.<paper>.pdf   the personal sheet for one frost date (sample, clearly labelled)
 Uses only the PDF base fonts (no font files, no images), and reportlab's invariant mode so the same input gives the
 same bytes.
@@ -32,7 +32,7 @@ class Doc:
         self.paper = paper
         self.c = canvas.Canvas(path, pagesize=(self.w, self.h), invariant=1, pageCompression=1)
         self.c.setTitle(title)
-        self.c.setAuthor("Garden Planner (working name)")
+        self.c.setAuthor("Frost Date Planting")
         self.c.setSubject(subject)
         self.c.setCreator("FORGE builder kit/build_kit.py")
         self.m = 0.6 * inch
@@ -126,8 +126,8 @@ def timing(t):
 
 
 def build_kit(data, paper, out):
-    d = Doc(os.path.join(out, f"garden-season-kit.{paper}.pdf"), paper, "Garden Season Kit (working name)", "Printable garden season planner")
-    y = d.page("Garden Season Kit", "A printable season planner timed from your last spring frost date. Working name; draft for review.")
+    d = Doc(os.path.join(out, f"frost-date-garden-planner.{paper}.pdf"), paper, "Frost Date Garden Planner", "Printable garden season planner")
+    y = d.page("Frost Date Garden Planner", "A printable season planner timed from your last spring frost date. Draft for review.")
     c = d.c
     steps = [
         "1. Find your last spring frost date. The free planting calendar estimates it from your ZIP code using NOAA 1991-2020 climate normals and shows the weather station and its distance.",

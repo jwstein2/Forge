@@ -29,7 +29,13 @@ export interface GenerateOptions {
 
 export class BlueprintRefused extends Error {}
 
-const slug = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
+/** URL-safe slug, at most 48 characters, cut at a word boundary so it never ends mid-word or on a joining word. */
+const slug = (s: string) => {
+  const full = s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  if (full.length <= 48) return full;
+  const cut = full.slice(0, 49); const at = cut.lastIndexOf("-");
+  return at > 0 ? cut.slice(0, at).replace(/(-(and|or|the|of|with|plus|for|a))+$/, "") : full.slice(0, 48);
+};
 const ref = (c: BriefClaim): ClaimRef => ({ claim_id: c.id, statement: c.statement, evidence: c.evidence });
 const EVIDENCE_RANK = { VERIFIED: 0, ESTIMATED: 1, INFERRED: 2, UNKNOWN: 3 } as const;
 const byEvidence = (a: BriefClaim, b: BriefClaim) => EVIDENCE_RANK[a.evidence] - EVIDENCE_RANK[b.evidence];
@@ -79,9 +85,12 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
   // ---------- offer ladder and products ----------
   const products: ProductSpec[] = [];
   let coreId: string | null = null;
-  const ladder: OfferTier[] = rec.offer_ladder.map((t) => {
+  // A tier named exactly like the recommendation is the core product; otherwise fall back to a substring match.
+  // Without this, an add-on tier such as "<core name> + add-on" would also be taken as the core product (duplicate page).
+  const exactRec = rec.offer_ladder.findIndex((t) => t.item.trim().toLowerCase() === rec.name.trim().toLowerCase());
+  const ladder: OfferTier[] = rec.offer_ladder.map((t, i) => {
     const p = price(t.price);
-    const matchesRec = rec.name.toLowerCase().includes(t.item.toLowerCase()) || t.item.toLowerCase().includes(rec.name.toLowerCase());
+    const matchesRec = exactRec >= 0 ? i === exactRec : rec.name.toLowerCase().includes(t.item.toLowerCase()) || t.item.toLowerCase().includes(rec.name.toLowerCase());
     // "A or B" in an offer item is an undecided choice, not a product: never build a page for it (QA-009 S3).
     const undecided = !matchesRec && /\bor\b/i.test(t.item);
     const playbook = undecided ? "unsupported" : classifyPlaybook(t.item, t.tier, p.value, { formatHint: matchesRec ? rec.format : undefined });

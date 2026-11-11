@@ -1,0 +1,72 @@
+{
+ "niche": "quilt-plan-kit",
+ "version": "0.1.2",
+ "status": "PROPOSED",
+ "blueprint_id": "bp_quilt-plan-kit_v1-0-4",
+ "written_by": "builder (draft for G2 review)",
+ "entries": [
+  {
+   "key": "/#promise.subhead",
+   "text": "Free calculators for yardage, backing, binding and borders, and a printable planner to keep every project on track.",
+   "basis": [
+    "c_q_jtbd_math",
+    "c_q_jtbd_plan"
+   ]
+  },
+  {
+   "key": "*#pain.voice",
+   "text": "Half-finished quilts pile up, and one wrong yardage sum can waste fabric you paid good money for.",
+   "basis": [
+    "c_q_pain_ufo",
+    "c_q_pain_math"
+   ]
+  },
+  {
+   "key": "*#picture.after",
+   "text": "Each project has its numbers worked out and written down before you cut, and the unfinished ones are on a list you can actually work through.",
+   "basis": [
+    "c_q_out_finish",
+    "c_q_jtbd_plan"
+   ],
+   "note": "No promise of finishing more quilts."
+  },
+  {
+   "key": "/tools/#howto",
+   "text": "Pick the calculator for the job, enter your sizes, and it gives the fabric and cutting figures.",
+   "basis": [],
+   "note": "Check against the live calculators' inputs before shipping."
+  },
+  {
+   "key": "/products/the-quilt-planner-printable-pdf/#product.subhead",
+   "text": "A printable PDF planner for your quilt projects.",
+   "basis": [],
+   "note": "The blueprint has no contents spec for the planner; Product & Offer should add the real page list from the existing file."
+  },
+  {
+   "key": "/products/quilt-plan-kit-planner-pattern-bundle/#product.subhead",
+   "text": "Everything in the $8 planner plus a gift-quilt deadline planner, yardage and cutting worksheets from crib to king, a UFO tracker and one original, tested pattern in several sizes. Printer-friendly, large type.",
+   "basis": [],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "*#faq.c_q_obj_free",
+   "text": "They do, and our calculators are free too. The planner keeps the numbers, dates and progress of each project together in one printed place.",
+   "basis": [
+    "c_q_obj_free"
+   ]
+  },
+  {
+   "key": "*#faq.c_q_obj_shop",
+   "text": "Keep buying fabric at your local shop. The planner is a download you print at home, so you can take your yardage list with you when you go.",
+   "basis": [
+    "c_q_obj_shop"
+   ]
+  },
+  {
+   "key": "/thank-you/#download.first",
+   "text": "Print the planner pages you need, then start with the project you most want to finish.",
+   "basis": [],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 /**
- * Builds the Garden Season Kit draft: kit-data.json (from data/crops.json + calendar.js), the PDFs (build_kit.py,
+ * Builds the Frost Date Garden Planner draft: kit-data.json (from data/crops.json + calendar.js), the PDFs (build_kit.py,
  * Letter and A4) and PNG previews of real pages for the sales page.
  *   node --experimental-strip-types products/garden-planner/kit/build.ts --out <dir>
  * Needs python3 with reportlab, and pdftoppm (poppler) for previews. Local files only.
@@ -29,9 +29,9 @@ export function kitData(generatedAt: string) {
 
 /** Pages rendered as previews: cover, calendar worksheet, bed grid, succession planner (kit), page 1 of the sample sheet. */
 export const PREVIEWS = [
-  { file: "garden-season-kit.letter.pdf", page: 2, name: "kit-calendar-worksheet.png", alt: "Planting calendar worksheet page: about 30 crops with week offsets and a column for your dates" },
-  { file: "garden-season-kit.letter.pdf", page: 3, name: "kit-bed-grid.png", alt: "Bed grid page with one-foot squares" },
-  { file: "garden-season-kit.letter.pdf", page: 7, name: "kit-succession-planner.png", alt: "Succession-sowing planner page" },
+  { file: "frost-date-garden-planner.letter.pdf", page: 2, name: "kit-calendar-worksheet.png", alt: "Planting calendar worksheet page: about 30 crops with week offsets and a column for your dates" },
+  { file: "frost-date-garden-planner.letter.pdf", page: 3, name: "kit-bed-grid.png", alt: "Bed grid page with one-foot squares" },
+  { file: "frost-date-garden-planner.letter.pdf", page: 7, name: "kit-succession-planner.png", alt: "Succession-sowing planner page" },
   { file: `personal-calendar.sample-${EXAMPLE_ZIP}.letter.pdf`, page: 1, name: "personal-calendar-sample.png", alt: `Sample personal planting calendar for ZIP ${EXAMPLE_ZIP}, labelled as a sample` },
 ];
 

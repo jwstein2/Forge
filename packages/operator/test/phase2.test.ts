@@ -154,7 +154,7 @@ describe("one-decision publishing proposal", () => {
     const { env } = await makeEnv();
     const d = (await app("owner")(env, "GET", "/lifecycle")).json.data;
     expect(d.snapshot.state).toBe("unconnected");
-    expect(d.sequences).toHaveLength(5);
+    expect(d.sequences).toHaveLength(6);
     expect(d.sequences.every((s: any) => s.lint.length === 0)).toBe(true);
   });
 });

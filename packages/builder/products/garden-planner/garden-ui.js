@@ -1,4 +1,4 @@
-// Garden Planner calculator UI. Runs in the browser only; the ZIP and dates never leave the device.
+// Frost Date Planting calculator UI. Runs in the browser only; the ZIP and dates never leave the device.
 // Builds DOM with textContent (no innerHTML from input). No inline handlers, no third-party code.
 import { buildCalendar, byMonth, freezeIsRare, lookupZip, normalizeZip, parseIsoDate, parseMonthDay, range, seasonYear, shardPath, shortDate, COMPLETENESS } from "./garden-calendar.js";
 
