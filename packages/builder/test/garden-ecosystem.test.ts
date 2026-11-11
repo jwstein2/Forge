@@ -15,7 +15,7 @@ import type { LaunchBlueprint } from "../src/types.ts";
 
 const B = join(import.meta.dirname, "..");
 const read = (p: string) => JSON.parse(readFileSync(join(B, p), "utf8"));
-const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.4.json") as LaunchBlueprint;
+const bp = read("blueprints/garden-planner/launch-blueprint.v1.0.5.json") as LaunchBlueprint;
 const brief = read("test/fixtures/garden-planner.brief.json");
 const brand = read("brands/garden-planner.brand.json") as Brand;
 const deck = read("copy/garden-planner.copy.json") as CopyDeck;
@@ -135,6 +135,18 @@ describe("garden staging site with the calculator module and proposed copy", asy
     expect(r.manifest.copy_deck).toMatchObject({ version: deck.version, entries_used: deck.entries.length, status: "PROPOSED" });
     expect(r.files["about/index.html"]).toContain("copy-gap"); // operator's own words stay a gap
   });
+});
+
+describe("copy decks for the three live businesses", () => {
+  for (const n of ["bidline", "quilt-plan-kit", "loaf-ledger"]) {
+    it(`${n}: deck is PROPOSED, valid against blueprint v1.0.4 and its brief, and fills its markers`, async () => {
+      const d = read(`copy/${n}.copy.json`) as CopyDeck; const b = read(`blueprints/${n}/launch-blueprint.v1.0.4.json`) as LaunchBlueprint;
+      expect(d.status).toBe("PROPOSED");
+      expect(validateCopyDeck(d, b, read(`test/fixtures/${n}.brief.json`))).toEqual([]);
+      const site = await scaffoldSite(b, read(`brands/${n}.brand.json`) as Brand, { ...cfg, runtime: { ...cfg.runtime, beacon: { ...cfg.runtime.beacon, site: n } } }, { copy: d });
+      expect(site.copyUsed.length).toBe(d.entries.length);
+    });
+  }
 });
 
 describe("copy deck rules", () => {

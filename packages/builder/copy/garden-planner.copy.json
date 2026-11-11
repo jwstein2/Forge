@@ -1,8 +1,8 @@
 {
  "niche": "garden-planner",
- "version": "0.2.0",
+ "version": "0.2.1",
  "status": "PROPOSED",
- "blueprint_id": "bp_garden-planner_v1-0-4",
+ "blueprint_id": "bp_garden-planner_v1-0-5",
  "written_by": "builder (draft for G2 review)",
  "entries": [
   {

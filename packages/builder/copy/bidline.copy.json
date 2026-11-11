@@ -1,0 +1,85 @@
+{
+ "niche": "bidline",
+ "version": "0.1.0",
+ "status": "PROPOSED",
+ "blueprint_id": "bp_bidline_v1-0-4",
+ "written_by": "builder (draft for G2 review)",
+ "entries": [
+  {
+   "key": "/#promise.subhead",
+   "text": "For trade contractors who price their own jobs: a spreadsheet kit that works out labour, materials and overhead, then sets the price from the margin you want.",
+   "basis": [
+    "c_bl_jtbd_price"
+   ],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "*#pain.voice",
+   "text": "A 30% markup sounds safe until you see it is only about a 23% margin. Overhead that never gets spread over billable hours turns small jobs into losses, old material prices go stale, and the estimating still eats your evenings.",
+   "basis": [
+    "c_bl_pain_markup",
+    "c_bl_pain_overhead",
+    "c_bl_pain_materials",
+    "c_bl_pain_time"
+   ]
+  },
+  {
+   "key": "*#picture.after",
+   "text": "Before the quote goes out, you can see what the job really earns. After it is done, the estimate-versus-actual tab shows where you were off, and the price book is better for the next one.",
+   "basis": [
+    "c_bl_out_margin",
+    "c_bl_jtbd_learn"
+   ],
+   "note": "No promise of winning jobs or earning more; describes what the kit shows."
+  },
+  {
+   "key": "/tools/#howto",
+   "text": "Enter your costs and the margin you want; the calculator gives the price and shows the matching markup next to it, so you never confuse the two.",
+   "basis": [
+    "c_bl_pain_markup"
+   ],
+   "note": "Check against the live calculator's actual inputs before shipping."
+  },
+  {
+   "key": "/products/bidline-estimating-kit/#product.subhead",
+   "text": "Works out a year of overhead per billable hour, prices labour and materials from your own price book, and prints a client-ready quote. Includes a complete worked example so it is useful in 10 minutes.",
+   "basis": [],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "*#faq.c_bl_obj_free",
+   "text": "Free templates are a fine start, and ours is free on this site. The kit adds what a blank template leaves to you: overhead recovery, pricing by target margin, a price book and an estimate-versus-actual tab.",
+   "basis": [
+    "c_bl_obj_free"
+   ],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "*#faq.c_bl_obj_app",
+   "text": "If you want scheduling, invoicing and a client portal, an app like those may suit you better. The kit is a one-time spreadsheet you own, focused only on getting the price right.",
+   "basis": [
+    "c_bl_obj_app"
+   ],
+   "note": "Makes no claim about the apps' features or prices beyond the cited claim."
+  },
+  {
+   "key": "*#faq.c_bl_obj_fit",
+   "text": "The price book is yours: you enter your own unit costs and labour rates, so it fits your trade rather than a generic list. The worked example is a deck; change the lines to match your jobs.",
+   "basis": [
+    "c_bl_obj_fit"
+   ],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "/thank-you/#download.first",
+   "text": "Open the kit and fill in the overhead tab first: a year of overhead and your yearly billable hours give your true hourly cost, which every estimate uses.",
+   "basis": [],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "/terms/#terms.disclaimer",
+   "text": "The kit does the arithmetic on the numbers you enter. Check licensing, permit, tax and contract rules for your trade and area yourself.",
+   "basis": []
+  }
+ ]
+}

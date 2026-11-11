@@ -1,0 +1,75 @@
+{
+ "niche": "loaf-ledger",
+ "version": "0.1.0",
+ "status": "PROPOSED",
+ "blueprint_id": "bp_loaf-ledger_v1-0-4",
+ "written_by": "builder (draft for G2 review)",
+ "entries": [
+  {
+   "key": "/#promise.subhead",
+   "text": "For home and cottage bakers who sell at markets: price each loaf to cover ingredients, packaging, fees and your time, and see whether each market day was worth it.",
+   "basis": [
+    "c_ll_jtbd_price",
+    "c_ll_jtbd_market"
+   ]
+  },
+  {
+   "key": "*#pain.voice",
+   "text": "Pricing from the flour bill alone leaves out your time, the bags and the stall fee. It is easy to underprice for fear of losing regulars, especially with other bakers at the next table.",
+   "basis": [
+    "c_ll_pain_ingredients",
+    "c_ll_pain_anxiety",
+    "c_ll_pain_race"
+   ]
+  },
+  {
+   "key": "*#picture.after",
+   "text": "You know what you are paying yourself per hour, your prices have a reason behind them, and after each market the log tells you what sold, what was left and what to bake next time.",
+   "basis": [
+    "c_ll_out",
+    "c_ll_jtbd_confidence",
+    "c_ll_jtbd_market"
+   ],
+   "note": "No promise of earnings."
+  },
+  {
+   "key": "/tools/#howto",
+   "text": "Enter a recipe's ingredients and weights, and the calculator works out the cost per loaf. Add your time to see the price that pays you.",
+   "basis": [],
+   "note": "Check against the live calculator's actual inputs before shipping."
+  },
+  {
+   "key": "/products/loaf-ledger-bread-market-pricing-workbook/#product.subhead",
+   "text": "Costs your recipes by baker's percentage, adds packaging, market fees and mileage, sets wholesale, market and pre-order prices, and logs every market day: baked, sold, wasted and profit. Includes a printable stall price list and a worked sourdough example.",
+   "basis": [],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "*#faq.c_ll_obj_free",
+   "text": "They do, and our calculator is free too. The workbook goes further than a single loaf: it logs each market day so you can see what sold, what was wasted and whether the day paid.",
+   "basis": [
+    "c_ll_obj_free"
+   ],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships. The market-day log is the brief's stated gap."
+  },
+  {
+   "key": "*#faq.c_ll_obj_budget",
+   "text": "Fair: every dollar counts at the start. The free calculator stays free. The workbook is a one-time purchase, with no subscription.",
+   "basis": [
+    "c_ll_obj_budget"
+   ],
+   "note": "Confirm the checkout is one-time, not recurring."
+  },
+  {
+   "key": "/thank-you/#download.first",
+   "text": "Open the workbook and fill in the ingredient library first; every recipe and price uses it.",
+   "basis": [],
+   "note": "Describes the product as the blueprint specifies it; G2 must check it against the delivered file before it ships."
+  },
+  {
+   "key": "/terms/#terms.disclaimer",
+   "text": "The workbook does the arithmetic on the numbers you enter. Cottage food, labelling and tax rules vary by state; check your state's guidance yourself.",
+   "basis": []
+  }
+ ]
+}
