@@ -8,7 +8,7 @@ import { hmacSha256Hex, timingSafeEqualHex } from "./lib/util.ts";
 import { seedRegistry } from "./domain/seed.ts";
 import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
-import { seedIntelligenceRegistry, INTEL_SCHEDULES } from "@forge/intelligence";
+import { seedIntelligenceRegistry, seedIntelligenceData, INTEL_SCHEDULES, GIT_PACKS, GIT_OBSERVATIONS, GIT_BRIEFS } from "@forge/intelligence";
 
 const handlers = defaultHandlers();
 export const CRON_MAX_JOBS = 6; // ~576 job slots a day vs ~180 recurring plus fan-out bursts (SEO, Scout). Each job is its own child
@@ -22,7 +22,7 @@ function fingerprint(text: string): string {
 }
 let seedPrint: string | null = null; // computed once per isolate
 async function seedIfChanged(env: Env): Promise<void> {
-  seedPrint ??= fingerprint(JSON.stringify([REGISTRY_DATA, OPERATOR_SCHEDULES, INTEL_SCHEDULES]));
+  seedPrint ??= fingerprint(JSON.stringify([REGISTRY_DATA, OPERATOR_SCHEDULES, INTEL_SCHEDULES, GIT_PACKS, GIT_OBSERVATIONS, GIT_BRIEFS.map((b) => [b.niche, b.version])]));
   const row = await env.DB.prepare(`SELECT value_json FROM system_controls WHERE key = 'seed:fingerprint'`).first<{ value_json: string }>();
   if (row && JSON.parse(row.value_json) === seedPrint) return;
   await seedRegistry(env.DB, REGISTRY_DATA);
@@ -30,6 +30,7 @@ async function seedIfChanged(env: Env): Promise<void> {
   await seedSchedules(env.DB, OPERATOR_SCHEDULES);
   await seedIntelligenceRegistry(env.DB);
   await seedSchedules(env.DB, INTEL_SCHEDULES);
+  await seedIntelligenceData(env.DB); // evidence packs + Etsy observations kept in git (content-hash deduped)
   await env.DB.prepare(`INSERT INTO system_controls (key,value_json,updated_by,updated_at) VALUES ('seed:fingerprint',?,'cron',?)
     ON CONFLICT(key) DO UPDATE SET value_json=excluded.value_json, updated_at=excluded.updated_at`).bind(JSON.stringify(seedPrint), new Date().toISOString()).run();
 }

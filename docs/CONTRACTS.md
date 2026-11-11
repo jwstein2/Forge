@@ -71,6 +71,7 @@ Rules: `verified`/`estimated` always have a value; `null` only with `unknown`/`u
 | GET `/system/scheduler` | scheduler status | owner; cron liveness and queue backlog (1.4.0) |
 | GET `/intelligence/connectors` | `ConnectorState[]` | Scout data sources and their state (`connected`, `blocked`, `requires_owner_account`, `requires_paid_access`); never a number for an unconnected source (workstream B) |
 | POST `/intelligence/scout-runs` `{pack}` | `{packId, jobId, created}` | owner only; **422** for an invalid evidence pack (`forge.evidence-pack/1`); idempotent on pack content; enqueues `intel.scout.run` |
+| POST `/intelligence/source-observations` `{observations[]}` | `{stored, duplicates}` | owner only; dated observations for pages that bot-wall the Worker (Etsy). The Scout uses an observation for 45 days in place of an unreachable or skipped check |
 | GET `/intelligence/runs` · `/intelligence/runs/:id` | runs with report; detail adds `sourceChecks[]`, `signals[]` | Scout and weekly source re-check runs. Results also appear on `/opportunities` and `/briefs` |
 | GET `/builds` · `/builds/:id` | `BuildBoard` / `Build` | `state: none` until a build is commissioned |
 | POST `/orchestration/jobs` `{kind, input?, nicheId?, idempotencyKey?}` · GET `/orchestration/jobs[/:id]` | `{id, created}` / `Job` | kinds: `registry.seed`, `ledger.sync`, `n8n.sync`, `heartbeat.watchdog`, plus package kinds (builder, operator, `intel.*`) |
