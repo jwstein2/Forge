@@ -354,3 +354,28 @@ describe('activity grouping', () => {
     expect(g[0]).toMatchObject({ at: '2026-11-11T01:45:00Z', earliest: '2026-11-11T01:44:00Z' });
   });
 });
+
+describe('QA-020 C3-1', () => {
+  it('weekly summary formats revenue and admits when it is unknown', async () => {
+    const base = createFixtureSource();
+    const withRev = (value: number | null) => ({
+      ...base,
+      async getPortfolio() {
+        const p = await base.getPortfolio();
+        p.financials.grossRevenue = { ...p.financials.grossRevenue, value, state: value === null ? 'unknown' : 'verified' };
+        return p;
+      },
+    });
+    const { unmount } = render(<TestApp source={withRev(19.5)} path="/operations" />);
+    expect(await screen.findByText('Verified revenue $19.50.')).toBeInTheDocument();
+    unmount();
+    render(<TestApp source={withRev(null)} path="/operations" />);
+    expect(await screen.findByText('Revenue is unknown: the sales ledger could not be read.')).toBeInTheDocument();
+  });
+  it('never prints a negative zero', async () => {
+    const { formatValue } = await import('../lib/format');
+    const m = { unit: 'usd' as const, state: 'verified' as const, period: { start: '', end: '', label: '' }, asOf: null, source: 't' };
+    expect(formatValue({ ...m, value: -0.004 }, { cents: true })).toBe('$0.00');
+    expect(formatValue({ ...m, value: -0 }, { cents: true })).toBe('$0.00');
+  });
+});

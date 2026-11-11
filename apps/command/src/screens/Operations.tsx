@@ -16,7 +16,7 @@ import {
   StatusTag,
 } from '../components/primitives';
 import { SEVERITY_ORDER, sortAlerts } from '../lib/derive';
-import { formatDateTime, freshness } from '../lib/format';
+import { formatDateTime, formatValue, freshness } from '../lib/format';
 import { useNow } from '../lib/clock';
 
 const RUNNER: Record<Job['runner'], string> = {
@@ -277,7 +277,7 @@ function WeeklySummary({ p, board }: { p: PortfolioSummary; board: OperatorBoard
   const lines = useMemo(() => {
     const out: string[] = [];
     const rev = p.financials.grossRevenue;
-    out.push(rev.value === 0 ? 'No live revenue; checkout is still in test mode on every site.' : `Verified revenue ${rev.value}.`);
+    out.push(rev.value === null ? 'Revenue is unknown: the sales ledger could not be read.' : rev.value === 0 ? 'No live revenue; checkout is still in test mode on every site.' : `${rev.state === 'verified' ? 'Verified revenue' : 'Revenue'} ${formatValue(rev, { cents: true })}.`);
     const verifiedCh = p.niches.flatMap((n) => n.channels).filter((c) => c.state === 'verified');
     out.push(`${verifiedCh.length} channel${verifiedCh.length === 1 ? '' : 's'} published with receipts: ${verifiedCh.map((c) => `${c.platform} (${p.niches.find((n) => n.id === c.nicheId)?.name})`).join(', ') || 'none'}.`);
     const crit = p.alerts.filter((a) => a.severity === 'critical' && a.state !== 'resolved');

@@ -17,7 +17,7 @@ export const STATE_LABEL: Record<MetricState, string> = {
 /** Format a metric's value. Null values render as an em dash; the state chip says why. */
 export function formatValue(m: Metric, opts: { cents?: boolean } = {}): string {
   if (m.value === null) return '—';
-  const v = Object.is(m.value, -0) ? 0 : m.value; // never print "-$0.00"
+  const v = Math.abs(m.value) < 0.005 ? 0 : m.value; // never print "-$0.00"
   const prefix = m.state === 'estimated' || m.state === 'inferred' ? '~' : '';
   if (m.unit === 'usd') {
     const whole = Number.isInteger(v) && !opts.cents;
