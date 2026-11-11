@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_garden-planner_v1-0-6",
+  "brief_id": "brief_garden-planner_v1-0-7",
   "niche": "garden-planner",
   "display_name": "Frost Date Planting",
-  "version": "1.0.6",
-  "supersedes": "brief_garden-planner_v1-0-5",
+  "version": "1.0.7",
+  "supersedes": "brief_garden-planner_v1-0-6",
   "status": "draft",
   "created_at": "2026-11-10T04:20:00Z",
-  "updated_at": "2026-11-11T02:48:08Z",
+  "updated_at": "2026-11-11T03:33:28Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
@@ -1323,7 +1323,7 @@
     }
   ],
   "premium_product_recommendation": {
-    "name": "Garden Season Kit (working name)",
+    "name": "Frost Date Garden Planner",
     "target_segment_id": "home-vegetable-gardener",
     "format": "Printable PDF kit + a personal planting calendar sheet generated from one frost date",
     "price": {
@@ -1367,7 +1367,7 @@
       },
       {
         "tier": "core",
-        "item": "Garden Season Kit",
+        "item": "Frost Date Garden Planner",
         "price": {
           "value": 15,
           "evidence": "INFERRED",
@@ -1378,7 +1378,7 @@
       },
       {
         "tier": "premium",
-        "item": "Kit + succession and preserving add-on",
+        "item": "Frost Date Garden Planner + succession and preserving add-on",
         "price": {
           "value": 24,
           "evidence": "INFERRED",
@@ -1540,6 +1540,14 @@
       "call": "go_with_changes",
       "subject": "Business name: Frost Date Planting (frostdateplanting.com); niche id stays garden-planner",
       "rationale": "Owner chose the name and domain on a decision card at 02:47 UTC with a $50 spending cap; the owner buys the domain. Still blueprint and staging only, not launched.",
+      "falsifying_test": "Not applicable (naming decision).",
+      "decided_by": "owner (James)"
+    },
+    {
+      "date": "2026-11-11",
+      "call": "go_with_changes",
+      "subject": "Core product name: Frost Date Garden Planner",
+      "rationale": "Owner named the printable kit on a decision card at 03:32 UTC. Replaces the working name 'Garden Season Kit'; the add-on tier name follows it. Not launched.",
       "falsifying_test": "Not applicable (naming decision).",
       "decided_by": "owner (James)"
     }
@@ -1822,6 +1830,12 @@
       "date": "2026-11-11",
       "author": "forge-intelligence",
       "change": "Owner named the business: display_name is now 'Frost Date Planting' (frostdateplanting.com). Niche id stays garden-planner. Evidence unchanged."
+    },
+    {
+      "version": "1.0.7",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Owner named the core product 'Frost Date Garden Planner' (was 'Garden Season Kit (working name)'); pricing-map tiers renamed to match. Evidence unchanged."
     }
   ]
 }
