@@ -97,7 +97,7 @@ export const SEQUENCES: Sequence[] = [
     notes: "For Lemon Squeezy: email 1 goes in the product's receipt/confirmation text; email 2 is a follow-up sent from Lemon Squeezy if enabled. Buyers are not added to MailerLite.",
     emails: [
       { ref: "receipt", delayDays: 0, subject: "Your Quilt Planner", preheader: "Download and printing tips.",
-        blocks: [h("Thanks for your order"), p("Your download link is above. For the cleanest pages, print at actual size rather than fit to page, on Letter or A4."),
+        blocks: [h("Thanks for your order"), p("Your download link is above. For the cleanest pages, print at actual size rather than fit to page, on Letter or A4."), p("Print the planner pages you need, then start with the project you most want to finish."),
           p("If anything is wrong with the file, reply to this email and we'll sort it out. The refund policy is on the site."),
           b("Refund policy", `${QPK}/refunds.html`)] },
       { ref: "followup", delayDays: 7, subject: "How is the plan coming along?", preheader: "One question, if you have a minute.",
@@ -109,9 +109,9 @@ export const SEQUENCES: Sequence[] = [
     trigger: { lemonSqueezyProduct: "The Bidline Estimating Kit" },
     notes: "For Lemon Squeezy receipt text and an optional follow-up. Buyers are not added to MailerLite.",
     emails: [
-      { ref: "receipt", delayDays: 0, subject: "Your Bidline kit: where to start", preheader: "Three tabs to fill in first.",
+      { ref: "receipt", delayDays: 0, subject: "Your Bidline kit: where to start", preheader: "Start with the Overhead Calculator.",
         blocks: [h("Thanks for your order"), p("Your download link is above. The workbook is an .xlsx spreadsheet, tested in LibreOffice Calc. We have not tested it in Google Sheets yet."),
-          p("Start in this order: Settings (your business details for the quote), then the Overhead Calculator (a year of overhead gives you the percentage to use), then the Price Book (your usual unit costs), then a first Estimate. The Worked Sample tab shows a finished job if you want to see where you're heading."),
+          p("Open the kit and fill in the Overhead Calculator first: a year of overhead and your yearly billable hours give your overhead per billable hour and the overhead % to use on every estimate. Then add your business details in Settings, your usual unit costs in the Price Book, and price a first Estimate. The Worked Sample tab shows a finished job if you want to see where you're heading."),
           p("Reply to this email if anything doesn't open or doesn't add up.")] },
       { ref: "followup", delayDays: 10, subject: "After your first job: budget versus actual", preheader: "The tab that makes the next bid better.",
         blocks: [p("Once your first job priced with the kit is under way, fill in the Job Cost Tracker with what each line really cost. It shows budget versus actual and your projected profit, so you can see where the estimate missed and update your Price Book before the next bid."),
