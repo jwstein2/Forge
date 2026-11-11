@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { enqueueDue, latestSlot, seedSchedules, slotKey } from "../src/schedule.ts";
 import { OPERATOR_SCHEDULES } from "../src/index.ts";
 import { claimsLint, nextWindow, planFromBrief, policyFor, type Publisher } from "../src/handlers/content.ts";
-import { runway, profileFeed } from "../src/handlers/pinterest.ts";
+import { runway, profileFeed, matchPins, parseRssItems } from "../src/handlers/pinterest.ts";
 import { auditPage } from "../src/handlers/seo.ts";
 import { previousWeek } from "../src/handlers/summary.ts";
 import { boundedJsonCall, costCents, extractJson, type LlmProvider } from "../src/llm.ts";
@@ -38,9 +38,9 @@ describe("schedules", () => {
     expect(first.map((x) => x.scheduleId).sort()).toEqual(OPERATOR_SCHEDULES.map((s) => s.id).sort());
     expect(await enqueueDue(db, h, T("2026-11-10T03:22:00Z"))).toEqual([]);          // same slots
     const next = await enqueueDue(db, h, T("2026-11-10T04:01:00Z"));
-    expect(next.map((x) => x.scheduleId)).toEqual(["OPS-SITE-HEALTH"]);
+    expect(next.map((x) => x.scheduleId).sort()).toEqual(["OPS-RUN-FAILURES", "OPS-SITE-HEALTH"]); // hourly + every-30 slots
     await db.prepare(`UPDATE op_schedules SET enabled=0 WHERE id='OPS-SITE-HEALTH'`).run();
-    expect(await enqueueDue(db, h, T("2026-11-10T05:01:00Z"))).toEqual([]);
+    expect((await enqueueDue(db, h, T("2026-11-10T05:01:00Z"))).map((x) => x.scheduleId)).toEqual(["OPS-RUN-FAILURES"]);
     // three days of downtime: one job per schedule for the latest slot, not 72 hourly jobs
     await db.prepare(`UPDATE op_schedules SET enabled=1`).run();
     const after = await enqueueDue(db, h, T("2026-11-13T05:01:00Z"));
@@ -202,18 +202,52 @@ describe("Pinterest runway and receipts", () => {
   it("verifies the channel only from the platform's own feed", async () => {
     const { env, db } = await makeEnv();
     await db.prepare(`UPDATE channels SET account_url='https://www.pinterest.com/quiltplankit/' WHERE id='ch_qpk_pinterest'`).run();
-    const feed = `<rss><channel><item><title>HST chart</title><link>https://www.pinterest.com/pin/123/</link><pubDate>Mon, 09 Nov 2026 19:05:00 GMT</pubDate></item></channel></rss>`;
+    const feed = `<rss><channel>
+      <item><title>Binding length = 2 x (width + length) + 10 in for joins and corners. Strips = length / 42 in, rounded up.</title><link>https://www.pinterest.com/pin/123/</link><pubDate>Mon, 09 Nov 2026 19:05:00 GMT</pubDate></item>
+      <item><title>My holiday cookie board, lots of ideas for the family</title><link>https://www.pinterest.com/pin/999/</link><pubDate>Mon, 09 Nov 2026 21:00:00 GMT</pubDate></item>
+    </channel></rss>`;
     const h = handlersWith({ fetcher: fakeFetcher(healthySites({ "https://quiltplankit.pages.dev/pins.json": queue(["2026-11-30T19:00:00Z"]), "https://www.pinterest.com/quiltplankit/feed.rss": feed })) });
     await enqueue(db, h, { runAt: PAST, kind: "ops.pin_runway", createdBy: "t" });
     await run(env, h, T("2026-11-10T03:00:00Z"));
     const [ch] = await q(db, `SELECT status, last_verified_url FROM channels WHERE id='ch_qpk_pinterest'`);
     expect(ch).toEqual({ status: "verified", last_verified_url: "https://www.pinterest.com/pin/123/" });
+    // the unrelated personal pin on the same account is not recorded as this channel's publication
+    expect((await q(db, `SELECT external_url, title FROM op_publications WHERE source='platform_feed'`))).toEqual([{ external_url: "https://www.pinterest.com/pin/123/", title: "Binding" }]);
     expect((await q(db, `SELECT label FROM evidence WHERE subject_id='ch_qpk_pinterest' AND collected_by='ops.pin_runway'`))[0]!.label).toBe("VERIFIED");
     expect(await q(db, `SELECT * FROM alerts WHERE dedupe_key LIKE 'ops:pins:%' AND state='open'`)).toHaveLength(0);
     // ten days later with no new pin: no longer "verified"
     await enqueue(db, h, { runAt: PAST, kind: "ops.pin_runway", createdBy: "t2" });
     await run(env, h, T("2026-11-19T12:00:00Z"));
     expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).toBe("running");
+  });
+
+  it("matches real QPK pins to their site feed items (texts as served on 2026-11-10/11)", () => {
+    const site = parseRssItems(`<rss><channel>
+      <item><title>What Size Quilt for a Queen Bed? Quilt Size Chart and Formula</title><link>https://quiltplankit.pages.dev/calculators/quilt-sizes?utm_source=pinterest&amp;utm_content=quilt-sizes</link><pubDate>Mon, 09 Nov 2026 19:00:00 GMT</pubDate><description>Quilt width = mattress width + 2 x drop. Quilt length = mattress length + drop + pillow tuck. A queen mattress is 60 x 80 in.</description></item>
+      <item><title>Half-Square Triangle Cut Size Chart: 2 at a Time and 8 at a Time</title><link>https://quiltplankit.pages.dev/calculators/half-square-triangles?utm_content=hst</link><pubDate>Sun, 08 Nov 2026 19:00:00 GMT</pubDate><description>Two at a time: cut squares at finished size + 7/8 in. Eight at a time: cut squares at 2 x (finished + 7/8 in).</description></item>
+      <item><title>How Much Backing Fabric Do I Need for a Quilt? Free Backing Calculator</title><link>https://quiltplankit.pages.dev/calculators/backing?utm_content=backing</link><pubDate>Sat, 07 Nov 2026 19:00:00 GMT</pubDate><description>Add 4 in on every side: backing = (width + 8) x (length + 8). Example: a 60 x 72 in quilt needs a 68 x 80 in backing.</description></item>
+    </channel></rss>`);
+    expect(site[0]!.link).toBe("https://quiltplankit.pages.dev/calculators/quilt-sizes?utm_source=pinterest&utm_content=quilt-sizes");
+    const pins = [
+      { link: "https://www.pinterest.com/pin/711991022387648796/", title: "Quilt width = mattress width + 2 x drop. Quilt length = mattress length + drop + pillow tuck. A queen mattress is 60 x 80 in; with a 12 in drop and a 10 in pillow tuck the quilt is 84 x 102 in. Mattre", pubDate: "2026-11-10T05:05:45.000Z", description: null },
+      { link: "https://www.pinterest.com/pin/711991022387632137/", title: "Two at a time: cut squares at finished size + 7/8 in. Eight at a time: cut squares at 2 x (finished + 7/8 in). For a 3 in finished HST, cut 3 7/8 in squares (2 at a time) or 7 3/4 in squares (8 at a t", pubDate: "2026-11-09T05:04:53.000Z", description: null },
+      { link: "https://www.pinterest.com/pin/711991022387632138/", title: "Add 4 in on every side: backing = (width + 8) x (length + 8). Example: a 60 x 72 in quilt needs a 68 x 80 in backing. Two 68 in panels seamed horizontally use 3 7/8 yards of 42 in fabric. The free cal", pubDate: "2026-11-09T05:04:54.000Z", description: null },
+      { link: "https://www.pinterest.com/pin/111/", title: "Cozy reading nook ideas for a small living room", pubDate: "2025-03-01T10:00:00.000Z", description: null },
+    ];
+    const m = matchPins(pins, site);
+    expect(m.map((x) => [x.pin.link.slice(-7), x.site.link.split("?")[0]!.split("/").pop()])).toEqual([["648796/", "quilt-sizes"], ["632137/", "half-square-triangles"], ["632138/", "backing"]]);
+  });
+
+  it("does not verify the channel from pins that match nothing in the site feed", async () => {
+    const { env, db } = await makeEnv();
+    await db.prepare(`UPDATE channels SET account_url='https://www.pinterest.com/quiltplankit/' WHERE id='ch_qpk_pinterest'`).run();
+    const feed = `<rss><channel><item><title>My holiday cookie board, lots of ideas for the family</title><link>https://www.pinterest.com/pin/999/</link><pubDate>Mon, 09 Nov 2026 21:00:00 GMT</pubDate></item></channel></rss>`;
+    const h = handlersWith({ fetcher: fakeFetcher(healthySites({ "https://www.pinterest.com/quiltplankit/feed.rss": feed })) });
+    await enqueue(db, h, { runAt: PAST, kind: "ops.pin_runway", createdBy: "t" });
+    await run(env, h, T("2026-11-10T03:00:00Z"));
+    expect((await q(db, `SELECT status FROM channels WHERE id='ch_qpk_pinterest'`))[0]!.status).toBe("running");
+    expect(await q(db, `SELECT 1 FROM op_publications WHERE source='platform_feed'`)).toHaveLength(0);
+    expect((await q(db, `SELECT title FROM alerts WHERE dedupe_key='ops:pins:stale:ch_qpk_pinterest' AND state='open'`))[0]!.title).toContain("no pin on Pinterest matches");
   });
 
   it("drops a verified channel to running when the profile feed cannot be read", async () => {

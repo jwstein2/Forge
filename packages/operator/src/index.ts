@@ -17,6 +17,7 @@ import { pinRunway } from "./handlers/pinterest.ts";
 import { seoAudit, seoBatch, seoFinalize } from "./handlers/seo.ts";
 import { contentDraft, contentPlan, contentPublish, contentVerify, dryRunPublisher, type Publisher } from "./handlers/content.ts";
 import { weeklySummary } from "./handlers/summary.ts";
+import { runFailures } from "./handlers/run-failures.ts";
 import { lifecycleWatch, mailerLiteFromEnv, type MailerLiteReader } from "./handlers/lifecycle.ts";
 import { optimizeWeekly } from "./handlers/optimize.ts";
 
@@ -40,7 +41,7 @@ export function operatorHandlers(deps: OperatorDeps = {}): HandlerDef[] {
   // The SEO planner enqueues its batch and finalize jobs, so it needs the handler map it belongs to.
   const list: HandlerDef[] = [];
   const map = () => new Map(list.map((h) => [h.kind, h]));
-  list.push(siteHealth(fetcher), pinRunway(fetcher), seoAudit(fetcher, map), seoBatch(fetcher), seoFinalize(), contentPlan(), contentDraft(provider), contentPublish(publishers), contentVerify(fetcher), weeklySummary(), lifecycleWatch(deps.mailerlite ?? mailerLiteFromEnv), optimizeWeekly());
+  list.push(siteHealth(fetcher), pinRunway(fetcher), seoAudit(fetcher, map), seoBatch(fetcher), seoFinalize(), contentPlan(), contentDraft(provider), contentPublish(publishers), contentVerify(fetcher), weeklySummary(), lifecycleWatch(deps.mailerlite ?? mailerLiteFromEnv), optimizeWeekly(), runFailures());
   return list;
 }
 
@@ -56,6 +57,7 @@ export const OPERATOR_SCHEDULES: ScheduleDef[] = [
   { id: "OPS-LIFECYCLE-WATCH", kind: "ops.lifecycle_watch", spec: { daily: "09:00" }, maxAttempts: 2 },
   { id: "OPS-OPTIMIZE-WEEKLY", kind: "ops.optimize_weekly", spec: { weekly: { day: 1, at: "11:00" } }, maxAttempts: 1 },
   { id: "OPS-WEEKLY-SUMMARY", kind: "ops.weekly_summary", spec: { weekly: { day: 1, at: "12:00" } } },
+  { id: "OPS-RUN-FAILURES", kind: "ops.run_failures", spec: { every: 30 }, maxAttempts: 2 },
 ];
 
 const base = { kind: "workflow", department: "Marketing, Distribution & Sales", owner: "workstream E (FORGE Operator)", runner: "forge", trigger: "schedule", model: null, costCapCents: null, retryBudget: 3, status: "BUILT", pausable: true, defects: [] as string[], definedIn: "packages/operator" };
@@ -71,6 +73,7 @@ export const OPERATOR_REGISTRY_ENTRIES = [
   { ...base, id: "OPS-LIFECYCLE-WATCH", name: "Operator · Email lifecycle watch (MailerLite, read-only)", nicheId: null, externalRef: "ops.lifecycle_watch", cadence: "Daily 09:00 UTC", intervalMinutes: 1440, retryBudget: 2, notes: "Reads groups, forms and automations; alerts on broken automations, signups waiting without a live welcome sequence, unconfirmed or bouncing signups. UNKNOWN until MAILERLITE_API_KEY is approved. Never enables or sends." },
   { ...base, id: "OPS-OPTIMIZE-WEEKLY", name: "Operator · Weekly optimization proposals", nicheId: null, externalRef: "ops.optimize_weekly", cadence: "Weekly Mon 11:00 UTC", intervalMinutes: 10080, retryBudget: 1, notes: "Proposes changes from funnel, sales, lifecycle and channel data with minimum samples. Proposals only; the owner decides in one batch." },
   { ...base, id: "OPS-WEEKLY-SUMMARY", name: "Operator · Weekly in-app summary", nicheId: null, department: "Operations, Finance & Infrastructure", externalRef: "ops.weekly_summary", cadence: "Weekly Mon 12:00 UTC", intervalMinutes: 10080, notes: "Stored for FORGE Command; never emailed." },
+  { ...base, id: "OPS-RUN-FAILURES", name: "Operator · Failed-run alerts (n8n heartbeats and FORGE jobs)", nicheId: null, department: "Operations, Finance & Infrastructure", externalRef: "ops.run_failures", cadence: "Every 30 min", intervalMinutes: 30, retryBudget: 2, notes: "Raises an alert when a workflow's or job's latest run failed (critical after 3 in a row) and clears it, plus the engine's stale job-failure alert, on the next success. Read-only apart from alerts." },
 ];
 
 /** Insert the Operator registry rows (idempotent; never overwrites runtime state such as pauses). */

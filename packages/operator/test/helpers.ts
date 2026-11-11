@@ -59,6 +59,6 @@ export function healthySites(extra: Record<string, Partial<FetchResult> | string
     r[`${base}/robots.txt`] = `User-agent: *\nAllow: /\nSitemap: ${base}/sitemap.xml`;
     r[`${base}/sitemap.xml`] = `<?xml version="1.0"?><urlset><url><loc>${base}/</loc></url></urlset>`;
   }
-  r["https://quiltplankit.pages.dev/pins.xml"] = `<rss><channel><item><title>Binding</title><link>https://quiltplankit.pages.dev/calculators/binding</link><pubDate>Fri, 06 Nov 2026 19:00:00 GMT</pubDate></item></channel></rss>`;
+  r["https://quiltplankit.pages.dev/pins.xml"] = `<rss><channel><item><title>Binding</title><link>https://quiltplankit.pages.dev/calculators/binding</link><pubDate>Fri, 06 Nov 2026 19:00:00 GMT</pubDate><description><![CDATA[Binding length = 2 x (width + length) + 10 in for joins and corners. Strips = length / 42 in, rounded up. Example: a 60 x 72 in quilt.]]></description></item></channel></rss>`;
   return { ...r, ...extra };
 }
