@@ -8,7 +8,7 @@
 // 3. Runs PRAGMA integrity_check and foreign_key_check.
 // 4. Confirms every migration in services/api/migrations is recorded in d1_migrations.
 // 5. Compares row counts with counts read from the live DB at export time (--expect, {"table": n}).
-// Exit 0 = PASS, 1 = FAIL. The JSON report is the G13 receipt.
+// Exit 0 = PASS (all checks ran and passed), 1 = FAIL, 3 = PARTIAL (nothing failed, some checks not run). The JSON report is the G13 receipt.
 import { DatabaseSync } from "node:sqlite";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
@@ -18,11 +18,12 @@ import { fileURLToPath } from "node:url";
 export function drill({ sql, manifest = null, expect = null, migrationsDir, fileName = "export.sql" }) {
   const checks = [];
   const add = (name, ok, detail) => checks.push({ name, ok, ...(detail === undefined ? {} : { detail }) });
+  const notRun = (name, why) => checks.push({ name, ok: null, not_run: why }); // QA-023 RD-1: a skipped check is recorded, never silently absent
   const sha256 = createHash("sha256").update(sql).digest("hex");
   if (manifest) {
     const entry = manifest.find((m) => m.ok && basename(String(m.file).replace(/\\/g, "/")) === fileName);
     add("manifest sha256 matches", !!entry && entry.sha256 === sha256, entry ? undefined : `no ok manifest entry for ${fileName}`);
-  }
+  } else notRun("manifest sha256 matches", "no --manifest given");
   const db = new DatabaseSync(":memory:");
   let restored = true;
   try { db.exec(sql); } catch (e) { restored = false; add("export restores", false, String(e.message).slice(0, 300)); }
@@ -39,15 +40,16 @@ export function drill({ sql, manifest = null, expect = null, migrationsDir, file
       const have = tables.includes("d1_migrations") ? new Set(db.prepare("SELECT name FROM d1_migrations").all().map((r) => r.name)) : new Set();
       const missing = want.filter((f) => !have.has(f));
       add("all migrations recorded", missing.length === 0, missing.length ? missing : undefined);
-    }
+    } else notRun("all migrations recorded", "no migrations directory");
   }
   if (expect) {
     const diff = Object.entries(expect).filter(([t, n]) => counts[t] !== n).map(([t, n]) => ({ table: t, live: n, restored: counts[t] ?? null }));
     add("row counts match live", diff.length === 0, diff.length ? diff : undefined);
-  }
+  } else notRun("row counts match live", "no --expect given");
   db.close();
-  const ok = checks.every((c) => c.ok);
-  return { result: ok ? "PASS" : "FAIL", at: new Date().toISOString(), file: fileName, bytes: Buffer.byteLength(sql), sha256, tables: tables.length, rows: Object.values(counts).reduce((a, b) => a + b, 0), counts, checks };
+  // PASS only when every check ran and passed; PARTIAL when nothing failed but some did not run (not a G13 receipt).
+  const failed = checks.some((c) => c.ok === false), skipped = checks.some((c) => c.ok === null);
+  return { result: failed ? "FAIL" : skipped ? "PARTIAL" : "PASS", complete: !skipped, at: new Date().toISOString(), file: fileName, bytes: Buffer.byteLength(sql), sha256, tables: tables.length, rows: Object.values(counts).reduce((a, b) => a + b, 0), counts, checks };
 }
 
 function arg(name) { const i = process.argv.indexOf(name); return i >= 0 ? process.argv[i + 1] : null; }
@@ -61,7 +63,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     migrationsDir: fileURLToPath(new URL("../services/api/migrations/", import.meta.url)),
   });
   const out = arg("--out"); if (out) writeFileSync(out, JSON.stringify(report, null, 2));
-  for (const c of report.checks) console.log(`${c.ok ? "PASS" : "FAIL"}  ${c.name}${c.ok || c.detail === undefined ? "" : `: ${JSON.stringify(c.detail)}`}`);
+  for (const c of report.checks) console.log(c.ok === null ? `NOT RUN  ${c.name} (${c.not_run})` : `${c.ok ? "PASS" : "FAIL"}  ${c.name}${c.ok || c.detail === undefined ? "" : `: ${JSON.stringify(c.detail)}`}`);
   console.log(`Restore drill ${report.result}: ${report.tables} tables, ${report.rows} rows, sha256 ${report.sha256.slice(0, 12)}…`);
-  process.exit(report.result === "PASS" ? 0 : 1);
+  if (report.result === "PARTIAL") console.log("Not a G13 receipt: rerun with --manifest and --expect.");
+  process.exit(report.result === "PASS" ? 0 : report.result === "PARTIAL" ? 3 : 1);
 }
