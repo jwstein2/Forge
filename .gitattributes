@@ -1,0 +1,2 @@
+# Node scripts with a #! line must keep LF on Windows checkouts (vitest cannot parse a CRLF shebang).
+*.mjs text eol=lf
