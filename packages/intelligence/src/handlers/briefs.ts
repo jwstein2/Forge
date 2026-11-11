@@ -6,6 +6,15 @@ import { enqueue, NonRetryableError, type HandlerDef } from "../../../../service
 import { storeBrief, validateBrief } from "../../../../services/api/src/domain/intelligence.ts";
 import { newId, nowIso, parseJson } from "../../../../services/api/src/lib/util.ts";
 import { SOURCE_BATCH } from "./scout.ts";
+import { effectiveChecks } from "../observations.ts";
+
+/** Free interest signals collected for each niche by the weekly re-check (Wikimedia pageviews; an interest proxy, not search volume). */
+export const NICHE_SIGNAL_ARTICLES: Record<string, string[]> = {
+  "bidline": ["Cost estimate", "Home improvement"],
+  "quilt-plan-kit": ["Quilting", "Quilt"],
+  "loaf-ledger": ["Sourdough", "Farmers' market"],
+  "garden-planner": ["Kitchen garden", "Sowing"],
+};
 
 export function briefHandlers(handlers: () => Map<string, HandlerDef>): HandlerDef[] {
   const publish: HandlerDef = {
@@ -43,8 +52,14 @@ export function briefHandlers(handlers: () => Map<string, HandlerDef>): HandlerD
         for (let i = 0; i < sources.length; i += SOURCE_BATCH) {
           deps.push((await enqueue(db, h, { kind: "intel.source.check", parentId: jobId, idempotencyKey: `${jobId}:src:${i}`, input: { runId, sources: sources.slice(i, i + SOURCE_BATCH) }, createdBy: `job:${jobId}`, maxAttempts: 2 })).id);
         }
+        const batches = deps.length;
+        for (const r of rows) {
+          const articles = NICHE_SIGNAL_ARTICLES[r.niche_id];
+          if (!articles) continue;
+          deps.push((await enqueue(db, h, { kind: "intel.signal.collect", parentId: jobId, idempotencyKey: `${jobId}:sig:${r.niche_id}`, input: { runId, candidate: r.niche_id, articles }, createdBy: `job:${jobId}`, maxAttempts: 2 })).id);
+        }
         await enqueue(db, h, { kind: "intel.recheck.report", parentId: jobId, idempotencyKey: `${jobId}:report`, dependsOn: deps, input: { runId }, createdBy: `job:${jobId}`, maxAttempts: 2 });
-        return { output: { runId, briefs: rows.length, sources: sources.length, batches: deps.length } };
+        return { output: { runId, briefs: rows.length, sources: sources.length, batches, signalJobs: deps.length - batches } };
       },
     }],
   };
@@ -53,9 +68,12 @@ export function briefHandlers(handlers: () => Map<string, HandlerDef>): HandlerD
     kind: "intel.recheck.report", runType: "deterministic", usesModel: false,
     steps: [{
       name: "report",
-      async run({ db, input }) {
+      async run({ db, input, now }) {
         const runId = String(input.runId);
-        const rows = (await db.prepare(`SELECT source_id, url, outcome FROM research_source_checks WHERE run_id = ?`).bind(runId).all<Record<string, any>>()).results;
+        const raw = (await db.prepare(`SELECT source_id, url, outcome, http_status, missing_json FROM research_source_checks WHERE run_id = ?`).bind(runId).all<Record<string, any>>()).results
+          .map((r) => ({ sourceId: r.source_id as string, url: r.url as string, outcome: r.outcome, httpStatus: r.http_status, missing: parseJson<string[]>(r.missing_json, []) }));
+        const eff = await effectiveChecks(db, raw, now);
+        const rows = eff.checks.map((c) => ({ source_id: c.sourceId, url: c.url, outcome: c.outcome as string }));
         const dead = rows.filter((r) => r.outcome === "dead");
         const at = nowIso();
         const key = "intel:sources:dead";
@@ -67,11 +85,12 @@ export function briefHandlers(handlers: () => Map<string, HandlerDef>): HandlerD
         } else {
           await db.prepare(`UPDATE alerts SET state='resolved', last_seen=? WHERE dedupe_key=? AND state<>'resolved'`).bind(at, key).run();
         }
-        const status = rows.some((r) => r.outcome === "unreachable") ? "partial" : "succeeded";
+        const sig = (await db.prepare(`SELECT status FROM research_signals WHERE run_id = ?`).bind(runId).all<{ status: string }>()).results;
+        const status = rows.some((r) => r.outcome === "unreachable" || r.outcome === "skipped") || sig.some((x) => x.status !== "collected") ? "partial" : "succeeded";
         await db.prepare(`UPDATE research_runs SET status=?, finished_at=? WHERE id=?`).bind(status, at, runId).run();
         const counts: Record<string, number> = {};
         for (const r of rows) counts[r.outcome] = (counts[r.outcome] ?? 0) + 1;
-        return { output: { runId, status, counts } };
+        return { output: { runId, status, counts, viaObservation: eff.assisted, staleObservations: eff.stale, signals: sig.length } };
       },
     }],
   };

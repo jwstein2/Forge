@@ -1,0 +1,2027 @@
+{
+  "schema_version": "1.0.0",
+  "brief_id": "brief_loaf-ledger_v1-0-3",
+  "niche": "loaf-ledger",
+  "display_name": "Loaf Ledger",
+  "version": "1.0.3",
+  "supersedes": "brief_loaf-ledger_v1-0-2",
+  "status": "draft",
+  "created_at": "2026-11-10T03:00:00Z",
+  "updated_at": "2026-11-11T03:00:00Z",
+  "refresh_by": "2027-02-10",
+  "authors": [
+    "forge-intelligence"
+  ],
+  "approved_by": null,
+  "summary": {
+    "one_line": "Home and cottage bakers chronically undercharge and know it; paid pricing spreadsheets sell at $8-$29 but almost all are cake-focused, so a bread and farmers-market pricing and profit workbook at about $15-$19 is an open, cheap-to-build position for Loaf Ledger.",
+    "go_hold": {
+      "date": "2026-11-10",
+      "call": "go_with_changes",
+      "subject": "Loaf Ledger paid product",
+      "rationale": "Clear, repeated pain (pricing from ingredients only, fear of losing customers, not knowing the hourly wage) and paid templates at $8-$29. The audience is low-revenue (median $2,000 sales in 2016), so price must stay low and the product must pay for itself on one market day.",
+      "falsifying_test": "If the workbook is live and gets 300+ sessions in 60 days with zero sales, hold Loaf Ledger and fold its traffic into an email list. Owner-adjustable rule.",
+      "decided_by": "intelligence (recommendation)"
+    },
+    "key_findings": [
+      {
+        "id": "c_ll_kf_ij",
+        "statement": "A 775-producer survey found median cottage food sales of $2,000 and median profit of $500 (2016); producers average 15 hours a week, mostly without employees.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_ij_survey"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_kf_who",
+        "statement": "Cottage food producers are overwhelmingly female, more rural than average, have below-median household income, and most make baked goods; farmers' markets are the most common channel.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_ij_survey"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Exact percentages are in the report's figures, not captured."
+      },
+      {
+        "id": "c_ll_kf_paid",
+        "statement": "Paid bakery pricing tools observed 2026-11-10: $7.79 (sale from $12.99) Etsy sheet, $19 Payhip workbook, $29 Notion system, $59.99 app, Stocksmith from $20/month.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_etsy_cake",
+          "src_payhip_pkl",
+          "src_stan_atori",
+          "src_app_bpc",
+          "src_stocksmith"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_kf_cakeboss",
+        "statement": "CakeBoss is listed at $149 one-time plus $20/year, per an aggregator page last updated 2021-05-29 (stale).",
+        "evidence": "ESTIMATED",
+        "confidence": "low",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_cakeboss"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Check the vendor page before relying on it."
+      },
+      {
+        "id": "c_ll_kf_cake",
+        "statement": "Paid bakery templates are mostly cake, cookie and custom-order focused, but bread is no longer empty: a free sourdough pricer (Feb 2026), a $47 sourdough calculator and a community 'Price Your Loaf' tool now exist.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "search_result_observation",
+        "source_ids": [
+          "src_serp_cake_calcs",
+          "src_freshloaf_pricer",
+          "src_stan_sourdoughgirlie",
+          "src_skool_crustcrumb"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Revised 2026-11-11 (v1.0.3). The gap is narrower than v1.0.2 said: the differentiator must be the market-day loop (log, waste, profit per market, price ladder), not the hourly-wage readout alone."
+      },
+      {
+        "id": "c_ll_kf_pain",
+        "statement": "Educators name the core mistakes as pricing from ingredients alone, copying competitors, pricing from anxiety and not knowing the hourly rate.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "review_mining",
+        "source_ids": [
+          "src_profitable_baker",
+          "src_bbc"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_kf_free",
+        "statement": "Free calculators are plentiful (Omni, Craftybase/Stocksmith, Homegrown, many small pages.dev sites).",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "search_result_observation",
+        "source_ids": [
+          "src_serp_cake_calcs",
+          "src_homegrown"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_kf_free_bread",
+        "statement": "A free, no-signup sourdough pricing calculator launched in February 2026; it breaks cost per loaf into ingredients, starter, labour by task, packaging and energy, and shows the effective hourly wage at a chosen price.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "forum_mining",
+        "source_ids": [
+          "src_freshloaf_pricer"
+        ],
+        "observed_at": "2026-11-11",
+        "notes": "Described from the creator's forum post; the tool's site was not fetched (robots)."
+      },
+      {
+        "id": "c_ll_kf_paid_bread",
+        "statement": "Bread-specific paid pricing tools are priced well above spreadsheets: $47 for a sourdough calculator on Stan, $20 for a Gumroad recipe pricing calculator; an Etsy home-baker calculator at $7.95 shows 0 sales.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_stan_sourdoughgirlie",
+          "src_gumroad_smallbatch",
+          "src_etsy_homebaker_4578823822"
+        ],
+        "observed_at": "2026-11-11"
+      }
+    ]
+  },
+  "audience": {
+    "segments": [
+      {
+        "id": "cottage-bread-seller",
+        "name": "Cottage bread and farmers' market seller",
+        "description": "Home baker selling sourdough, loaves and pastries at farmers' markets, farm stands or to neighbours under cottage food law.",
+        "priority": "primary",
+        "skill_level": "Strong baker; weak on costing.",
+        "context": "Side income, about 15 hours a week, often rural.",
+        "devices_and_formats": [
+          "Phone",
+          "Google Sheets",
+          "Printed price list at the stall"
+        ],
+        "platforms": [
+          "Facebook groups",
+          "Instagram",
+          "The Fresh Loaf",
+          "Reddit r/Sourdough and r/Breadit",
+          "Google search"
+        ],
+        "evidence": [
+          {
+            "id": "c_ll_seg1_ij",
+            "statement": "Most cottage producers make baked goods and sell at farmers' markets; median 15 hours a week.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "published_survey",
+            "source_ids": [
+              "src_ij_survey"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "cottage-bread-seller"
+          },
+          {
+            "id": "c_ll_seg1_hourly",
+            "statement": "Bakers respond to 'what am I really paying myself per hour' (Fresh Loaf thread, Feb 2026).",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "forum_mining",
+            "source_ids": [
+              "src_forge_ws4"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "cottage-bread-seller"
+          }
+        ]
+      },
+      {
+        "id": "custom-cake-baker",
+        "name": "Custom cake and cookie baker",
+        "description": "Order-based decorator; higher ticket, served by most existing templates.",
+        "priority": "secondary",
+        "platforms": [
+          "Instagram",
+          "Facebook",
+          "Etsy"
+        ],
+        "evidence": [
+          {
+            "id": "c_ll_seg2",
+            "statement": "Most paid templates target cake pricing.",
+            "evidence": "INFERRED",
+            "confidence": "medium",
+            "method": "search_result_observation",
+            "source_ids": [
+              "src_serp_cake_calcs"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "custom-cake-baker"
+          }
+        ]
+      },
+      {
+        "id": "aspiring-micro-bakery",
+        "name": "Aspiring micro-bakery",
+        "description": "Hobby sourdough baker deciding whether selling is worth it.",
+        "priority": "exploratory",
+        "platforms": [
+          "Reddit",
+          "YouTube"
+        ],
+        "evidence": [
+          {
+            "id": "c_ll_seg3",
+            "statement": "Hobby bakers are often told friends and coworkers will not pay real prices.",
+            "evidence": "VERIFIED",
+            "confidence": "low",
+            "method": "forum_mining",
+            "source_ids": [
+              "src_cakecentral"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "aspiring-micro-bakery"
+          }
+        ]
+      }
+    ],
+    "demographics": [
+      {
+        "id": "c_ll_demo_gender",
+        "statement": "Cottage producers are overwhelmingly female.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_ij_survey"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_demo_rural",
+        "statement": "More likely than average to live in rural areas.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_ij_survey"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_demo_income",
+        "statement": "Household incomes considerably below the national median.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_ij_survey"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_demo_count",
+        "statement": "Total number of US cottage bakers.",
+        "evidence": "UNKNOWN",
+        "confidence": "low",
+        "method": "not_collected",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "to_resolve": "No national registry; state registration counts (IJ cites 25,000+ registered in 25 states) undercount states without registration."
+      }
+    ],
+    "customer_language": [
+      {
+        "phrase": "What am I really paying myself per hour?",
+        "segment_id": "cottage-bread-seller",
+        "source_ids": [
+          "src_forge_ws4"
+        ]
+      },
+      {
+        "phrase": "Coworkers loved it but wouldn't pay that price.",
+        "segment_id": "aspiring-micro-bakery",
+        "source_ids": [
+          "src_cakecentral"
+        ]
+      },
+      {
+        "phrase": "Cottage bakers are driving prices down.",
+        "source_ids": [
+          "src_cakecentral"
+        ]
+      },
+      {
+        "phrase": "Pricing is a mindset problem too.",
+        "source_ids": [
+          "src_profitable_baker"
+        ]
+      }
+    ],
+    "visual_and_trust_preferences": [
+      {
+        "id": "c_ll_vis",
+        "statement": "Warm, homey, practical styling; Loaf Ledger's brown and cream palette already fits.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_forge_ws4"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "jobs_to_be_done": [
+    {
+      "id": "c_ll_jtbd_price",
+      "statement": "Set a price per loaf that covers ingredients, packaging, time and market fees.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "review_mining",
+      "source_ids": [
+        "src_bbc",
+        "src_profitable_baker"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    },
+    {
+      "id": "c_ll_jtbd_market",
+      "statement": "Know whether a market day was worth it.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_ij_survey"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    },
+    {
+      "id": "c_ll_jtbd_confidence",
+      "statement": "Defend a price to customers without guilt.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "review_mining",
+      "source_ids": [
+        "src_profitable_baker"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    }
+  ],
+  "pains": [
+    {
+      "id": "c_ll_pain_ingredients",
+      "statement": "Pricing from ingredients alone, leaving out labour, packaging and overhead.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "review_mining",
+      "source_ids": [
+        "src_profitable_baker",
+        "src_bbc"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    },
+    {
+      "id": "c_ll_pain_anxiety",
+      "statement": "Fear of losing customers leads to underpricing.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "review_mining",
+      "source_ids": [
+        "src_profitable_baker"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    },
+    {
+      "id": "c_ll_pain_wage",
+      "statement": "Low effective hourly wage (median profit $500 a year in 2016).",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "published_survey",
+      "source_ids": [
+        "src_ij_survey"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    },
+    {
+      "id": "c_ll_pain_race",
+      "statement": "Local price competition from other cottage bakers.",
+      "evidence": "VERIFIED",
+      "confidence": "low",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_cakecentral"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    }
+  ],
+  "desired_outcomes": [
+    {
+      "id": "c_ll_out",
+      "statement": "Earn a fair hourly wage from baking and know it.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_forge_ws4"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "cottage-bread-seller"
+    }
+  ],
+  "buying_triggers": [
+    {
+      "id": "c_ll_trig_holiday",
+      "statement": "Holiday markets and bake sales (Thanksgiving to Christmas).",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_ll_trig_season",
+      "statement": "Spring farmers' market season opening.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_ll_trig_costs",
+      "statement": "Ingredient cost increases (butter, flour, eggs).",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "objections": [
+    {
+      "id": "c_ll_obj_free",
+      "statement": "Free calculators and free workbooks exist.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "search_result_observation",
+      "source_ids": [
+        "src_serp_cake_calcs",
+        "src_bbc"
+      ],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_ll_obj_budget",
+      "statement": "Low-revenue sellers resist spending on tools.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_ij_survey"
+      ],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "demand": {
+    "keywords": [
+      {
+        "term": "how to price baked goods",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_ll_kw1",
+          "statement": "Many guides target it (Better Baker Club, Homegrown, Craftybase).",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_bbc",
+            "src_homegrown"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "bakery pricing spreadsheet",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_ll_kw2",
+          "statement": "Paid templates use this phrasing (Etsy 'Recipe Cost Calculator for Home Bakers', Gumroad recipe pricing calculator).",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_etsy_homebaker_4578823822",
+            "src_gumroad_smallbatch"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "cake pricing calculator",
+        "intent": "transactional",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_ll_kw3",
+          "statement": "Crowded with free calculators.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_serp_cake_calcs"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "how much to charge for sourdough bread",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_ll_kw4",
+          "statement": "A 2026 forum post asks exactly this and announces a free sourdough pricing tool.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_freshloaf_pricer"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "cottage bakery pricing",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_ll_kw5",
+          "statement": "Appears in guide titles.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_bbc"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "recipe cost calculator",
+        "intent": "transactional",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_ll_kw6",
+          "statement": "Recipe cost calculators are sold as templates for home bakers and food makers.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_etsy_homebaker_4578823822",
+            "src_gumroad_smallbatch"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      }
+    ],
+    "trends": {
+      "status": "blocked",
+      "series": [],
+      "note": "Not collected."
+    },
+    "seasonality": [
+      {
+        "event": "Holiday markets and bake sales",
+        "demand_window": "11-01/12-23",
+        "publish_by": "10-15",
+        "assets": [
+          "Holiday market pricing guide",
+          "Workbook launch"
+        ],
+        "evidence": {
+          "id": "c_ll_seas_holiday",
+          "statement": "Holiday markets are the peak selling moment for baked goods; the 2026 window is open now.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "Farmers' market season opening",
+        "demand_window": "03-15/06-15",
+        "publish_by": "02-28",
+        "assets": [
+          "Market-day profit tracker promotion"
+        ],
+        "evidence": {
+          "id": "c_ll_seas_spring",
+          "statement": "Spring market openings likely drive setup and pricing searches.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "New Year side-business planning",
+        "demand_window": "01-01/02-15",
+        "publish_by": "12-15",
+        "assets": [
+          "Pricing workshop content"
+        ],
+        "evidence": {
+          "id": "c_ll_seas_ny",
+          "statement": "January business planning.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      }
+    ],
+    "market_size": [
+      {
+        "id": "c_ll_ms",
+        "statement": "Median cottage producer sales $2,000 a year (2016): the audience is large in count but low in spend per person.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_ij_survey"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "competitors": [
+    {
+      "id": "practicalkitlab",
+      "name": "PracticalKitLab (Payhip)",
+      "url": "https://payhip.com/b/3nd1c",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Home Bakery Pricing Calculator",
+          "format": "Excel + Sheets, 7 tabs",
+          "price": {
+            "value": 19,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_payhip_pkl"
+            ]
+          },
+          "billing": "one_time",
+          "includes": [
+            "Ingredient library",
+            "Recipe calculator",
+            "Quote builder"
+          ]
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_payhip_pkl"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "etsy-cake-calc",
+      "name": "Etsy cake pricing spreadsheet (new shop)",
+      "url": "https://www.etsy.com/listing/4598876375",
+      "type": "marketplace_seller",
+      "scope": "marketplace",
+      "offers": [
+        {
+          "name": "Cake Pricing Calculator Spreadsheet",
+          "format": "Excel + Sheets",
+          "price": {
+            "value": 7.79,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_etsy_cake"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_etsy_cake"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "gaps": [
+        "Cake only",
+        "0 sales"
+      ]
+    },
+    {
+      "id": "atori-cafe",
+      "name": "Atori Cafe (Stan Store)",
+      "url": "https://stan.store/atoricafe/p/home-bakery-product-pricing-system-notion?lang=en",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Home Bakery Product Pricing System",
+          "format": "Notion template",
+          "price": {
+            "value": 29,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_stan_atori"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_stan_atori"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Creator-led; Notion rather than spreadsheet."
+    },
+    {
+      "id": "bakers-pricing-calc-app",
+      "name": "Bakers Pricing Calculator (iOS)",
+      "url": "https://apps.apple.com/us/app/id1588565115",
+      "type": "app",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Bakers Pricing Calculator",
+          "format": "iOS app",
+          "price": {
+            "value": 59.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_app_bpc"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_app_bpc"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "gaps": [
+        "1.0 stars from 1 rating"
+      ]
+    },
+    {
+      "id": "cakeboss",
+      "name": "CakeBoss",
+      "url": "https://cakeboss.com/",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "CakeBoss",
+          "format": "Software",
+          "price": {
+            "value": 149,
+            "evidence": "ESTIMATED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_cakeboss"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_cakeboss"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Cake business software; $149 then $20/yr per a third-party aggregator last updated 2021-05-29 (stale; vendor page not checked)."
+    },
+    {
+      "id": "stocksmith",
+      "name": "Stocksmith (formerly Craftybase)",
+      "url": "https://stocksmith.io/pricing/",
+      "type": "software_saas",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Pro",
+          "format": "SaaS",
+          "price": {
+            "value": 20,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_stocksmith"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_stocksmith"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Inventory and costing for makers.",
+      "free_resources": [
+        "Free cake pricing calculator"
+      ]
+    },
+    {
+      "id": "homegrown",
+      "name": "Homegrown",
+      "url": "https://findhomegrown.com/tools/pricing-calculator",
+      "type": "free_tool",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Free pricing calculator",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_homegrown"
+            ]
+          },
+          "billing": "free"
+        },
+        {
+          "name": "Storefront",
+          "format": "SaaS",
+          "price": {
+            "value": 10,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_homegrown"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_homegrown"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Local food marketplace using a free calculator as acquisition."
+    },
+    {
+      "id": "better-baker-club",
+      "name": "Better Baker Club",
+      "url": "https://betterbakerclub.com/",
+      "type": "publisher_or_media",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Pricing with Confidence workbook",
+          "format": "PDF",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_bbc"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_bbc"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Cottage bakery education blog with free pricing workbook."
+    },
+    {
+      "id": "profitable-baker",
+      "name": "The Profitable Baker (podcast + academy)",
+      "url": "https://theprofitablebakerpodcast.buzzsprout.com/2553269",
+      "type": "publisher_or_media",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Home Baking Business Academy",
+          "format": "Membership",
+          "price": {
+            "value": null,
+            "evidence": "UNKNOWN",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "to_resolve": "Price not shown on fetched page"
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_profitable_baker"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "omni-cake",
+      "name": "Omni Calculator cake pricing",
+      "url": "https://www.omnicalculator.com/food/cake-pricing",
+      "type": "free_tool",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Cake pricing calculator",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_serp_cake_calcs"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_serp_cake_calcs"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "strengths": [
+        "Huge domain authority"
+      ]
+    },
+    {
+      "id": "pagesdev-cake-calcs",
+      "name": "Small AI-built cake pricing sites (cake-pricing, cakepricingcalculator, pastrycal)",
+      "url": "https://cakepricingcalculator.pages.dev/",
+      "type": "free_tool",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Free calculators and guides",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_serp_cake_calcs"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_serp_cake_calcs"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Same free-calculator model as Loaf Ledger."
+    },
+    {
+      "id": "sourdough-pricer",
+      "name": "Sourdough Pricer (free web tool)",
+      "url": "https://www.thefreshloaf.com/comment/550691",
+      "type": "free_tool",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Sourdough pricing calculator",
+          "format": "Web, no signup",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_freshloaf_pricer"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_freshloaf_pricer"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Per-loaf costing with labour by sourdough task and effective hourly wage; the same headline readout Loaf Ledger planned.",
+      "gaps": [
+        "No market-day log, waste tracking or price ladder (from the post's description)"
+      ]
+    },
+    {
+      "id": "sourdoughgirlie",
+      "name": "@sourdoughgirlie (Stan)",
+      "url": "https://stan.store/sourdoughgirlie/p/calculator-86ld5h7a",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Sourdough Bread Pricing Calculator",
+          "format": "Not stated",
+          "price": {
+            "value": 47,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_stan_sourdoughgirlie"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_stan_sourdoughgirlie"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Creator-led product sold to a sourdough audience."
+    },
+    {
+      "id": "crust-crumb-academy",
+      "name": "Crust & Crumb Academy (Skool)",
+      "url": "https://www.skool.com/crust-crumb-academy-7621/new-tool-price-your-loaf-calculator",
+      "type": "publisher_or_media",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Price Your Loaf Calculator (inside community)",
+          "format": "Web tool",
+          "price": {
+            "value": 5,
+            "evidence": "INFERRED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_skool_crustcrumb"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_skool_crustcrumb"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Cost per sellable loaf, floor price and 60% margin price, including market, travel and unsold bread."
+    },
+    {
+      "id": "small-batch-empire",
+      "name": "Small Batch Empire (Gumroad)",
+      "url": "https://smallbatchempire.gumroad.com/l/recipecalculator",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Ingredient costs and Recipe pricing calculator",
+          "format": "Document",
+          "price": {
+            "value": 20,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-11",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_smallbatch"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-11",
+      "source_ids": [
+        "src_gumroad_smallbatch"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-11",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    }
+  ],
+  "pricing_map": [
+    {
+      "format": "Bakery pricing spreadsheet",
+      "low": 7.79,
+      "median": 19,
+      "high": 29,
+      "currency": "USD",
+      "n_observations": 5,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "etsy-cake-calc",
+        "practicalkitlab",
+        "atori-cafe",
+        "small-batch-empire"
+      ]
+    },
+    {
+      "format": "Bakery app/software",
+      "low": 59.99,
+      "median": 149,
+      "high": 149,
+      "currency": "USD",
+      "n_observations": 2,
+      "evidence": "ESTIMATED",
+      "competitor_ids": [
+        "bakers-pricing-calc-app",
+        "cakeboss"
+      ]
+    },
+    {
+      "format": "Bread-specific pricing tool",
+      "low": 0,
+      "median": 20,
+      "high": 47,
+      "currency": "USD",
+      "n_observations": 3,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "sourdough-pricer",
+        "small-batch-empire",
+        "sourdoughgirlie"
+      ]
+    }
+  ],
+  "monetization_options": [
+    {
+      "id": "market-workbook",
+      "model": "spreadsheet_template",
+      "description": "Loaf Ledger Bread & Market Pricing Workbook.",
+      "fit": "strong",
+      "price_hypothesis": {
+        "value": 17,
+        "evidence": "INFERRED",
+        "observed_at": "2026-11-10",
+        "unit": "USD",
+        "currency": "USD",
+        "source_ids": [
+          "src_payhip_pkl",
+          "src_etsy_cake"
+        ]
+      },
+      "rationale": [
+        {
+          "id": "c_ll_mo1",
+          "statement": "Within the $8-$29 paid band; differentiated by bread and market-day focus.",
+          "evidence": "INFERRED",
+          "confidence": "medium",
+          "method": "analyst_inference",
+          "source_ids": [
+            "src_payhip_pkl",
+            "src_gumroad_smallbatch"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Low-spend audience",
+        "Free substitutes"
+      ]
+    },
+    {
+      "id": "label-pack",
+      "model": "printable",
+      "description": "Cottage food label and price-sign templates.",
+      "fit": "moderate",
+      "rationale": [
+        {
+          "id": "c_ll_mo2",
+          "statement": "Market sellers need signage and labels; state label rules vary (not legal advice).",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Must avoid implying legal compliance"
+      ]
+    },
+    {
+      "id": "affiliate-gear",
+      "model": "affiliate",
+      "description": "Bannetons, scales, packaging.",
+      "fit": "weak",
+      "rationale": [
+        {
+          "id": "c_ll_mo3",
+          "statement": "Needs approved accounts and traffic.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    },
+    {
+      "id": "bakery-saas",
+      "model": "saas_subscription",
+      "description": "Order/inventory software.",
+      "fit": "reject",
+      "rationale": [
+        {
+          "id": "c_ll_mo4",
+          "statement": "Stocksmith, CakeBoss and Homegrown cover it.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_stocksmith",
+            "src_cakeboss",
+            "src_homegrown"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    }
+  ],
+  "premium_product_recommendation": {
+    "name": "Loaf Ledger Bread & Market Pricing Workbook",
+    "target_segment_id": "cottage-bread-seller",
+    "format": "Google Sheets + Excel workbook, no macros, phone-friendly input tab, one-page quick start",
+    "price": {
+      "value": 17,
+      "evidence": "INFERRED",
+      "observed_at": "2026-11-10",
+      "unit": "USD",
+      "currency": "USD",
+      "source_ids": [
+        "src_payhip_pkl",
+        "src_etsy_cake",
+        "src_stan_atori"
+      ]
+    },
+    "must_include": [
+      "Ingredient library in grams with cost per gram and automatic unit conversion",
+      "Recipe costing by baker's percentage and batch yield",
+      "Packaging, market fee and mileage costs",
+      "'What am I paying myself per hour' readout (now table stakes: a free sourdough pricer shows it)",
+      "Price ladder: wholesale, market and pre-order",
+      "Market-day log: loaves baked, sold, wasted, profit per market",
+      "Printable price list for the stall",
+      "Worked example: a sourdough country loaf",
+      "Lead with what free tools lack: the market-day loop (baked, sold, wasted, profit per market) and a wholesale/market/pre-order price ladder"
+    ],
+    "must_not": [
+      "Give legal advice on cottage food rules (link to state resources instead)",
+      "Promise income",
+      "Be cake-first like competitors"
+    ],
+    "why_they_pay": "It answers the question bakers already ask (am I paying myself anything?) and pays for itself if one market day's prices rise by about $1 a loaf.",
+    "offer_ladder": [
+      {
+        "tier": "free",
+        "item": "Loaf cost calculator and guides",
+        "price": {
+          "value": 0,
+          "evidence": "VERIFIED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD",
+          "source_ids": [
+            "src_forge_ws4"
+          ]
+        }
+      },
+      {
+        "tier": "core",
+        "item": "Bread & Market Pricing Workbook",
+        "price": {
+          "value": 17,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      },
+      {
+        "tier": "bundle",
+        "item": "Workbook + label and price-sign pack",
+        "price": {
+          "value": 24,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      }
+    ],
+    "falsifying_test": "Zero sales from the first 300 sessions on the product page within 60 days of launch.",
+    "evidence": [
+      {
+        "id": "c_ll_pp_e1",
+        "statement": "Paid comparables at $7.79, $19 and $29 are verified; the bread/market angle is the gap.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_etsy_cake",
+          "src_payhip_pkl",
+          "src_stan_atori"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_pp_e2",
+        "statement": "The hourly-wage framing matches the language bakers use.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "forum_mining",
+        "source_ids": [
+          "src_forge_ws4",
+          "src_profitable_baker"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_ll_pp_e2",
+        "statement": "Free and paid bread pricing tools now cover cost-per-loaf and hourly wage; none observed covers the market-day loop.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_freshloaf_pricer",
+          "src_skool_crustcrumb",
+          "src_stan_sourdoughgirlie"
+        ],
+        "observed_at": "2026-11-11"
+      }
+    ]
+  },
+  "economics": {
+    "unit_economics": [
+      {
+        "id": "c_ll_ue",
+        "statement": "A $17 sale nets about $15.65 after the estimated 5% + $0.50 fee.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 15.65,
+        "unit": "USD"
+      },
+      {
+        "id": "c_ll_ue_breakeven",
+        "statement": "At about $15.65 net per $17 sale, $100 a month needs 7 sales and $400 a month needs 26 sales. This is arithmetic on the estimated fee, not a forecast.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-11",
+        "value": 26,
+        "unit": "sales/month for $400"
+      }
+    ],
+    "scenarios": {
+      "downside": {
+        "monthly_orders": 0,
+        "average_order_value": 17,
+        "monthly_gross": 0,
+        "monthly_contribution": 0.0,
+        "assumptions": [
+          "No product yet; site has no capture or offer"
+        ],
+        "evidence": "INFERRED"
+      },
+      "base": {
+        "monthly_orders": 6,
+        "average_order_value": 17,
+        "monthly_gross": 102,
+        "monthly_contribution": 93.9,
+        "assumptions": [
+          "Hypothesis only: holiday and spring market seasons drive modest organic sales"
+        ],
+        "evidence": "INFERRED"
+      },
+      "upside": {
+        "monthly_orders": 25,
+        "average_order_value": 20,
+        "monthly_gross": 500,
+        "monthly_contribution": 462.5,
+        "assumptions": [
+          "Hypothesis only: Pinterest + SEO for bread pricing terms; bundle lifts AOV"
+        ],
+        "evidence": "INFERRED"
+      }
+    }
+  },
+  "channel_fit": [
+    {
+      "channel": "Organic search",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_ll_ch_seo",
+        "statement": "Pricing questions are searched, but cake terms are crowded; bread terms look thinner.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "search_result_observation",
+        "source_ids": [
+          "src_serp_cake_calcs"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Pinterest",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_ll_ch_pin",
+        "statement": "Baking content performs on Pinterest generally; reuse QPK's RSS drip.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Instagram",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_ll_ch_ig",
+        "statement": "Cottage bakers market on Instagram; needs owner account.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Communities (Fresh Loaf, Reddit)",
+      "fit": "unknown",
+      "rationale": {
+        "id": "c_ll_ch_comm",
+        "statement": "Where the hourly-wage language came from; no self-promotion.",
+        "evidence": "INFERRED",
+        "confidence": "low",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "date": "2026-11-10",
+      "call": "go_with_changes",
+      "subject": "Build the bread & market workbook as Loaf Ledger's paid product",
+      "rationale": "See summary.",
+      "falsifying_test": "See summary.",
+      "decided_by": "intelligence (recommendation)"
+    },
+    {
+      "date": "2026-11-11",
+      "call": "go_with_changes",
+      "subject": "Loaf Ledger paid product after new bread competitors",
+      "rationale": "Bread-specific pricing tools now exist (one free). The workbook is still justified by the market-day loop, which none of them shows, and paid bread tools sell at $20-$47.",
+      "falsifying_test": "Unchanged: 300+ sessions in 60 days with zero sales means hold.",
+      "decided_by": "intelligence (recommendation)"
+    }
+  ],
+  "data_connectors": [
+    {
+      "name": "Google Trends (5-year, US, related queries)",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Relative interest 0-100 over 5 years, seasonal peaks, rising related queries; sets publish_by dates.",
+      "blocked_reason": "trends.google.com is robots-disallowed to the fetch tool and the container proxy refuses direct connections. Needs a scheduled job on an allowed runner (n8n or James's PC) or a manual CSV export."
+    },
+    {
+      "name": "Google Search autocomplete",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Long-tail question phrasing for keyword lists.",
+      "blocked_reason": "Proxy refuses suggestqueries.google.com from this container."
+    },
+    {
+      "name": "Google Keyword Planner",
+      "status": "requires_owner_account",
+      "cost": "free with a Google Ads account (no spend needed)",
+      "would_add": "Monthly search volume ranges and competition per keyword."
+    },
+    {
+      "name": "Google Search Console",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "First-party impressions, clicks, positions and real queries for each site; replaces guesses with measured demand."
+    },
+    {
+      "name": "Cloudflare Web Analytics",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "Visits and top pages per site."
+    },
+    {
+      "name": "FORGE ledger (D1 sales/events)",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Verified orders and funnel events by niche. As of 2026-11-10 holds test-mode rows only."
+    },
+    {
+      "name": "Etsy listings",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Prices, review counts and shop sales for template sellers. Individual listing pages are fetchable; search pages are not, so sampling is manual. Etsy Open API needs a developer account (new account, not authorized)."
+    },
+    {
+      "name": "Amazon / KDP bestseller ranks",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Book demand proxies (BSR, review counts).",
+      "blocked_reason": "robots-disallowed to the fetch tool."
+    },
+    {
+      "name": "Pinterest Trends and board RSS",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Seasonal pin interest and publication receipts.",
+      "blocked_reason": "robots-disallowed; Pinterest Trends needs a business login."
+    },
+    {
+      "name": "Semrush / Ahrefs / Similarweb",
+      "status": "requires_paid_access",
+      "cost": "paid (roughly $100+/month); not in budget",
+      "would_add": "Third-party traffic and keyword difficulty estimates for competitors (would be labelled ESTIMATED)."
+    },
+    {
+      "name": "Reddit API",
+      "status": "requires_owner_account",
+      "cost": "free tier",
+      "would_add": "Systematic mining of customer language. Read-only mirrors were used for a few threads instead."
+    }
+  ],
+  "sources": [
+    {
+      "id": "src_ij_survey",
+      "title": "Institute for Justice: Cottage Foods Survey",
+      "url": "https://ij.org/report/cottage-foods-survey/",
+      "accessed_at": "2026-11-10",
+      "kind": "survey_or_report",
+      "publisher": "Institute for Justice",
+      "published": "2018-09",
+      "reliability_note": "775 producers in 22 states; sales data for 2016. Advocacy organisation, but survey method is stated."
+    },
+    {
+      "id": "src_ij_study",
+      "title": "IJ / Food Policy: cottage food laws and business outcomes",
+      "url": "https://ij.org/report/the-relationship-between-cottage-food-laws-and-business-outcomes-a-quantitative-study-of-cottage-food-producers-in-the-united-states/",
+      "accessed_at": "2026-11-10",
+      "kind": "survey_or_report",
+      "publisher": "McDonald (2019), Food Policy 84",
+      "published": "2019"
+    },
+    {
+      "id": "src_payhip_pkl",
+      "title": "Payhip: Home Bakery Pricing Calculator (PracticalKitLab)",
+      "url": "https://payhip.com/b/3nd1c",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_etsy_cake",
+      "title": "Etsy: Cake Pricing Calculator Spreadsheet",
+      "url": "https://www.etsy.com/listing/4598876375",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_stan_atori",
+      "title": "Stan Store: Home Bakery Product Pricing System (Notion)",
+      "url": "https://stan.store/atoricafe/p/home-bakery-product-pricing-system-notion?lang=en",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_app_bpc",
+      "title": "App Store: Bakers Pricing Calculator",
+      "url": "https://apps.apple.com/us/app/id1588565115",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_cakeboss",
+      "title": "SaaSworthy: CakeBoss pricing",
+      "url": "https://www.saasworthy.com/product/cakeboss/pricing",
+      "accessed_at": "2026-11-10",
+      "kind": "review_site",
+      "reliability_note": "Aggregator page says pricing last updated 2021-05-29; stale. Prefer the vendor page."
+    },
+    {
+      "id": "src_stocksmith",
+      "title": "Stocksmith (formerly Craftybase) pricing",
+      "url": "https://stocksmith.io/pricing/",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_homegrown",
+      "title": "Homegrown free pricing calculator",
+      "url": "https://findhomegrown.com/tools/pricing-calculator",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_bbc",
+      "title": "Better Baker Club: pricing baked goods",
+      "url": "https://betterbakerclub.com/pricing-baked-goods-how-to-do-it-the-right-way/",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog"
+    },
+    {
+      "id": "src_cakecentral",
+      "title": "Cake Central forum: Costs higher than charging?",
+      "url": "https://www.cakecentral.com/forum/t/823705/costs-higher-than-charging/",
+      "accessed_at": "2026-11-10",
+      "kind": "forum_or_community",
+      "published": "2015-07-20",
+      "reliability_note": "Old thread; language still matches newer sources."
+    },
+    {
+      "id": "src_profitable_baker",
+      "title": "The Profitable Baker Podcast ep. 23",
+      "url": "https://theprofitablebakerpodcast.buzzsprout.com/2553269/episodes/19082398-episode-23-what-are-you-actually-worth-how-home-bakers-get-pricing-wrong-from-the-start",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog",
+      "published": "2026"
+    },
+    {
+      "id": "src_serp_cake_calcs",
+      "title": "Web search: free cake pricing calculator (2026-11-10)",
+      "url": "https://www.omnicalculator.com/food/cake-pricing",
+      "accessed_at": "2026-11-10",
+      "kind": "search_results",
+      "reliability_note": "Results include Omni Calculator, Craftybase and many small pages.dev calculator sites."
+    },
+    {
+      "id": "src_serp_bakery_templates",
+      "title": "Web search: bakery pricing spreadsheet (2026-11-10)",
+      "url": "https://www.etsy.com/listing/4591782333",
+      "accessed_at": "2026-11-10",
+      "kind": "search_results",
+      "reliability_note": "Listing removed by 2026-11-11 (assisted re-check). No longer cited; kept for the change history."
+    },
+    {
+      "id": "src_ls_fees",
+      "title": "Lemon Squeezy fee reviews (5% + 50c)",
+      "url": "https://dodopayments.com/blogs/lemonsqueezy-review",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog"
+    },
+    {
+      "id": "src_forge_ws4",
+      "title": "FORGE audit WS4 (Fresh Loaf thread insight, Feb 2026)",
+      "url": "/mnt/project-files/audit/WS4_MARKET_DESIGN_MARKETING.md",
+      "accessed_at": "2026-11-10",
+      "kind": "internal_doc"
+    },
+    {
+      "id": "src_freshloaf_pricer",
+      "title": "The Fresh Loaf forum: 'I built a free sourdough pricing calculator after years of guessing what to charge'",
+      "url": "https://www.thefreshloaf.com/comment/550691",
+      "accessed_at": "2026-11-11",
+      "kind": "forum_or_community",
+      "published": "2026-02-16",
+      "reliability_note": "Forum post announcing a free tool (sourdoughpricer.com). The tool's own site is robots-disallowed to the fetch tool, so it is described from the post only."
+    },
+    {
+      "id": "src_stan_sourdoughgirlie",
+      "title": "Stan: Sourdough Bread Pricing Calculator (@sourdoughgirlie)",
+      "url": "https://stan.store/sourdoughgirlie/p/calculator-86ld5h7a",
+      "accessed_at": "2026-11-11",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_skool_crustcrumb",
+      "title": "Skool: Crust & Crumb Academy, 'New Tool: Price Your Loaf Calculator'",
+      "url": "https://www.skool.com/crust-crumb-academy-7621/new-tool-price-your-loaf-calculator",
+      "accessed_at": "2026-11-11",
+      "kind": "forum_or_community",
+      "reliability_note": "Shared inside a community with a $5/month join button; post year not shown."
+    },
+    {
+      "id": "src_gumroad_smallbatch",
+      "title": "Gumroad: Ingredient costs and Recipe pricing calculator (Small Batch Empire)",
+      "url": "https://smallbatchempire.gumroad.com/l/recipecalculator",
+      "accessed_at": "2026-11-11",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_etsy_homebaker_4578823822",
+      "title": "Etsy: Recipe Cost Calculator for Home Bakers (Excel & Google Sheets)",
+      "url": "https://www.etsy.com/listing/4578823822",
+      "accessed_at": "2026-11-11",
+      "kind": "marketplace_listing"
+    }
+  ],
+  "open_questions": [
+    "Does the Loaf Ledger spreadsheet James remembers exist anywhere (not found on PC or Drive on 2026-11-10)?",
+    "Should Loaf Ledger target bread sellers only, or also cakes?"
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "First brief from public sources."
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "QA-001 I2: CakeBoss price relabelled ESTIMATED with a staleness note (aggregator dated 2021-05-29)."
+    },
+    {
+      "version": "1.0.2",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "QA-001 retest R1: CakeBoss split out of the VERIFIED key finding into its own ESTIMATED claim."
+    },
+    {
+      "version": "1.0.3",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Assisted re-check on 2026-11-11 found the listing behind src_serp_bakery_templates removed. Re-cited the 6 claims that used it. New competitors: a free sourdough pricer (Feb 2026), a $47 Stan calculator, a community tool and a $20 Gumroad calculator. The 'bread gap' finding is narrowed and the premium product must lead with the market-day loop. Break-even sales added."
+    }
+  ]
+}

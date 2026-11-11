@@ -6,6 +6,8 @@ export interface PackSource {
   publisher?: string; published?: string | null; reliability_note?: string;
   /** Strings that must appear on the live page for the cited figure to count as re-confirmed (e.g. "$18.00", "1.8k sales"). */
   expect?: string[];
+  /** "assisted": the site blocks automated fetches, so the Worker does not GET it; a recorded observation stands in (see observations.ts). */
+  recheck?: "auto" | "assisted";
 }
 
 export interface Claim {
@@ -36,9 +38,11 @@ export interface EvidencePack {
   schema: "forge.evidence-pack/1";
   label: string; prepared_by: string; prepared_at: string;
   method_note?: string;
+  /** "discovery" (default) packs feed the opportunity board; the monthly Scout cycle re-runs the newest one. */
+  purpose?: "discovery";
   sources: PackSource[];
   candidates: PackCandidate[];
 }
 
 export type SourceOutcome = "confirmed" | "reachable" | "mismatch" | "dead" | "unreachable" | "skipped";
-export interface SourceCheck { sourceId: string; url: string; outcome: SourceOutcome; httpStatus: number | null; missing: string[] }
+export interface SourceCheck { sourceId: string; url: string; outcome: SourceOutcome; httpStatus: number | null; missing: string[]; via?: "http" | "etsy_api" | "observation"; observedAt?: string; note?: string }

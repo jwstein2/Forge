@@ -143,6 +143,6 @@ describe("schedule", () => {
     const { seedSchedules } = await import("../../operator/src/schedule.ts");
     const { INTEL_SCHEDULES } = await import("../src/index.ts");
     const { db } = await makeEnv();
-    expect(await seedSchedules(db, INTEL_SCHEDULES as never)).toBe(1);
+    expect(await seedSchedules(db, INTEL_SCHEDULES as never)).toBe(INTEL_SCHEDULES.length);
   });
 });

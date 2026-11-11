@@ -21,6 +21,8 @@ import { rank, type ScoringModel } from "../score.ts";
 import { pageviewClaims } from "../signal-claims.ts";
 import { collectPageviews, type SeasonSummary } from "../signals.ts";
 import { checkSource } from "../verify.ts";
+import { etsyApiCheck, etsyListingId } from "../etsy.ts";
+import { effectiveChecks, isAssisted } from "../observations.ts";
 import type { Claim, EvidencePack, PackCandidate, SourceCheck } from "../types.ts";
 
 export const SOURCE_BATCH = 6;
@@ -42,6 +44,15 @@ export async function storePack(db: D1Database, pack: EvidencePack, createdBy: s
   await db.prepare(`INSERT INTO research_packs (id,label,content_json,content_hash,created_by,created_at) VALUES (?,?,?,?,?,?)`)
     .bind(id, pack.label, JSON.stringify(pack), hash, createdBy, nowIso()).run();
   return id;
+}
+
+/** Newest discovery pack by its prepared_at (packs from git and from the owner both count). */
+export async function latestDiscoveryPack(db: D1Database): Promise<string | null> {
+  const rows = (await db.prepare(`SELECT id, content_json, created_at FROM research_packs ORDER BY created_at DESC LIMIT 20`).all<{ id: string; content_json: string; created_at: string }>()).results;
+  const packs = rows.map((r) => ({ id: r.id, p: parseJson<Partial<EvidencePack>>(r.content_json, {}), at: r.created_at }))
+    .filter((x) => (x.p.purpose ?? "discovery") === "discovery")
+    .sort((a, b) => String(b.p.prepared_at ?? b.at).localeCompare(String(a.p.prepared_at ?? a.at)));
+  return packs[0]?.id ?? null;
 }
 
 export function scoutHandlers(fetcher: Fetcher, handlers: () => Map<string, HandlerDef>): HandlerDef[] {
@@ -87,13 +98,18 @@ export function scoutHandlers(fetcher: Fetcher, handlers: () => Map<string, Hand
     kind: "intel.source.check", runType: "deterministic", usesModel: false,
     steps: [{
       name: "check",
-      async run({ db, input, jobId }) {
+      async run({ db, env, input, jobId }) {
         const ids = new Set((input.sourceIds as string[]) ?? []);
-        const sources = input.sources as { id: string; url: string; expect?: string[] }[] | undefined
+        const sources = input.sources as { id: string; url: string; expect?: string[]; recheck?: "auto" | "assisted" }[] | undefined
           ?? (await loadPack(db, String(input.packId))).sources.filter((s) => ids.has(s.id));
+        const etsyKey = (env as unknown as Record<string, string | undefined>).ETSY_API_KEY;
         const counts: Record<string, number> = {};
         for (const s of sources.slice(0, SOURCE_BATCH * 2)) {
-          const c = await checkSource(fetcher, { id: s.id, url: s.url, expect: s.expect, title: "", kind: "", accessed_at: "" });
+          // Official API when the owner has approved a key; otherwise sites that bot-wall the Worker are not fetched at all
+          // (their dated observations stand in at finalize), and everything else gets a plain GET.
+          const c = etsyKey && etsyListingId(s.url) ? await etsyApiCheck(fetcher, etsyKey, s)
+            : isAssisted(s.url, s.recheck) ? { sourceId: s.id, url: s.url, outcome: "skipped" as const, httpStatus: null, missing: [], note: "assisted re-check: site blocks automated fetches" }
+            : await checkSource(fetcher, { id: s.id, url: s.url, expect: s.expect, title: "", kind: "", accessed_at: "" });
           counts[c.outcome] = (counts[c.outcome] ?? 0) + 1;
           await db.prepare(`INSERT INTO research_source_checks (id,run_id,source_id,url,checked_at,http_status,outcome,matched_expectation,missing_json,job_id) VALUES (?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(run_id, source_id) DO UPDATE SET checked_at=excluded.checked_at, http_status=excluded.http_status, outcome=excluded.outcome, matched_expectation=excluded.matched_expectation, missing_json=excluded.missing_json, job_id=excluded.job_id`)
@@ -131,8 +147,10 @@ export function scoutHandlers(fetcher: Fetcher, handlers: () => Map<string, Hand
       async run({ db, env, input, now }) {
         const runId = String(input.runId);
         const pack = await loadPack(db, String(input.packId));
-        const checks = (await db.prepare(`SELECT source_id, url, outcome, http_status, missing_json FROM research_source_checks WHERE run_id = ?`).bind(runId).all<Record<string, any>>()).results
+        const rawChecks = (await db.prepare(`SELECT source_id, url, outcome, http_status, missing_json FROM research_source_checks WHERE run_id = ?`).bind(runId).all<Record<string, any>>()).results
           .map((r): SourceCheck => ({ sourceId: r.source_id, url: r.url, outcome: r.outcome, httpStatus: r.http_status, missing: parseJson(r.missing_json, []) }));
+        const eff = await effectiveChecks(db, rawChecks, now);
+        const checks = eff.checks;
         const signals = (await db.prepare(`SELECT candidate, subject, status, summary_json FROM research_signals WHERE run_id = ?`).bind(runId).all<Record<string, any>>()).results;
         const connectors = connectorStates(env as unknown as Record<string, unknown>);
         const day = now.toISOString().slice(0, 10);
@@ -159,15 +177,15 @@ export function scoutHandlers(fetcher: Fetcher, handlers: () => Map<string, Hand
         }
         const ranked = rank(MODEL, evaluated.map((c) => ({ opportunity_key: c.key, criterion_scores: c.criterion_scores, gates: c.gates })));
         const hard = checks.filter((c) => c.outcome === "dead" || c.outcome === "mismatch").length;
-        const unreachable = checks.filter((c) => c.outcome === "unreachable").length;
+        const unreachable = checks.filter((c) => c.outcome === "unreachable" || (c.outcome === "skipped" && /^https?:/.test(c.url))).length;
         const sigMissing = signals.filter((s) => s.status !== "collected").length;
-        return { output: { evaluated, ranked, downgrades, sourceSummary: { checked: checks.length, confirmed: checks.filter((c) => c.outcome === "confirmed").length, reachable: checks.filter((c) => c.outcome === "reachable").length, failed: hard, unreachable }, signalsMissing: sigMissing, unconnected: unconnectedNames(connectors) } };
+        return { output: { evaluated, ranked, downgrades, sourceSummary: { checked: checks.length, confirmed: checks.filter((c) => c.outcome === "confirmed").length, reachable: checks.filter((c) => c.outcome === "reachable").length, failed: hard, unreachable, viaObservation: eff.assisted, staleObservations: eff.stale.length }, observations: checks.filter((c) => c.via === "observation").map((c) => ({ sourceId: c.sourceId, outcome: c.outcome, observedAt: c.observedAt, note: c.note })), staleObservations: eff.stale, signalsMissing: sigMissing, unconnected: unconnectedNames(connectors) } };
       },
     }, {
       name: "persist",
       async run({ db, input, outputs }) {
         const runId = String(input.runId);
-        const ev = outputs.evaluate as { evaluated: PackCandidate[]; ranked: ReturnType<typeof rank>; downgrades: Record<string, Downgrade[]>; sourceSummary: { checked: number; confirmed: number; reachable: number; failed: number; unreachable: number }; signalsMissing: number; unconnected: string[] };
+        const ev = outputs.evaluate as { evaluated: PackCandidate[]; ranked: ReturnType<typeof rank>; downgrades: Record<string, Downgrade[]>; sourceSummary: { checked: number; confirmed: number; reachable: number; failed: number; unreachable: number; viaObservation: number; staleObservations: number }; observations: unknown[]; staleObservations: string[]; signalsMissing: number; unconnected: string[] };
         const at = nowIso();
         await db.prepare(`INSERT INTO scoring_models (id,version,content_json,content_hash,active,created_at) VALUES (?,?,?,?,1,?) ON CONFLICT(version) DO NOTHING`)
           .bind(MODEL.model_id, MODEL.version, JSON.stringify(scoringModelDoc), await sha256Hex(canonicalJson(scoringModelDoc)), at).run();
@@ -197,14 +215,28 @@ export function scoutHandlers(fetcher: Fetcher, handlers: () => Map<string, Hand
         const partial = errors.length > 0 || ev.sourceSummary.unreachable > 0 || ev.signalsMissing > 0;
         const status = stored.length ? (partial ? "partial" : "succeeded") : "failed";
         await db.prepare(`UPDATE research_runs SET status=?, finished_at=? WHERE id=?`).bind(status, at, runId).run();
-        const report = { runId, packId: input.packId, status, ranking: ev.ranked.map((r) => ({ key: r.opportunity_key, rank: r.rank, raw: r.raw_score, adjusted: r.adjusted_score, coverage: r.evidence_coverage, recommended: r.recommended, strength: r.recommendation_strength, missingRequired: r.missing_required })), stored, downgrades: ev.downgrades, sources: ev.sourceSummary, signalsMissing: ev.signalsMissing, unconnected: ev.unconnected, errors };
+        const report = { runId, packId: input.packId, status, ranking: ev.ranked.map((r) => ({ key: r.opportunity_key, rank: r.rank, raw: r.raw_score, adjusted: r.adjusted_score, coverage: r.evidence_coverage, recommended: r.recommended, strength: r.recommendation_strength, missingRequired: r.missing_required })), stored, downgrades: ev.downgrades, sources: ev.sourceSummary, observations: ev.observations, staleObservations: ev.staleObservations, signalsMissing: ev.signalsMissing, unconnected: ev.unconnected, errors };
         await db.prepare(`INSERT INTO research_run_reports (run_id,pack_id,report_json,created_at) VALUES (?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET report_json=excluded.report_json`).bind(runId, String(input.packId), JSON.stringify(report), at).run();
         if (!stored.length) throw new NonRetryableError(`Scout run stored no opportunities: ${errors.join(" | ").slice(0, 400)}`);
         return { output: { status, stored: stored.length, recommended: ev.ranked.find((r) => r.recommended)?.opportunity_key ?? null, errors: errors.length } };
       },
     }],
   };
-  return [run, sourceCheck, signalCollect, finalize];
+  /** Monthly: re-run the newest discovery pack so Command's opportunity board is never older than a month. */
+  const cycle: HandlerDef = {
+    kind: "intel.scout.cycle", registryId: "FORGE-INTEL-SCOUT-CYCLE", runType: "deterministic", usesModel: false,
+    steps: [{
+      name: "enqueue",
+      async run({ db, now, jobId }) {
+        const packId = await latestDiscoveryPack(db);
+        if (!packId) return { output: { skipped: "no evidence pack stored yet" } };
+        const month = now.toISOString().slice(0, 7);
+        const j = await enqueue(db, handlers(), { kind: "intel.scout.run", parentId: jobId, idempotencyKey: `scout:${packId}:${month}`, input: { packId, requestedBy: "schedule:INTEL-SCOUT-MONTHLY" }, createdBy: `job:${jobId}`, maxAttempts: 2 });
+        return { output: { packId, month, scoutJob: j.id, created: j.created } };
+      },
+    }],
+  };
+  return [run, sourceCheck, signalCollect, finalize, cycle];
 }
 
 export function opportunityDoc(c: PackCandidate, r: ReturnType<typeof rank>[number], runId: string, at: string, briefId: string | null, unconnected: string[]): Record<string, unknown> {

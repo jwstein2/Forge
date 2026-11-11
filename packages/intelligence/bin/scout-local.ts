@@ -13,7 +13,7 @@ import { REGISTRY_DATA } from "../../../services/api/src/domain/registry-data.ts
 import { enqueue, tick } from "../../../services/api/src/orchestration/engine.ts";
 import { defaultHandlers } from "../../../services/api/src/orchestration/handlers.ts";
 import { opportunityBoard, listBriefs } from "../../../services/api/src/domain/intelligence.ts";
-import { intelligenceHandlers, seedIntelligenceRegistry, storePack } from "../src/index.ts";
+import { intelligenceHandlers, seedIntelligenceRegistry, storePack, storeObservations, GIT_OBSERVATIONS } from "../src/index.ts";
 import { defaultFetcher, type Fetcher } from "../src/fetch.ts";
 
 const args = process.argv.slice(2);
@@ -33,6 +33,7 @@ for (const f of readdirSync(mine).filter((f) => f.endsWith(".sql")).sort()) if (
 const env = { DB: d1.asD1(), ENVIRONMENT: "local" } as unknown as Env;
 await seedRegistry(env.DB, REGISTRY_DATA);
 await seedIntelligenceRegistry(env.DB);
+await storeObservations(env.DB, GIT_OBSERVATIONS); // dated Etsy observations kept in git
 const handlers = defaultHandlers();
 for (const h of intelligenceHandlers({ fetcher })) handlers.set(h.kind, h);
 

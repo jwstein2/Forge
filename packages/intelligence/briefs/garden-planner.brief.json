@@ -1,0 +1,1799 @@
+{
+  "schema_version": "1.0.0",
+  "brief_id": "brief_garden-planner_v1-0-3",
+  "niche": "garden-planner",
+  "display_name": "Garden Planner (working name)",
+  "version": "1.0.3",
+  "supersedes": "brief_garden-planner_v1-0-2",
+  "status": "draft",
+  "created_at": "2026-11-10T04:20:00Z",
+  "updated_at": "2026-11-11T03:00:00Z",
+  "refresh_by": "2027-02-10",
+  "authors": [
+    "forge-intelligence (Opportunity Scout run 2026-11-scout-01)"
+  ],
+  "approved_by": null,
+  "summary": {
+    "one_line": "Home vegetable gardeners pay small amounts for printable planners and larger amounts for planning software; free date calculators are everywhere, so the opening is a personal frost-date planting calendar joined to a printable season planner, sold at about $15 before the January to March planning window.",
+    "go_hold": {
+      "date": "2026-11-10",
+      "call": "go_with_changes",
+      "subject": "Garden Planner as the candidate fourth business (blueprint only, no launch)",
+      "rationale": "Highest adjusted score in Scout run 2026-11-scout-01 and the only candidate with VERIFIED demand and price evidence that passes every gate. The changes: the free calculator must be the traffic engine, and the paid kit must do what free tools do not (a personal, printable season plan from one frost date).",
+      "falsifying_test": "If the free planting-calendar pages get 500+ organic or Pinterest sessions between 2027-01-01 and 2027-03-15 and the kit sells nothing, hold the niche. Owner-adjustable rule, not a forecast.",
+      "decided_by": "intelligence (recommendation)"
+    },
+    "key_findings": [
+      {
+        "id": "c_g_listings",
+        "statement": "Paid printable garden planners on Etsy show real purchase activity: 27 item reviews (MissMikesPlace, $7.05, shop 1.1k sales), 26 item reviews (MeadowGates, shop 2.2k sales) and 3 item reviews at $18.00 (ReformStead, shop 1.8k sales).",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "marketplace_listing_observation",
+        "source_ids": [
+          "src_etsy_garden_975558000",
+          "src_etsy_garden_962596027",
+          "src_etsy_garden_650687408"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Review counts are a lower bound on sales; shop sales cover all of each shop's products."
+      },
+      {
+        "id": "c_g_prices_printable",
+        "statement": "Printable garden planners sell at $3.99 (8-page grid), $7.05 (35 pages) and $18.00 (200+ pages).",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "marketplace_listing_observation",
+        "source_ids": [
+          "src_etsy_garden_1490379686",
+          "src_etsy_garden_975558000",
+          "src_etsy_garden_650687408"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_g_prices_offetsy",
+        "statement": "Off Etsy, garden planners sell at $1.99 (Payhip, 40 pages, no reviews yet), $7 (Gumroad, 44 pages) and GBP 5 (Gumroad, UK), and a 41-page planner is given away free on Gumroad.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_payhip_farmverse",
+          "src_gumroad_backyardhomesteader",
+          "src_gumroad_veggiepatch",
+          "src_gumroad_natashalh"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "These pages can be re-checked by the Worker, unlike Etsy; they show prices but not sales."
+      },
+      {
+        "id": "c_g_prices_software",
+        "statement": "Garden-planning software charges $35 a year auto-renewing, $50 for one year or $85 for two years (Almanac Garden Planner, 7-day trial) and $7 or $14 a month billed yearly (Seedtime paid plans).",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_almanac_gp_pricing",
+          "src_seedtime_calendar"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_g_free_tools",
+        "statement": "Free planting-date tools exist: Seedtime's calendar is free forever with suggested seeding, transplant and harvest dates; Johnny's calculator takes a frost-free date and returns indoor-start and set-out windows; Vital Seeds gives away a planning spreadsheet.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "product_page_observation",
+        "source_ids": [
+          "src_seedtime_calendar",
+          "src_johnnys_calc",
+          "src_vital_seeds_sheet"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_g_audience",
+        "statement": "41% of US households (about 53.7 million) did some food gardening in 2021, spending an average of $88.24 on it (National Gardening Association survey, as reported in April 2022).",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_nga_2021_fox9"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 53.7,
+        "unit": "million households",
+        "notes": "2021 data, a pandemic-era high (33.1% in 2019). Newer NGA editions are paid and were not read."
+      },
+      {
+        "id": "c_g_zones",
+        "statement": "USDA's November 2023 hardiness map moved about half the country into the next warmer half zone.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "government_statistics",
+        "source_ids": [
+          "src_usda_zone_2023"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_g_frost_data",
+        "statement": "Frost dates can come from NOAA NCEI's 1991-2020 U.S. Climate Normals, which Data.gov lists under CC0 (public domain). The annual normals include last-spring and first-fall 32F, 28F and 36F probability dates at 10-90%, for 7,300+ stations with temperature normals. Climate.gov's last-freeze map uses the 50% date.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "government_statistics",
+        "source_ids": [
+          "src_ncei_normals_catalog",
+          "src_ncei_normals_doc",
+          "src_climategov_lastfreeze"
+        ],
+        "observed_at": "2026-11-10",
+        "notes": "Element names ANN-TMIN-PRBLST-T32FP50 (spring) and ANN-TMIN-PRBFST-T32FP50 (fall). Not yet checked: the date encoding in the CSV, and the coverage of the freeze elements, which is a subset of the 7,300."
+      }
+    ]
+  },
+  "audience": {
+    "segments": [
+      {
+        "id": "home-vegetable-gardener",
+        "name": "Home vegetable gardener",
+        "description": "Grows food in raised beds or a backyard plot; plans each winter what to sow and when.",
+        "priority": "primary",
+        "skill_level": "Beginner to intermediate",
+        "context": "Plans in winter, sows indoors late winter, transplants after last frost.",
+        "devices_and_formats": [
+          "Printed PDFs",
+          "Phone in the garden",
+          "Desktop for planning"
+        ],
+        "platforms": [
+          "Pinterest",
+          "YouTube",
+          "Google search",
+          "Facebook groups",
+          "Seed company newsletters"
+        ],
+        "evidence": [
+          {
+            "id": "c_g_seg1_tools",
+            "statement": "Gardeners describe planning with spreadsheets, apps, graph paper and paper maps.",
+            "evidence": "VERIFIED",
+            "confidence": "low",
+            "method": "forum_mining",
+            "source_ids": [
+              "src_goingtoseed_thread"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "home-vegetable-gardener"
+          }
+        ]
+      },
+      {
+        "id": "homesteader",
+        "name": "Homestead and preserving gardener",
+        "description": "Larger plots, succession planting and harvest logs for preserving.",
+        "priority": "secondary",
+        "platforms": [
+          "Pinterest",
+          "YouTube",
+          "Etsy"
+        ],
+        "evidence": [
+          {
+            "id": "c_g_seg2_listing",
+            "statement": "Best-selling planners are titled 'Homestead Journal' and include harvest records and crop rotation trackers.",
+            "evidence": "VERIFIED",
+            "confidence": "medium",
+            "method": "marketplace_listing_observation",
+            "source_ids": [
+              "src_etsy_garden_975558000",
+              "src_etsy_garden_650687408"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "homesteader"
+          }
+        ]
+      },
+      {
+        "id": "gift-buyer",
+        "name": "Gift buyer",
+        "description": "Buys a planner for a gardening relative.",
+        "priority": "exploratory",
+        "platforms": [
+          "Etsy",
+          "Pinterest"
+        ],
+        "evidence": [
+          {
+            "id": "c_g_seg3_gift",
+            "statement": "The $18 planner's title includes 'Gardening Gift'.",
+            "evidence": "VERIFIED",
+            "confidence": "low",
+            "method": "marketplace_listing_observation",
+            "source_ids": [
+              "src_etsy_garden_650687408"
+            ],
+            "observed_at": "2026-11-10",
+            "segment_id": "gift-buyer"
+          }
+        ]
+      }
+    ],
+    "demographics": [
+      {
+        "id": "c_g_demo_households",
+        "statement": "About 53.7 million US households did some food gardening in 2021.",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "published_survey",
+        "source_ids": [
+          "src_nga_2021_fox9"
+        ],
+        "observed_at": "2026-11-10"
+      },
+      {
+        "id": "c_g_demo_age",
+        "statement": "Age, income and region of garden-planner buyers are unknown.",
+        "evidence": "UNKNOWN",
+        "confidence": "low",
+        "method": "not_collected",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "to_resolve": "NGA National Gardening Survey 2026 edition (paid; owner approval needed) or first-party buyer data after launch"
+      }
+    ],
+    "customer_language": [
+      {
+        "phrase": "how are you planning out your garden?",
+        "segment_id": "home-vegetable-gardener",
+        "source_ids": [
+          "src_goingtoseed_thread"
+        ]
+      },
+      {
+        "phrase": "can't always remember to enter the results",
+        "segment_id": "home-vegetable-gardener",
+        "source_ids": [
+          "src_goingtoseed_thread"
+        ]
+      },
+      {
+        "phrase": "less than wonderful, but it works (on a garden planner app)",
+        "segment_id": "home-vegetable-gardener",
+        "source_ids": [
+          "src_goingtoseed_thread"
+        ]
+      }
+    ],
+    "visual_and_trust_preferences": [
+      {
+        "id": "c_g_vis",
+        "statement": "Planner listings lead with photographed, printed pages in binders; buyers want to see the pages.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_etsy_garden_962596027",
+          "src_etsy_garden_650687408"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "jobs_to_be_done": [
+    {
+      "id": "c_g_jtbd_dates",
+      "statement": "Know when to start each crop indoors and when to plant out for my frost date.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_johnnys_calc",
+        "src_seedtime_calendar"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "home-vegetable-gardener"
+    },
+    {
+      "id": "c_g_jtbd_layout",
+      "statement": "Lay out beds and decide how many plants fit.",
+      "evidence": "VERIFIED",
+      "confidence": "medium",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_etsy_garden_1490379686",
+        "src_vital_seeds_sheet"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "home-vegetable-gardener"
+    },
+    {
+      "id": "c_g_jtbd_record",
+      "statement": "Record what was planted and harvested so next year goes better.",
+      "evidence": "VERIFIED",
+      "confidence": "low",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_goingtoseed_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "home-vegetable-gardener"
+    }
+  ],
+  "pains": [
+    {
+      "id": "c_g_pain_time",
+      "statement": "Too little time to plan.",
+      "evidence": "VERIFIED",
+      "confidence": "low",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_goingtoseed_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "home-vegetable-gardener"
+    },
+    {
+      "id": "c_g_pain_tracking",
+      "statement": "Forgetting to record results.",
+      "evidence": "VERIFIED",
+      "confidence": "low",
+      "method": "forum_mining",
+      "source_ids": [
+        "src_goingtoseed_thread"
+      ],
+      "observed_at": "2026-11-10",
+      "segment_id": "home-vegetable-gardener"
+    },
+    {
+      "id": "c_g_pain_zone",
+      "statement": "Zone shifts in the 2023 USDA map may leave old planting dates wrong.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_usda_zone_2023"
+      ],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "desired_outcomes": [
+    {
+      "id": "c_g_out",
+      "statement": "A season plan printed and on the fridge before seed-starting time, with nothing sown too early or too late.",
+      "evidence": "INFERRED",
+      "confidence": "medium",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10",
+      "segment_id": "home-vegetable-gardener"
+    }
+  ],
+  "buying_triggers": [
+    {
+      "id": "c_g_trig_winter",
+      "statement": "Winter planning and seed-catalogue season.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_g_trig_new",
+      "statement": "Starting a first vegetable garden or moving house.",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_g_trig_gift",
+      "statement": "Gift for a gardener (holidays).",
+      "evidence": "INFERRED",
+      "confidence": "low",
+      "method": "analyst_inference",
+      "source_ids": [
+        "src_etsy_garden_650687408"
+      ],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "objections": [
+    {
+      "id": "c_g_obj_free",
+      "statement": "Free date calculators and spreadsheets exist.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "product_page_observation",
+      "source_ids": [
+        "src_seedtime_calendar",
+        "src_johnnys_calc",
+        "src_vital_seeds_sheet"
+      ],
+      "observed_at": "2026-11-10"
+    },
+    {
+      "id": "c_g_obj_cheap",
+      "statement": "Printable planners sell from $3.99.",
+      "evidence": "VERIFIED",
+      "confidence": "high",
+      "method": "marketplace_listing_observation",
+      "source_ids": [
+        "src_etsy_garden_1490379686"
+      ],
+      "observed_at": "2026-11-10"
+    }
+  ],
+  "demand": {
+    "keywords": [
+      {
+        "term": "when to start seeds indoors",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_g_kw1",
+          "statement": "Seed companies run free calculators answering this.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_johnnys_calc"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "seed starting calculator",
+        "intent": "transactional",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_g_kw2",
+          "statement": "Named tools target this phrase.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_johnnys_calc"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "vegetable garden planner printable",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_g_kw3",
+          "statement": "Etsy listings use this phrasing.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_etsy_garden_650687408",
+            "src_etsy_garden_975558000"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "garden planting calendar",
+        "intent": "informational",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_g_kw4",
+          "statement": "Seedtime's free calendar product.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_seedtime_calendar"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "raised bed layout planner",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_g_kw5",
+          "statement": "Grid planners sold for raised beds.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_etsy_garden_1490379686"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      },
+      {
+        "term": "garden planner app",
+        "intent": "commercial",
+        "volume": {
+          "value": null,
+          "evidence": "UNKNOWN",
+          "observed_at": "2026-11-10",
+          "unit": "searches/month",
+          "to_resolve": "Google Keyword Planner (owner Google Ads account, free) or Search Console queries"
+        },
+        "evidence": {
+          "id": "c_g_kw6",
+          "statement": "Paid planner software category.",
+          "evidence": "VERIFIED",
+          "confidence": "medium",
+          "method": "search_result_observation",
+          "source_ids": [
+            "src_almanac_gp_pricing"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      }
+    ],
+    "trends": {
+      "status": "blocked",
+      "series": [],
+      "note": "Google Trends not connected. The Scout run collects Wikimedia pageviews from the Worker as a free interest proxy."
+    },
+    "seasonality": [
+      {
+        "event": "Winter garden planning",
+        "demand_window": "01-01/03-31",
+        "publish_by": "12-15",
+        "assets": [
+          "Planting-calendar pages by frost date",
+          "Pins: seed-starting schedules",
+          "Kit launch"
+        ],
+        "evidence": {
+          "id": "c_g_seas_plan",
+          "statement": "Planning and seed-starting interest likely peaks January to March.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "Holiday gifts for gardeners",
+        "demand_window": "11-15/12-20",
+        "publish_by": "11-15",
+        "assets": [
+          "Gift listing copy"
+        ],
+        "evidence": {
+          "id": "c_g_seas_gift",
+          "statement": "Planner gift purchases likely rise before Christmas; too late to build for 2026.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      },
+      {
+        "event": "Fall garden planning",
+        "demand_window": "07-15/08-31",
+        "publish_by": "07-01",
+        "assets": [
+          "Fall-planting pages"
+        ],
+        "evidence": {
+          "id": "c_g_seas_fall",
+          "statement": "A smaller second window for fall crops.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10",
+          "notes": "Unverified until a Google Trends 5-year pull confirms timing and amplitude."
+        }
+      }
+    ],
+    "market_size": [
+      {
+        "id": "c_g_ms",
+        "statement": "Spending on garden planning products is unknown.",
+        "evidence": "UNKNOWN",
+        "confidence": "low",
+        "method": "not_collected",
+        "source_ids": [],
+        "observed_at": "2026-11-10",
+        "to_resolve": "No free source; do not estimate. NGA reports average food-gardening spend ($88.24 in 2021) but not planner spend"
+      }
+    ]
+  },
+  "competitors": [
+    {
+      "id": "reformstead",
+      "name": "ReformStead (Etsy)",
+      "url": "https://www.etsy.com/listing/650687408",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "The Ultimate Vegetable Garden Planner (200+ pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 18,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_etsy_garden_650687408"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_etsy_garden_650687408"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "strengths": [
+        "Shop 1.8k sales, 4.9 from 159 ratings",
+        "Very long planner"
+      ]
+    },
+    {
+      "id": "missmikesplace",
+      "name": "MissMikesPlace (Etsy)",
+      "url": "https://www.etsy.com/listing/975558000",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Printable Garden Planner Bundle (35 pp.)",
+          "format": "PDF x3 sizes",
+          "price": {
+            "value": 7.05,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_etsy_garden_975558000"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_etsy_garden_975558000"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "strengths": [
+        "27 item reviews, 4.9",
+        "421 favourites"
+      ],
+      "gaps": [
+        "Not editable",
+        "No personal dates"
+      ]
+    },
+    {
+      "id": "meadowgates",
+      "name": "MeadowGates (Etsy)",
+      "url": "https://www.etsy.com/listing/962596027",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Printable Garden Planner Binder & Template",
+          "format": "PDF + editable templates",
+          "price": {
+            "value": null,
+            "evidence": "UNKNOWN",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "to_resolve": "Price not shown on fetched page"
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_etsy_garden_962596027"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "strengths": [
+        "26 item reviews",
+        "Shop 2.2k sales",
+        "Editable"
+      ],
+      "gaps": [
+        "No planting dates"
+      ]
+    },
+    {
+      "id": "eboneivoryarts",
+      "name": "EboneIvoryArts (Etsy)",
+      "url": "https://www.etsy.com/listing/1490379686",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Printable Garden Grid Planner (8 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 3.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_etsy_garden_1490379686"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_etsy_garden_1490379686"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "backyardhomesteader",
+      "name": "Backyard Homesteader (Gumroad)",
+      "url": "https://backyardhomesteader.gumroad.com/l/mpfwdl",
+      "type": "direct_digital_product",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "44 Page Garden Journal",
+          "format": "PDF",
+          "price": {
+            "value": 7,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_backyardhomesteader"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_gumroad_backyardhomesteader"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "farmverse",
+      "name": "FarmVerse (Payhip)",
+      "url": "https://payhip.com/b/CF8x9",
+      "type": "direct_digital_product",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Vegetable Garden Planner (40 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 1.99,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_payhip_farmverse"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_payhip_farmverse"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "gaps": [
+        "No reviews yet"
+      ]
+    },
+    {
+      "id": "natashalh",
+      "name": "natashalh (Gumroad)",
+      "url": "https://natashalh.gumroad.com/l/MVcZD",
+      "type": "free_tool",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Garden Planner (41 pp.)",
+          "format": "PDF",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_gumroad_natashalh"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_gumroad_natashalh"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    },
+    {
+      "id": "almanac-garden-planner",
+      "name": "Almanac Garden Planner",
+      "url": "https://gardenplanner.almanac.com/",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Annual auto-renewing subscription",
+          "format": "Web app",
+          "price": {
+            "value": 35,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_almanac_gp_pricing"
+            ]
+          },
+          "billing": "annual"
+        },
+        {
+          "name": "1-year subscription",
+          "format": "Web app",
+          "price": {
+            "value": 50,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_almanac_gp_pricing"
+            ]
+          },
+          "billing": "annual"
+        },
+        {
+          "name": "2-year subscription",
+          "format": "Web app",
+          "price": {
+            "value": 85,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_almanac_gp_pricing"
+            ]
+          },
+          "billing": "one_time"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_almanac_gp_pricing"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Visual bed layout software with a planting chart.",
+      "gaps": [
+        "Subscription; not printable-first"
+      ]
+    },
+    {
+      "id": "seedtime",
+      "name": "Seedtime",
+      "url": "https://seedtime.us/",
+      "type": "software_saas",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Free calendar",
+          "format": "Web/app",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_seedtime_calendar"
+            ]
+          },
+          "billing": "free"
+        },
+        {
+          "name": "Basic",
+          "format": "Web/app",
+          "price": {
+            "value": 7,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_seedtime_calendar"
+            ]
+          },
+          "billing": "monthly"
+        },
+        {
+          "name": "Unlimited",
+          "format": "Web/app",
+          "price": {
+            "value": 14,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_seedtime_calendar"
+            ]
+          },
+          "billing": "monthly"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_seedtime_calendar"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Free planting calendar with paid upgrades.",
+      "strengths": [
+        "9,705+ crop varieties",
+        "Free tier"
+      ]
+    },
+    {
+      "id": "johnnys",
+      "name": "Johnny's Selected Seeds calculator",
+      "url": "https://www.johnnyseeds.com/",
+      "type": "free_tool",
+      "scope": "national",
+      "offers": [
+        {
+          "name": "Seed-Starting Date Calculator",
+          "format": "Web",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_johnnys_calc"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_johnnys_calc"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      },
+      "positioning": "Seed company traffic tool."
+    },
+    {
+      "id": "vital-seeds",
+      "name": "Vital Seeds planning spreadsheet",
+      "url": "https://vitalseeds.co.uk/",
+      "type": "free_tool",
+      "scope": "international",
+      "offers": [
+        {
+          "name": "Seed planning spreadsheet",
+          "format": "Google Sheets",
+          "price": {
+            "value": 0,
+            "evidence": "VERIFIED",
+            "observed_at": "2026-11-10",
+            "unit": "USD",
+            "currency": "USD",
+            "source_ids": [
+              "src_vital_seeds_sheet"
+            ]
+          },
+          "billing": "free"
+        }
+      ],
+      "observed_at": "2026-11-10",
+      "source_ids": [
+        "src_vital_seeds_sheet"
+      ],
+      "traffic_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "visits/month",
+        "to_resolve": "Semrush/Similarweb (paid, not connected)"
+      },
+      "revenue_estimate": {
+        "value": null,
+        "evidence": "UNKNOWN",
+        "observed_at": "2026-11-10",
+        "unit": "USD/year",
+        "to_resolve": "No public figure; do not estimate"
+      }
+    }
+  ],
+  "pricing_map": [
+    {
+      "format": "Printable garden planner",
+      "low": 1.99,
+      "median": 7,
+      "high": 18,
+      "currency": "USD",
+      "n_observations": 5,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "farmverse",
+        "eboneivoryarts",
+        "backyardhomesteader",
+        "missmikesplace",
+        "reformstead"
+      ]
+    },
+    {
+      "format": "Garden planning software (per year)",
+      "low": 35,
+      "median": 67,
+      "high": 168,
+      "currency": "USD",
+      "n_observations": 4,
+      "evidence": "VERIFIED",
+      "competitor_ids": [
+        "almanac-garden-planner",
+        "seedtime"
+      ]
+    }
+  ],
+  "monetization_options": [
+    {
+      "id": "season-kit",
+      "model": "bundle",
+      "description": "Personal planting calendar (generated from the buyer's last-frost date) plus a printable season planner: bed grids, sowing log, harvest log.",
+      "fit": "strong",
+      "price_hypothesis": {
+        "value": 15,
+        "evidence": "INFERRED",
+        "observed_at": "2026-11-10",
+        "unit": "USD",
+        "currency": "USD",
+        "source_ids": [
+          "src_etsy_garden_650687408",
+          "src_almanac_gp_pricing"
+        ]
+      },
+      "rationale": [
+        {
+          "id": "c_g_mo1",
+          "statement": "$15 sits inside the $3.99-$18 printable band and below $35-$50/yr software.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "marketplace_listing_observation",
+          "source_ids": [
+            "src_etsy_garden_650687408",
+            "src_almanac_gp_pricing"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Frost-date accuracy",
+        "Generic printables at $4-$7"
+      ]
+    },
+    {
+      "id": "printable-only",
+      "model": "printable",
+      "description": "Generic printable planner.",
+      "fit": "weak",
+      "rationale": [
+        {
+          "id": "c_g_mo2",
+          "statement": "Crowded at $3.99-$7.05.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "marketplace_listing_observation",
+          "source_ids": [
+            "src_etsy_garden_1490379686",
+            "src_etsy_garden_975558000"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    },
+    {
+      "id": "seed-affiliate",
+      "model": "affiliate",
+      "description": "Seed and supply affiliate links on calendar pages.",
+      "fit": "moderate",
+      "rationale": [
+        {
+          "id": "c_g_mo3",
+          "statement": "Calendar users are about to buy seeds.",
+          "evidence": "INFERRED",
+          "confidence": "low",
+          "method": "analyst_inference",
+          "source_ids": [],
+          "observed_at": "2026-11-10"
+        }
+      ],
+      "risks": [
+        "Needs owner-approved affiliate accounts"
+      ]
+    },
+    {
+      "id": "app",
+      "model": "saas_subscription",
+      "description": "Planner app.",
+      "fit": "reject",
+      "rationale": [
+        {
+          "id": "c_g_mo4",
+          "statement": "Seedtime and Almanac already own this, with a free tier.",
+          "evidence": "VERIFIED",
+          "confidence": "high",
+          "method": "product_page_observation",
+          "source_ids": [
+            "src_seedtime_calendar",
+            "src_almanac_gp_pricing"
+          ],
+          "observed_at": "2026-11-10"
+        }
+      ]
+    }
+  ],
+  "premium_product_recommendation": {
+    "name": "Garden Season Kit (working name)",
+    "target_segment_id": "home-vegetable-gardener",
+    "format": "Printable PDF kit + a personal planting calendar sheet generated from one frost date",
+    "price": {
+      "value": 15,
+      "evidence": "INFERRED",
+      "observed_at": "2026-11-10",
+      "unit": "USD",
+      "currency": "USD",
+      "source_ids": [
+        "src_etsy_garden_650687408",
+        "src_etsy_garden_975558000",
+        "src_almanac_gp_pricing"
+      ]
+    },
+    "must_include": [
+      "Personal sowing and transplant calendar for about 30 common vegetables from the buyer's last-frost date",
+      "Bed grid and square-foot spacing pages",
+      "Seed inventory and sowing log",
+      "Harvest log with a 'next year' notes page",
+      "Succession-sowing planner",
+      "US Letter and A4",
+      "Frost dates from NOAA NCEI 1991-2020 normals (50% last-spring 32F date by default), with the station name and distance shown"
+    ],
+    "must_not": [
+      "Give pesticide or legal advice",
+      "Claim exact frost dates; show them as estimates with the source",
+      "Use unlicensed photos"
+    ],
+    "why_they_pay": "Free tools give dates and paid printables give pages; the kit gives both, personal to one frost date, ready to print.",
+    "offer_ladder": [
+      {
+        "tier": "free",
+        "item": "Planting-calendar calculator and zone pages",
+        "price": {
+          "value": 0,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      },
+      {
+        "tier": "core",
+        "item": "Garden Season Kit",
+        "price": {
+          "value": 15,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      },
+      {
+        "tier": "premium",
+        "item": "Kit + succession and preserving add-on",
+        "price": {
+          "value": 24,
+          "evidence": "INFERRED",
+          "observed_at": "2026-11-10",
+          "unit": "USD",
+          "currency": "USD"
+        }
+      }
+    ],
+    "falsifying_test": "Fewer than 1 sale per 200 kit-page sessions over the first 1,000 sessions: lower the price to $9 or sell the calendar alone.",
+    "evidence": [
+      {
+        "id": "c_g_pp_e1",
+        "statement": "Printables at $3.99-$18 and software at $35-$50/yr are verified price points.",
+        "evidence": "VERIFIED",
+        "confidence": "high",
+        "method": "marketplace_listing_observation",
+        "source_ids": [
+          "src_etsy_garden_650687408",
+          "src_almanac_gp_pricing"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    ]
+  },
+  "economics": {
+    "unit_economics": [
+      {
+        "id": "c_g_ue",
+        "statement": "A $15 sale nets about $13.75 after the estimated 5% + $0.50 fee.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 13.75,
+        "unit": "USD"
+      },
+      {
+        "id": "c_g_ue_breakeven",
+        "statement": "At about $13.75 net per sale, $100 a month needs 8 sales and $400 a month needs 30. Because demand is seasonal, most of a year's sales would likely fall between January and May. This is arithmetic on the estimated fee, not a forecast.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-10",
+        "value": 30,
+        "unit": "sales/month for $400"
+      }
+    ],
+    "scenarios": {
+      "downside": {
+        "monthly_orders": 0,
+        "average_order_value": 15,
+        "monthly_gross": 0,
+        "monthly_contribution": 0,
+        "assumptions": [
+          "No measurable organic traffic in the first season"
+        ],
+        "evidence": "INFERRED"
+      },
+      "base": {
+        "monthly_orders": 12,
+        "average_order_value": 15,
+        "monthly_gross": 180,
+        "monthly_contribution": 165,
+        "assumptions": [
+          "Hypothesis only: free calendar pages indexed by January and Pinterest drip running; about 1 sale per 200 sessions"
+        ],
+        "evidence": "INFERRED"
+      },
+      "upside": {
+        "monthly_orders": 40,
+        "average_order_value": 17,
+        "monthly_gross": 680,
+        "monthly_contribution": 626,
+        "assumptions": [
+          "Hypothesis only: zone pages rank and a premium add-on lifts order value"
+        ],
+        "evidence": "INFERRED"
+      }
+    }
+  },
+  "channel_fit": [
+    {
+      "channel": "Pinterest",
+      "fit": "strong",
+      "rationale": {
+        "id": "c_g_ch_pin",
+        "statement": "Garden planning is a heavily pinned visual topic and FORGE already runs a Pinterest drip for QPK.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_forge_qpk_brief"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Organic search",
+      "fit": "strong",
+      "rationale": {
+        "id": "c_g_ch_seo",
+        "statement": "Date questions ('when to start seeds') are answered by calculators, which FORGE builds; volume unknown.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [
+          "src_johnnys_calc"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Etsy",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_g_ch_etsy",
+        "statement": "Paid planners sell there, but it needs a new seller account (owner approval).",
+        "evidence": "VERIFIED",
+        "confidence": "medium",
+        "method": "marketplace_listing_observation",
+        "source_ids": [
+          "src_etsy_garden_975558000"
+        ],
+        "observed_at": "2026-11-10"
+      }
+    },
+    {
+      "channel": "Email",
+      "fit": "moderate",
+      "rationale": {
+        "id": "c_g_ch_email",
+        "statement": "A monthly 'what to sow now' email suits the calendar; MailerLite is connected.",
+        "evidence": "INFERRED",
+        "confidence": "medium",
+        "method": "analyst_inference",
+        "source_ids": [],
+        "observed_at": "2026-11-10"
+      }
+    }
+  ],
+  "decisions": [
+    {
+      "date": "2026-11-10",
+      "call": "go_with_changes",
+      "subject": "Hand to Ecosystem Builder for a blueprint; no launch",
+      "rationale": "See summary.",
+      "falsifying_test": "See summary.",
+      "decided_by": "intelligence (recommendation)"
+    }
+  ],
+  "data_connectors": [
+    {
+      "name": "Cited-source re-check (HTTP GET of every source)",
+      "status": "connected",
+      "cost": "free",
+      "would_add": "Confirms each cited page still exists and still shows the quoted figure; failed sources downgrade their claims."
+    },
+    {
+      "name": "Wikimedia pageviews API (monthly, en.wikipedia)",
+      "status": "connected",
+      "cost": "free, no key",
+      "would_add": "Five-year monthly interest proxy and seasonality for topic articles. A proxy, never search volume."
+    },
+    {
+      "name": "Google Trends (5-year relative interest)",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Search-interest seasonality and rising queries; sets publish-by dates.",
+      "blocked_reason": "No official API, and trends.google.com disallows automated access, so FORGE does not scrape it. A CSV exported by the owner can be attached to a pack."
+    },
+    {
+      "name": "Google search autocomplete",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Long-tail question phrasing.",
+      "blocked_reason": "No sanctioned API."
+    },
+    {
+      "name": "Google Ads Keyword Planner",
+      "status": "requires_owner_account",
+      "cost": "free with a Google Ads account (no spend)",
+      "would_add": "Monthly search-volume ranges and competition per keyword (labelled ESTIMATED)."
+    },
+    {
+      "name": "Google Search Console",
+      "status": "requires_owner_account",
+      "cost": "free",
+      "would_add": "First-party queries, impressions and clicks for the existing sites."
+    },
+    {
+      "name": "Etsy Open API",
+      "status": "requires_owner_account",
+      "cost": "free developer account (new account: owner approval)",
+      "would_add": "Automated re-check of Etsy listing state and price from the Worker. Until then Etsy pages return 403 to the Worker and are re-checked by an analyst session at human volume, recorded as dated observations."
+    },
+    {
+      "name": "Reddit API",
+      "status": "requires_owner_account",
+      "cost": "free tier",
+      "would_add": "Systematic customer-language mining."
+    },
+    {
+      "name": "Amazon bestseller ranks and Pinterest Trends",
+      "status": "blocked",
+      "cost": "free",
+      "would_add": "Book demand proxies and visual-niche seasonality.",
+      "blocked_reason": "Automated access disallowed; Pinterest Trends needs a business login."
+    },
+    {
+      "name": "Semrush / Similarweb / Ahrefs",
+      "status": "requires_paid_access",
+      "cost": "paid, about $100+/month; not in budget",
+      "would_add": "Third-party competitor traffic and keyword difficulty (would be labelled ESTIMATED)."
+    }
+  ],
+  "sources": [
+    {
+      "id": "src_etsy_garden_650687408",
+      "title": "Etsy: The Ultimate Vegetable Garden Planner (ReformStead)",
+      "url": "https://www.etsy.com/listing/650687408",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_etsy_garden_975558000",
+      "title": "Etsy: Printable Garden Planner Bundle (MissMikesPlace)",
+      "url": "https://www.etsy.com/listing/975558000",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_etsy_garden_962596027",
+      "title": "Etsy: Printable Garden Planner Binder & Template (MeadowGates)",
+      "url": "https://www.etsy.com/listing/962596027",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing",
+      "reliability_note": "Displayed price $4.44 may be a currency conversion (metadata 6.00 CAD); price not used as a figure."
+    },
+    {
+      "id": "src_etsy_garden_1490379686",
+      "title": "Etsy: Printable Garden Grid Planner (EboneIvoryArts)",
+      "url": "https://www.etsy.com/listing/1490379686",
+      "accessed_at": "2026-11-10",
+      "kind": "marketplace_listing"
+    },
+    {
+      "id": "src_gumroad_backyardhomesteader",
+      "title": "Gumroad: 44 Page Garden Journal (backyardhomesteader)",
+      "url": "https://backyardhomesteader.gumroad.com/l/mpfwdl",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_gumroad_natashalh",
+      "title": "Gumroad: Garden Planner, 41 pages, free (natashalh)",
+      "url": "https://natashalh.gumroad.com/l/MVcZD",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_payhip_farmverse",
+      "title": "Payhip: Vegetable Garden Planner, 40 pages (FarmVerse)",
+      "url": "https://payhip.com/b/CF8x9",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_gumroad_veggiepatch",
+      "title": "Gumroad: Vegetable Season Planner, UK (veggiepatchideas)",
+      "url": "https://veggiepatchideas.gumroad.com/l/douxou",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page",
+      "reliability_note": "Priced in GBP (5.00)."
+    },
+    {
+      "id": "src_almanac_gp_pricing",
+      "title": "Almanac Garden Planner: free trial and pricing",
+      "url": "https://gardenplanner.almanac.com/subscribeinfo.aspx",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_seedtime_calendar",
+      "title": "Seedtime: garden planning calendar features and plans",
+      "url": "https://seedtime.us/pages/features-calendar",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_johnnys_calc",
+      "title": "Johnny's Selected Seeds: Seed-Starting Date Calculator",
+      "url": "https://www.johnnyseeds.com/growers-library/seed-planting-schedule-calculator-OLD.html",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_vital_seeds_sheet",
+      "title": "Vital Seeds: seed planning spreadsheet template",
+      "url": "https://vitalseeds.co.uk/growing-resources/seed-planning-spreadsheet-template/",
+      "accessed_at": "2026-11-10",
+      "kind": "product_page"
+    },
+    {
+      "id": "src_nga_2021_fox9",
+      "title": "FOX 9: 2 in 5 US households now growing food (National Gardening Association survey)",
+      "url": "https://www.fox9.com/news/2-in-5-us-households-now-growing-food-following-pandemic-boom",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog",
+      "publisher": "FOX 9 / National Gardening Association",
+      "published": "2022-04-15",
+      "reliability_note": "Secondary report of the NGA National Gardening Survey; 2021 data. Newer editions (2025, 2026) are paid reports and were not read."
+    },
+    {
+      "id": "src_nga_2025_edition",
+      "title": "Garden Research: National Gardening Survey 2025 Edition",
+      "url": "https://gardenresearch.com/view/national-gardening-survey-2025-edition/",
+      "accessed_at": "2026-11-10",
+      "kind": "survey_or_report",
+      "publisher": "National Gardening Association",
+      "published": "2025-07-10",
+      "reliability_note": "Paid report; page lists topics only, no figures."
+    },
+    {
+      "id": "src_usda_zone_2023",
+      "title": "USDA ARS: USDA unveils updated Plant Hardiness Zone Map",
+      "url": "https://www.ars.usda.gov/news-events/news/research-news/2023/usda-unveils-updated-plant-hardiness-zone-map/",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "USDA Agricultural Research Service",
+      "published": "2023-11-15"
+    },
+    {
+      "id": "src_ncei_normals_catalog",
+      "title": "Data.gov: U.S. Climate Normals 2020, Annual/Seasonal Normals (1991-2020)",
+      "url": "https://catalog.data.gov/dataset/u-s-climate-normals-2020-u-s-annual-seasonal-climate-normals-1991-2020",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA National Centers for Environmental Information",
+      "reliability_note": "Catalog lists licence CC0 1.0 (public domain). Bulk CSV at ncei.noaa.gov/data/normals-annualseasonal/1991-2020 and the NOAA open-data S3 bucket."
+    },
+    {
+      "id": "src_ncei_normals_doc",
+      "title": "NCEI Annual/Seasonal Normals 1991-2020 documentation",
+      "url": "https://www.ncei.noaa.gov/pub/data/cdo/documentation/normals-annualseasonal-1991-2020_documentation.pdf",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA NCEI",
+      "reliability_note": "PDF; expected-text matching skipped."
+    },
+    {
+      "id": "src_climategov_lastfreeze",
+      "title": "Climate.gov: Interactive map of average date of last spring freeze",
+      "url": "https://www.climate.gov/news-features/understanding-climate/interactive-map-average-date-last-spring-freeze-across-united",
+      "accessed_at": "2026-11-10",
+      "kind": "government_data",
+      "publisher": "NOAA Climate.gov"
+    },
+    {
+      "id": "src_goingtoseed_thread",
+      "title": "Going to Seed forum: How are you planning out your garden?",
+      "url": "https://goingtoseed.discourse.group/t/how-are-you-planning-out-your-garden/895",
+      "accessed_at": "2026-11-10",
+      "kind": "forum_or_community",
+      "published": "2023-03-20",
+      "reliability_note": "One thread, about 10 replies; small sample."
+    },
+    {
+      "id": "src_ls_fees",
+      "title": "Lemon Squeezy fee reviews (5% + 50c)",
+      "url": "https://dodopayments.com/blogs/lemonsqueezy-review",
+      "accessed_at": "2026-11-10",
+      "kind": "news_or_blog"
+    },
+    {
+      "id": "src_forge_qpk_brief",
+      "title": "FORGE Quilt Plan Kit brief v1.0.1",
+      "url": "/mnt/project-files/forge/intelligence/briefs/quilt-plan-kit.brief.json",
+      "accessed_at": "2026-11-10",
+      "kind": "internal_doc"
+    }
+  ],
+  "open_questions": [
+    "ZIP-to-station mapping: use Census ZCTA centroids (Gazetteer files, public) and the nearest normals station with freeze elements. Confirm the CSV date encoding and coverage when building.",
+    "Will James approve an Etsy seller account as a second channel?",
+    "Brand name and domain (Builder to propose)."
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "First brief, from Opportunity Scout run 2026-11-scout-01."
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "Resolved the frost-date dataset question: NOAA NCEI 1991-2020 normals (CC0). Added 3 sources, a key finding and a must-include. Opened a follow-up question on the ZIP-to-station mapping."
+    },
+    {
+      "version": "1.0.2",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "QA-013: c_g_zones keeps only the verified USDA fact (the planting-date inference stays in pain g_pain_zone, INFERRED); Almanac's $35/yr auto-renew plan added to the price claim, competitor offers and pricing map; review counts added to the re-check expectations."
+    },
+    {
+      "version": "1.0.3",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Added four off-Etsy price sources that the Worker can re-check (Gumroad and Payhip, $0-$7), widened the printable price band to $1.99-$18, and added break-even sales. All Etsy figures were re-observed on 2026-11-11 and still match."
+    }
+  ]
+}
