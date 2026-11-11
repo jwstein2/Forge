@@ -18,7 +18,7 @@ import { REGISTRY_DATA } from "./domain/registry-data.ts";
 import { defaultHandlers } from "./orchestration/handlers.ts";
 import { enqueue, tick } from "./orchestration/engine.ts";
 import { enqueueDue, seedSchedules, seedOperatorRegistry, OPERATOR_SCHEDULES } from "@forge/operator";
-import { seedIntelligenceRegistry, INTEL_SCHEDULES } from "@forge/intelligence";
+import { seedIntelligenceRegistry, seedIntelligenceData, INTEL_SCHEDULES } from "@forge/intelligence";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, "..");
@@ -56,6 +56,7 @@ await seedOperatorRegistry(env.DB);
 await seedSchedules(env.DB, OPERATOR_SCHEDULES);
 await seedIntelligenceRegistry(env.DB);
 await seedSchedules(env.DB, INTEL_SCHEDULES);
+await seedIntelligenceData(env.DB);
 await bootTick();
 setInterval(() => { bootTick().catch((e) => console.error("tick failed:", (e as Error).message)); }, 60000);
 

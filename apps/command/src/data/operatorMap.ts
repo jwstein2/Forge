@@ -3,7 +3,7 @@
  * These shapes are not in @forge/contracts yet, so the raw types are declared here from the route handlers.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { ChannelPolicy, CheckFinding, CheckRollup, ContentItem, LifecycleSequence, LifecycleSnapshot, OperatorSchedule, OperatorSummary, Recommendation, Severity } from './types';
+import type { ChannelPolicy, CheckFinding, CheckRollup, ContentItem, LifecycleSequence, LifecycleSnapshot, OperatorSchedule, OperatorSummary, Recommendation, SchedulerState, Severity } from './types';
 
 export interface RawSchedule {
   id: string; kind: string; nicheId: string | null; spec: unknown; enabled: boolean;
@@ -140,4 +140,41 @@ export function sourceLabel(source: string): string {
   if (/^audit\./.test(source)) return 'Nov 10 audit';
   if (source === 'heartbeat.watchdog') return 'Heartbeat watchdog';
   return source;
+}
+
+export interface RawScheduler {
+  state: string;
+  minutesSinceTick: number | null;
+  lastTick?: { at?: string | null; queued?: number; failed24h?: number } | null;
+  queue?: { backlogMinutes?: number | null } | null;
+  thresholds?: { staleTickMinutes?: number; backlogMinutes?: number };
+}
+
+export function mapScheduler(x: RawScheduler): SchedulerState {
+  return {
+    state: x.state,
+    minutesSinceTick: typeof x.minutesSinceTick === 'number' ? x.minutesSinceTick : null,
+    lastTickAt: x.lastTick?.at ?? null,
+    queued: x.lastTick?.queued ?? null,
+    failed24h: x.lastTick?.failed24h ?? null,
+    backlogMinutes: x.queue?.backlogMinutes ?? null,
+    staleTickMinutes: x.thresholds?.staleTickMinutes ?? 35,
+  };
+}
+
+/** One line for the Operations strip. A dead cron cannot raise its own alert, so this line is the alarm. */
+export function schedulerFact(s: SchedulerState): { value: string; sub: string; tone?: 'critical' | 'warn' } {
+  const ago = s.minutesSinceTick === null ? null : s.minutesSinceTick < 1 ? 'just now' : `${Math.round(s.minutesSinceTick)} min ago`;
+  switch (s.state) {
+    case 'stale':
+      return { value: `Stopped`, sub: `Last ran ${ago ?? 'at an unknown time'}; expected every 15 min (alarm after ${s.staleTickMinutes})`, tone: 'critical' };
+    case 'backlog':
+      return { value: `Ran ${ago ?? '—'}`, sub: `Backlog: oldest job waiting ${s.backlogMinutes != null ? `${Math.round(s.backlogMinutes)} min` : 'a while'}`, tone: 'warn' };
+    case 'never_observed':
+      return { value: 'Not seen yet', sub: 'No scheduler run has been recorded on this environment', tone: 'warn' };
+    case 'ok':
+      return { value: `Ran ${ago ?? '—'}`, sub: `${s.queued ?? 0} queued${s.failed24h ? ` · ${s.failed24h} failed in 24 h` : ''}` };
+    default:
+      return { value: 'Unknown', sub: `State "${s.state}"`, tone: 'warn' };
+  }
 }

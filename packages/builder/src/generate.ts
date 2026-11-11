@@ -12,7 +12,7 @@ import {
   type ChannelPlan, type ClaimRef, type Integration, type LaunchBlueprint, type OfferTier, type PageSpec, type Price, type ProductSpec, type Unknown,
 } from "./types.ts";
 
-export interface RegistryProduct { id: string; nicheId: string; name: string; kind: string; tier: string }
+export interface RegistryProduct { id: string; nicheId: string; name: string; kind: string; tier: string; status?: string; sitePriceCents?: number | null }
 
 export interface GenerateOptions {
   version?: string;                 // default 1.0.0
@@ -43,12 +43,15 @@ function price(m: BriefMetric | undefined): Price {
 
 const REGISTRY_KIND: Record<string, string> = { "spreadsheet-template": "spreadsheet", "printable-pdf": "pdf", "kdp-book": "book" };
 
-function matchRegistry(products: RegistryProduct[], niche: string, playbook: string): string | null {
+function matchRegistry(products: RegistryProduct[], niche: string, playbook: string): RegistryProduct | null {
   const kind = REGISTRY_KIND[playbook];
   if (!kind) return null;
   const hits = products.filter((p) => p.nicheId === niche && p.tier === "paid" && p.kind === kind);
-  return hits.length === 1 ? hits[0]!.id : null;
+  return hits.length === 1 ? hits[0]! : null;
 }
+/** Registry display name without a trailing qualifier such as "(paid workbook)". */
+const onSale = (p: RegistryProduct) => p.status !== undefined && p.status !== "PROPOSED" && p.sitePriceCents != null;
+const registryName = (p: RegistryProduct) => p.name.replace(/\s*\([^)]*\)\s*$/, "").trim();
 
 /** Prefer claims about the primary segment, then stronger evidence; stable for equal keys. */
 function pick(claims: BriefClaim[], primary: string | null, n: number): BriefClaim[] {
@@ -75,6 +78,7 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
 
   // ---------- offer ladder and products ----------
   const products: ProductSpec[] = [];
+  let coreId: string | null = null;
   const ladder: OfferTier[] = rec.offer_ladder.map((t) => {
     const p = price(t.price);
     const matchesRec = rec.name.toLowerCase().includes(t.item.toLowerCase()) || t.item.toLowerCase().includes(rec.name.toLowerCase());
@@ -86,13 +90,19 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
     if (playbook !== "free-resource" && !undecided) {
       productId = `prd_${niche}_${slug(t.item)}`;
       const pb = PLAYBOOKS[playbook];
+      const reg = matchRegistry(opts.registryProducts ?? [], niche, playbook);
+      // A product already on sale keeps the name it is sold under (registry, live site, file), not the brief's working name (QA-014 B7-1).
+      const briefName = matchesRec ? rec.name : t.item;
+      const name = reg && !newBusiness && onSale(reg) ? registryName(reg) : briefName;
+      if (name !== briefName) unknowns.push({ field: `products.${productId}.name`, statement: `The brief calls this "${briefName}"; it is sold as "${name}" (${reg!.id}), so the registry name is used. Any brief wording that conflicts with the existing product must be checked against the file.`, resolve_by: "Intelligence corrects the brief or the owner renames the product; reviewed at B1" });
+      if (matchesRec && !coreId) coreId = productId;
       const spec: ProductSpec = {
-        product_id: productId, name: matchesRec ? rec.name : t.item, tier: t.tier, playbook, format: matchesRec ? rec.format : pb.label,
+        product_id: productId, name, tier: t.tier, playbook, format: matchesRec ? rec.format : pb.label,
         price: p, target_segment_id: matchesRec ? primary : null,
         must_include: matchesRec ? [...rec.must_include] : [], must_not: matchesRec ? [...rec.must_not] : [],
         deliverables: pb.deliverables.map((d) => ({ ...d })), gates: [...pb.gates], status: "PROPOSED",
         basis: matchesRec ? (rec.evidence ?? []).map(ref) : [], falsifying_test: matchesRec ? rec.falsifying_test ?? null : null,
-        registry_product_id: matchRegistry(opts.registryProducts ?? [], niche, playbook),
+        registry_product_id: reg?.id ?? null,
       };
       products.push(spec);
       if (!matchesRec) unknowns.push(spec.registry_product_id
@@ -105,7 +115,7 @@ export async function generateBlueprint(brief: Brief, opts: GenerateOptions = {}
     if (p.note) unknowns.push({ field: `offer_ladder.${t.tier}.price`, statement: p.note, resolve_by: "Owner" });
     return { tier: t.tier, item: t.item, price: p, product_id: productId, playbook };
   });
-  const core = products.find((p) => p.name === rec.name) ?? products[0] ?? null;
+  const core = products.find((p) => p.product_id === coreId) ?? products[0] ?? null;
 
   // ---------- sales framework ----------
   const outcomes = pick(brief.desired_outcomes ?? [], primary, 3);

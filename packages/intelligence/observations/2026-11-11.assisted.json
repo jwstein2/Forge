@@ -1,0 +1,156 @@
+[
+  {
+    "url": "https://www.etsy.com/listing/650687408",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "18.00 USD",
+      "item_reviews": 3,
+      "shop_sales": "1.8k"
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/975558000",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "7.05 USD",
+      "item_reviews": 27,
+      "shop_sales": "1.1k"
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/962596027",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price_displayed": "4.42 (metadata 6.00 CAD)",
+      "item_reviews": 26,
+      "shop_sales": "2.2k"
+    },
+    "note": "Displayed price moves with currency conversion; the price is not cited as a figure."
+  },
+  {
+    "url": "https://www.etsy.com/listing/1490379686",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "3.99 USD",
+      "item_reviews": 4,
+      "shop_sales": 187
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/1762253018/etsy-seller-bookkeeping-spreadsheet-etsy",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "7.99",
+      "item_reviews": 190,
+      "shop_sales": "63.4k"
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/993076115",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "2.75 USD",
+      "item_reviews": 88,
+      "shop_sales": 328
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/4597094291",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "dead",
+    "figures": {
+      "page": "Sorry, this item is unavailable."
+    },
+    "note": "Cited only as evidence of listing churn (listing_absence_observation)."
+  },
+  {
+    "url": "https://www.etsy.com/listing/4598901280",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "8.99 USD",
+      "shop_sales": 0
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/1724380331/printable-crochet-project-planner-49",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "dead",
+    "figures": {
+      "page": "this item is unavailable",
+      "price_still_shown": "6.46 USD"
+    },
+    "note": "Cited only as evidence that the listing was removed."
+  },
+  {
+    "url": "https://www.etsy.com/listing/4582251962",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "title": "Contractor Business Bundle, 17 Templates",
+      "price": "109.00 USD",
+      "item_reviews": 0,
+      "shop_sales": 9
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/827773435/electrical-contractor-estimate-template",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "12.00 USD",
+      "item_reviews": 4,
+      "shop_sales": "3.9k"
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/4598876375",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "confirmed",
+    "figures": {
+      "price": "7.79 USD (sale from 12.99)",
+      "shop_sales": 0
+    }
+  },
+  {
+    "url": "https://www.etsy.com/listing/4591782333",
+    "observed_at": "2026-11-11T02:10:00Z",
+    "observed_by": "forge-intelligence analyst session (WebFetch, one request per page)",
+    "method": "assisted_fetch",
+    "outcome": "dead",
+    "figures": {
+      "page": "This item is unavailable"
+    },
+    "note": "Cited by Loaf Ledger brief v1.0.2 keyword claims; replaced in v1.0.3."
+  }
+]

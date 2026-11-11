@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "types": ["@cloudflare/workers-types", "node"], "allowImportingTsExtensions": true },
-  "include": ["src", "test", "bin"]
+  "compilerOptions": { "types": ["@cloudflare/workers-types", "node"], "allowImportingTsExtensions": true, "allowJs": true, "checkJs": false },
+  "include": ["src", "test", "bin", "products"],
+  "exclude": ["products/**/garden-ui.js", "products/**/data"]
 }

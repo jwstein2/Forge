@@ -537,3 +537,25 @@ button, select { font: inherit; color: inherit; }
 .reco__pick input { width: 20px; height: 20px; accent-color: var(--ink-1); }
 .reco__head { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; margin-bottom: var(--s-1); }
 .reco__title { font-weight: 600; margin-bottom: var(--s-1); }
+
+/* ---------- Scout run provenance, score rationale ---------- */
+.run-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--s-3); }
+.run-fact { display: grid; gap: 2px; padding: var(--s-3) var(--s-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-1); }
+.run-fact__label { font-size: var(--text-xs); color: var(--ink-3); font-weight: 600; }
+.run-fact__value { font-family: var(--font-display); font-size: var(--text-xl); }
+.run-fact__sub { font-size: var(--text-xs); color: var(--ink-3); }
+.why { font-size: var(--text-sm); margin-top: var(--s-2); }
+.why summary { cursor: pointer; min-height: 24px; color: var(--ink-2); font-weight: 600; }
+.why dl { display: grid; gap: var(--s-2); margin-top: var(--s-2); }
+.why dt { font-weight: 600; }
+.why dd { color: var(--ink-2); margin: 0; }
+.claims__body { display: grid; gap: 2px; min-width: 0; }
+
+/* ---------- Executive overview ---------- */
+.next-biz { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); align-items: center; justify-content: space-between; padding: var(--s-4) var(--s-5); border: 1px solid var(--line); border-left: 3px solid var(--brass, var(--line-strong)); border-radius: var(--radius-md); background: var(--surface-1); }
+.next-biz__title { font-family: var(--font-display); font-weight: 500; font-size: var(--text-xl); margin: 2px 0 4px; }
+.money .num { text-align: right; white-space: nowrap; }
+.money__total th, .money__total td { font-weight: 600; border-top: 2px solid var(--line-strong); }
+.money__name { display: inline-flex; gap: var(--s-2); align-items: center; color: inherit; }
+.sched--stale { color: var(--critical); }
+.feed__count { color: var(--ink-3); font-weight: 600; font-size: var(--text-sm); }

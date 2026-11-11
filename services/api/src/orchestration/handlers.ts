@@ -1,7 +1,7 @@
 /**
  * Built-in job handlers. Each is deterministic; none spends money or writes outside the FORGE database.
  */
-import { NonRetryableError, modelUsageMonthToDate, type HandlerDef, type StepDef } from "./engine.ts";
+import { NonRetryableError, enqueue, modelUsageMonthToDate, type HandlerDef, type StepDef } from "./engine.ts";
 import { runDataControls, toAlertRow, type ProductPrice, type RawSale } from "@forge/controls/engine";
 import { builderHandlers } from "@forge/builder/handlers";
 import { d1Ledger, d1RestLedger, importLedger, snapshotLedger, type LedgerSnapshot } from "../adapters/ledger.ts";
@@ -12,7 +12,7 @@ import { newId, nowIso } from "../lib/util.ts";
 import { seedRegistry } from "../domain/seed.ts";
 import { REGISTRY_DATA } from "../domain/registry-data.ts";
 import { operatorHandlers, seedOperatorRegistry } from "@forge/operator";
-import { intelligenceHandlers, seedIntelligenceRegistry } from "@forge/intelligence";
+import { intelligenceHandlers, seedIntelligenceRegistry, seedBriefs, storeObservations, storePack, GIT_BRIEFS, GIT_OBSERVATIONS, GIT_PACKS } from "@forge/intelligence";
 import ledgerSnapshot from "../../fixtures/ledger-snapshot-2026-11-10.json" with { type: "json" };
 import n8nSnapshot from "../../fixtures/n8n-snapshot-2026-11-10.json" with { type: "json" };
 
@@ -119,10 +119,39 @@ export const registrySeed: HandlerDef = {
   steps: [{ name: "seed", async run({ db }) { const out = await seedRegistry(db, REGISTRY_DATA); return { output: { ...out, operator_registry: await seedOperatorRegistry(db), intelligence_registry: await seedIntelligenceRegistry(db) } }; } }],
 };
 
+/**
+ * Git-kept intelligence data (evidence packs, dated observations, briefs), seeded in small child jobs: inline in the
+ * scheduled invocation it would cost ~50 D1 subrequests on top of the registry seed (free plan: 50 per invocation).
+ * input.part: "packs" | "observations" | "brief" (+ index). All writes are content-hash or niche+version deduped.
+ */
+export const seedDataJob: HandlerDef = {
+  kind: "system.seed_data",
+  steps: [{ name: "seed", async run({ db, input, jobId }) {
+    const part = String(input.part ?? "");
+    if (part === "plan") {
+      const h = defaultHandlers(); const ids: string[] = [];
+      for (const p of seedDataParts()) ids.push((await enqueue(db, h, { kind: "system.seed_data", input: p, parentId: jobId, priority: 40, idempotencyKey: `${jobId}:${p.part}:${p.index ?? 0}`, createdBy: `job:${jobId}`, maxAttempts: 2 })).id);
+      return { output: { planned: ids } };
+    }
+    if (part === "packs") { for (const p of GIT_PACKS) await storePack(db, p, "git"); return { output: { packs: GIT_PACKS.length } }; }
+    if (part === "observations") return { output: await storeObservations(db, GIT_OBSERVATIONS) };
+    if (part === "brief") {
+      const doc = GIT_BRIEFS[Number(input.index)];
+      if (!doc) throw new NonRetryableError(`no git brief at index ${input.index}`);
+      const out = await seedBriefs(db, [doc]);
+      // An invalid git brief fails this child job, which raises the engine's job alert (QA-019 I2-2); the cron tick itself only enqueues.
+      if (out.invalid.length) throw new NonRetryableError(`git brief invalid: ${out.invalid.join("; ")}`);
+      return { output: out };
+    }
+    throw new NonRetryableError(`unknown seed part: ${part}`);
+  } }],
+};
+export const seedDataParts = (): Record<string, unknown>[] => [{ part: "packs" }, { part: "observations" }, ...GIT_BRIEFS.map((_, index) => ({ part: "brief", index }))];
+
 const BUILDER_REGISTRY: Record<string, string> = {
   "builder.blueprint.generate": "FORGE-BUILDER-BLUEPRINT", "builder.build.plan": "FORGE-BUILDER-PLAN", "builder.build.evaluate": "FORGE-BUILDER-EVALUATE",
 };
 const builder = (): HandlerDef[] => builderHandlers({ NonRetryableError }).map((h) => ({ ...h, registryId: h.registryId ?? BUILDER_REGISTRY[h.kind] }) as HandlerDef);
 
 export const defaultHandlers = (): Map<string, HandlerDef> =>
-  new Map([registrySeed, ledgerSync, n8nSync, heartbeatWatchdog, ...builder(), ...operatorHandlers(), ...intelligenceHandlers()].map((h) => [h.kind, h]));
+  new Map([registrySeed, seedDataJob, ledgerSync, n8nSync, heartbeatWatchdog, ...builder(), ...operatorHandlers(), ...intelligenceHandlers()].map((h) => [h.kind, h]));

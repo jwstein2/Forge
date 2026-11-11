@@ -182,3 +182,57 @@ describe('schedule slots', () => {
     expect(slotIso('2026-11-09T08:00:00.000Z')).toBe('2026-11-09T08:00:00.000Z');
   });
 });
+
+import { mapScheduler, schedulerFact } from './operatorMap';
+import { mapOpportunity, mapScoutRun } from './apiMap';
+import { knownCosts } from '../components/BusinessMoney';
+import { sourceText } from '../screens/Operations';
+import { fixturesFinancials } from './__fixtures__/testFinancials';
+
+describe('round 3: scheduler, scout run, money, heartbeat source', () => {
+  const sched = (state: string, minutesSinceTick: number | null) => mapScheduler({ state, minutesSinceTick, lastTick: { at: '2026-11-11T01:00:00Z', queued: 2, failed24h: 0 }, queue: { backlogMinutes: 50 }, thresholds: { staleTickMinutes: 35, backlogMinutes: 45 } });
+  it('makes a stopped scheduler a critical line and a backlog a warning', () => {
+    expect(schedulerFact(sched('stale', 52))).toMatchObject({ value: 'Stopped', tone: 'critical', sub: expect.stringContaining('52 min ago') });
+    expect(schedulerFact(sched('backlog', 3))).toMatchObject({ value: 'Ran 3 min ago', tone: 'warn', sub: expect.stringContaining('50 min') });
+    expect(schedulerFact(sched('ok', 0.4)).value).toBe('Ran just now');
+    expect(schedulerFact(sched('ok', 0.4)).tone).toBeUndefined();
+    expect(schedulerFact(sched('never_observed', null)).value).toBe('Not seen yet');
+  });
+
+  it('takes the newest Scout run and its source re-check counts', () => {
+    const r = mapScoutRun([
+      { id: 'old', kind: 'scout', status: 'succeeded', startedAt: '2026-11-01T00:00:00Z', finishedAt: null },
+      { id: 'rc', kind: 'source_recheck', status: 'succeeded', startedAt: '2026-11-12T00:00:00Z', finishedAt: null },
+      { id: 'run_new', kind: 'scout', status: 'partial', startedAt: '2026-11-10T21:45:16Z', finishedAt: '2026-11-10T22:15:32Z', unconnected: ['Google Trends'], report: { sources: { checked: 26, confirmed: 14, reachable: 3, unreachable: 9, failed: 0 } } },
+    ]);
+    expect(r).toMatchObject({ id: 'run_new', status: 'partial', sources: { confirmed: 14, checked: 26 }, unconnected: ['Google Trends'] });
+    expect(mapScoutRun([])).toBeNull();
+  });
+
+  it('maps live Scout fields: 0-5 criteria, raw vs adjusted, price with evidence, effort and falsifying test', () => {
+    const o = mapOpportunity(
+      { id: 'o1', opportunityKey: 'garden-planner', title: 'Garden Planner', score: 57, rank: 1, recommended: true, scoringModelVersion: '1.0.0', briefRef: null, runId: 'r', status: 'recommended',
+        content: { raw_score: 70, evidence_coverage: 1, launch_effort: 'About 2 build weeks', support_load: 'Low', falsifying_test: 'Fewer than 1% of calculator users buy in 30 days.', recommendation_strength: 'narrow',
+          proposed_offer: { model: 'one_time_digital', price: { value: 15, evidence: 'INFERRED', currency: 'USD' } },
+          criterion_scores: [{ key: 'demand_evidence', score: 3, evidence: 'VERIFIED', rationale: 'Review counts show purchases.' }], gates: [] } },
+      '2026-11-10T22:15:32Z',
+    );
+    expect(o.score).toMatchObject({ total: 57, raw: 70, coverage: 1 });
+    expect(o.score.components[0]).toMatchObject({ value: 60, display: '3/5', rationale: 'Review counts show purchases.' });
+    expect(o.score.components[0].weight).toBeUndefined();
+    expect(o.offer.price).toBe('$15');
+    expect(o).toMatchObject({ priceEvidence: 'inferred', effort: 'About 2 build weeks', falsifyingTest: expect.stringContaining('1%'), strength: 'narrow', verdict: 'go' });
+    expect(o.economics.base.state).toBe('unknown'); // no economics in the run: never invented
+  });
+
+  it('sums only established cost lines and names the rest', () => {
+    const c = knownCosts(fixturesFinancials);
+    expect(c.unknown).toEqual(['Software & hosting', 'AI & agent usage']);
+    expect(c.known).toBe(1.5);
+  });
+
+  it('says where a last success came from', () => {
+    expect(sourceText('heartbeat')).toBe('reported by the runner');
+    expect(sourceText('n8n.snapshot')).toBe('from a dated export');
+  });
+});

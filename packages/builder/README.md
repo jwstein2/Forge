@@ -2,7 +2,7 @@
 
 Turns an approved opportunity's **Audience & Market Brief** into a versioned **Launch Blueprint**, then tracks a build through nine stages until the owner decides whether to launch. **FORGE never launches anything on its own.**
 
-Status: **BUILT and TESTED locally** (94 tests; blueprint engine QA-004 PASS; site scaffold awaiting QA). Not registered in the API yet, not deployed, not independently reviewed.
+Status: **BUILT and TESTED locally** (119 tests). Registered in the API on main; not deployed to production. Each change goes to independent QA.
 
 ## What is here
 
@@ -65,3 +65,18 @@ npm run scaffold -w @forge/builder -- blueprints/quilt-plan-kit/launch-blueprint
   --brand brands/quilt-plan-kit.brand.json --brief test/fixtures/quilt-plan-kit.brief.json \
   --config site-config.json --out /tmp/qpk-staging
 ```
+
+## Garden Planner staged ecosystem (2026-11-11)
+
+`products/garden-planner/` holds the fourth business's working pieces. All PROPOSED, staging only, never launched.
+
+| Path | What |
+|---|---|
+| `calendar.js` | Pure calendar logic shared by the browser and the tests: frost date + crop table -> dated tasks; ZIP lookup; frost-rare rule. |
+| `data/crops.json` | 30 crops, week offsets from the last-frost date, each citing KidsGardening or Johnny's Selected Seeds (facts with attribution; G8 to confirm). |
+| `data/frost/` | 896 shards: ZIP -> nearest NOAA 1991-2020 normals station within 150 km (CC0), with Census 2025 ZCTA points (public domain). Rebuild: `npm run frost-data -w @forge/builder -- --normals <dir> --zips <csv> --out products/garden-planner/data/frost`. |
+| `garden-ui.js`, `site-module.ts` | The calculator page, 30 `/when-to-plant/<crop>/` pages, real kit previews on the product page, privacy text for the data download. |
+| `kit/build.ts`, `kit/build_kit.py` | Garden Season Kit draft: 10-page PDF (Letter and A4) and the personal calendar sheet, byte-reproducible (`npm run kit -w @forge/builder -- --out <dir>`; python3 + reportlab + pdftoppm). |
+| `SEO_PLAN.md` | Search plan worked back from the January to March window. |
+
+The scaffold now takes `--module garden-planner [--previews <kit-out>/previews]` and `--copy copy/<niche>.copy.json`. Copy decks (`src/site/copy.ts`) fill only marketing markers, always PROPOSED, and are refused if they read as proof the business lacks or use a figure not in the products or the claims they cite.

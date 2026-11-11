@@ -20,7 +20,7 @@ const money = (c: number) => `$${(c / 100).toFixed(2)}`;
 
 export async function buildSummary(db: D1Database, start: Date, end: Date) {
   const s = start.toISOString(); const e = end.toISOString();
-  const runs = (await db.prepare(`SELECT r.registry_id AS id, re.name, SUM(CASE WHEN r.status='success' THEN 1 ELSE 0 END) AS ok, SUM(CASE WHEN r.status='failed' THEN 1 ELSE 0 END) AS failed, MAX(CASE WHEN r.status='success' THEN COALESCE(r.finished_at, r.started_at) END) AS last_success, SUM(COALESCE(r.model_cost_cents,0)) AS model_cost
+  const runs = (await db.prepare(`SELECT r.registry_id AS id, re.name, SUM(CASE WHEN r.status='success' THEN 1 ELSE 0 END) AS ok, SUM(CASE WHEN r.status IN ('failed','timeout') THEN 1 ELSE 0 END) AS failed, MAX(CASE WHEN r.status='success' THEN COALESCE(r.finished_at, r.started_at) END) AS last_success, SUM(COALESCE(r.model_cost_cents,0)) AS model_cost
     FROM runs r JOIN registry_entries re ON re.id = r.registry_id WHERE r.started_at >= ? AND r.started_at < ? GROUP BY r.registry_id ORDER BY r.registry_id`).bind(s, e).all<Record<string, any>>()).results;
   const silent = (await db.prepare(`SELECT id, name, runner FROM registry_entries WHERE status = 'LIVE' AND id NOT IN (SELECT DISTINCT registry_id FROM runs WHERE started_at >= ? AND started_at < ?)`).bind(s, e).all<Record<string, any>>()).results;
   const alertsOpened = (await db.prepare(`SELECT severity, COUNT(*) AS n FROM alerts WHERE first_seen >= ? AND first_seen < ? GROUP BY severity`).bind(s, e).all<{ severity: string; n: number }>()).results;

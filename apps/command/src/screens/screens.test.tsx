@@ -322,3 +322,60 @@ describe('QA-012 C1–C3', () => {
     expect(await screen.findByText(/^read Nov 10/)).toBeInTheDocument();
   });
 });
+
+describe('Round 3: executive overview and scheduler', () => {
+  it('shows money by business with unknown cost lines named, and an honest Scout card in snapshot mode', async () => {
+    renderAt('/');
+    const region = await screen.findByRole('region', { name: 'Money by business table, scrollable' });
+    expect(within(region).getByText('All businesses')).toBeInTheDocument();
+    expect(within(region).getAllByText('Incomplete').length).toBeGreaterThan(0);
+    expect(await screen.findByText('The Scout has not run yet')).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/-\$0\.00|−\$0\.00/);
+  });
+
+  it('puts a stopped scheduler in red at the top of Operations', async () => {
+    const base = createFixtureSource();
+    const op = await base.getOperator();
+    const src = { ...base, getOperator: async () => ({ ...op, state: 'ready' as const, scheduler: { state: 'stale', minutesSinceTick: 52, lastTickAt: null, queued: 3, failed24h: 0, backlogMinutes: null, staleTickMinutes: 35 } }) };
+    render(<TestApp source={src} path="/operations" />);
+    const fact = await screen.findByTestId('scheduler');
+    expect(fact).toHaveClass('ops-fact--critical');
+    expect(fact).toHaveAttribute('role', 'alert');
+    expect(within(fact).getByText('Stopped')).toBeInTheDocument();
+  });
+});
+
+describe('activity grouping', () => {
+  it('folds consecutive identical runs into one row with a count', async () => {
+    const { groupActivity } = await import('../components/blocks');
+    const e = (id: string, at: string, summary = 'FORGE heartbeat watchdog') => ({ id, at, nicheId: 'portfolio' as const, actor: 'job run', summary, verified: true });
+    const g = groupActivity([e('a', '2026-11-11T01:45:00Z'), e('b', '2026-11-11T01:44:00Z'), e('c', '2026-11-11T01:43:00Z', 'Scout run'), e('d', '2026-11-11T01:42:00Z')]);
+    expect(g.map((x) => [x.summary, x.count])).toEqual([['FORGE heartbeat watchdog', 2], ['Scout run', 1], ['FORGE heartbeat watchdog', 1]]);
+    expect(g[0]).toMatchObject({ at: '2026-11-11T01:45:00Z', earliest: '2026-11-11T01:44:00Z' });
+  });
+});
+
+describe('QA-020 C3-1', () => {
+  it('weekly summary formats revenue and admits when it is unknown', async () => {
+    const base = createFixtureSource();
+    const withRev = (value: number | null) => ({
+      ...base,
+      async getPortfolio() {
+        const p = await base.getPortfolio();
+        p.financials.grossRevenue = { ...p.financials.grossRevenue, value, state: value === null ? 'unknown' : 'verified' };
+        return p;
+      },
+    });
+    const { unmount } = render(<TestApp source={withRev(19.5)} path="/operations" />);
+    expect(await screen.findByText('Verified revenue $19.50.')).toBeInTheDocument();
+    unmount();
+    render(<TestApp source={withRev(null)} path="/operations" />);
+    expect(await screen.findByText('Revenue is unknown: the sales ledger could not be read.')).toBeInTheDocument();
+  });
+  it('never prints a negative zero', async () => {
+    const { formatValue } = await import('../lib/format');
+    const m = { unit: 'usd' as const, state: 'verified' as const, period: { start: '', end: '', label: '' }, asOf: null, source: 't' };
+    expect(formatValue({ ...m, value: -0.004 }, { cents: true })).toBe('$0.00');
+    expect(formatValue({ ...m, value: -0 }, { cents: true })).toBe('$0.00');
+  });
+});

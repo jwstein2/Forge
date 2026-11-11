@@ -41,7 +41,7 @@ export function Statement({ fs, title = 'Contribution statement' }: { fs: Financ
                 <StateChip state={r.metric.state} compact />
               </td>
               <td className="num">
-                {r.metric.value === null ? '—' : `${r.sign && r.metric.value !== 0 ? r.sign : ''}${formatValue(r.metric, { cents: true })}`}
+                {r.metric.value === null ? '—' : `${r.sign && Math.round(Math.abs(r.metric.value) * 100) !== 0 ? r.sign : ''}${formatValue({ ...r.metric, value: r.sign ? Math.abs(r.metric.value) : r.metric.value }, { cents: true })}`}
               </td>
             </tr>
           ))}

@@ -1,12 +1,12 @@
 /** Read-only HTTP for research: streamed with a byte cap and a timeout (same pattern as @forge/operator's defaultFetcher). */
 export interface FetchResult { ok: boolean; status: number | null; text: string; error?: string }
-export type Fetcher = (url: string, opts?: { timeoutMs?: number; maxBytes?: number; accept?: string }) => Promise<FetchResult>;
+export type Fetcher = (url: string, opts?: { timeoutMs?: number; maxBytes?: number; accept?: string; headers?: Record<string, string> }) => Promise<FetchResult>;
 
 export const UA = "FORGE-Intelligence/0.1 (research source re-check for the site owner; low volume)";
 
 export const defaultFetcher: Fetcher = async (url, opts = {}) => {
   try {
-    const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "user-agent": UA, accept: opts.accept ?? "text/html,application/json;q=0.9,*/*;q=0.5" }, signal: AbortSignal.timeout(opts.timeoutMs ?? 15000) });
+    const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "user-agent": UA, accept: opts.accept ?? "text/html,application/json;q=0.9,*/*;q=0.5", ...(opts.headers ?? {}) }, signal: AbortSignal.timeout(opts.timeoutMs ?? 15000) });
     const cap = opts.maxBytes ?? 1_000_000; const chunks: Uint8Array[] = []; let got = 0;
     const reader = res.body?.getReader();
     if (reader) {

@@ -8,6 +8,7 @@ import { parseJson } from "../../../services/api/src/lib/util.ts";
 import { connectorStates } from "./connectors.ts";
 import { storePack } from "./handlers/scout.ts";
 import { validatePack } from "./pack.ts";
+import { storeObservations, validateObservation, type Observation } from "./observations.ts";
 
 type Env = { DB: D1Database };
 type Vars = { me?: { email: string; role: string } };
@@ -29,6 +30,17 @@ export function intelligenceRoutes(handlers: () => Map<string, HandlerDef>) {
     const packId = await storePack(c.env.DB, body.pack as any, who);
     const job = await enqueue(c.env.DB, handlers(), { kind: "intel.scout.run", input: { packId, requestedBy: who }, idempotencyKey: `scout:${packId}`, createdBy: who });
     return c.json({ ok: true, data: { packId, jobId: job.id, created: job.created } });
+  });
+
+  /** Record dated observations for pages that bot-wall the Worker (e.g. Etsy). Owner only; the Scout uses them for 45 days. */
+  r.post("/source-observations", async (c) => {
+    const who = owner(c); if (!who) return fail(c, 403, "forbidden", "owner only");
+    const body = await c.req.json<{ observations?: Observation[] }>().catch(() => ({} as { observations?: Observation[] }));
+    const list = Array.isArray(body.observations) ? body.observations.slice(0, 200) : [];
+    if (!list.length) return fail(c, 422, "bad_request", "observations[] required");
+    const errors = list.flatMap((o, i) => validateObservation(o).map((e) => `#${i}: ${e}`));
+    if (errors.length) return fail(c, 422, "bad_request", "invalid observations", errors.slice(0, 20));
+    return c.json({ ok: true, data: await storeObservations(c.env.DB, list) });
   });
 
   r.get("/runs", async (c) => {

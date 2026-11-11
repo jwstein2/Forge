@@ -23,6 +23,7 @@ import type {
   OpportunityBoard,
   Product,
   TrendSeries,
+  ScoutRunInfo,
 } from './types';
 
 const NICHE_ACCENT: Record<string, string> = {
@@ -129,6 +130,8 @@ export function mapJob(r: C.RegistryEntry): Job {
     lastSuccessAt: r.lastSuccess ? r.lastSuccess.finishedAt ?? r.lastSuccess.startedAt : null,
     lastResult: last === 'success' ? 'success' : last === 'failed' || last === 'timeout' ? 'failure' : 'none',
     heartbeatOk: r.heartbeat === 'ok' ? true : r.heartbeat === 'late' ? false : null,
+    heartbeat: r.heartbeat,
+    lastSuccessSource: r.lastSuccess?.source,
     evidenceUrl: r.lastSuccess?.evidenceUrl ?? undefined,
     defects: r.defects,
     monthlyRuns: r.runsLast30d,
@@ -258,7 +261,7 @@ type Scenario = { monthly_gross: number; monthly_contribution?: number | null; a
 type OppContent = {
   customer_segment?: string;
   problem?: string;
-  proposed_offer?: { model?: string; description?: string; price?: { value: number | string | null } };
+  proposed_offer?: { model?: string; description?: string; price?: { value: number | string | null; evidence?: C.EvidenceLabel; currency?: string } };
   demand_summary?: Claim[] | null;
   competitor_summary?: Claim[] | null;
   seasonality?: { event: string; demand_window: string; publish_by: string; evidence: Claim }[] | null;
@@ -266,6 +269,9 @@ type OppContent = {
   launch_effort?: string | null;
   criterion_scores?: { key: string; score: number | null; evidence: C.EvidenceLabel; rationale?: string }[];
   adjusted_score?: number;
+  raw_score?: number | null;
+  evidence_coverage?: number | null;
+  support_load?: string | null;
   hypothesis?: string | null;
   why_beats_alternatives?: string | null;
   falsifying_test?: string | null;
@@ -305,10 +311,13 @@ export function mapOpportunity(o: C.OpportunityEnvelope, runAt: string | null): 
     hunch: c.hypothesis ?? 'No hypothesis recorded in this run.',
     score: {
       total: Math.round(o.score ?? c.adjusted_score ?? 0),
+      raw: c.raw_score ?? null,
+      coverage: c.evidence_coverage ?? null,
       components: (c.criterion_scores ?? []).map((s) => ({
         label: `${titleCase(s.key)} (${s.evidence.toLowerCase()})`,
         value: s.score === null ? 0 : Math.round(s.score * 20), // criteria are scored 0–5
-        weight: 0,
+        display: s.score === null ? 'unknown' : `${s.score}/5`,
+        rationale: s.rationale,
       })),
     },
     confidence: c.confidence ?? 'low',
@@ -318,7 +327,7 @@ export function mapOpportunity(o: C.OpportunityEnvelope, runAt: string | null): 
     demographics: [],
     productModel: [c.proposed_offer?.model && titleCase(c.proposed_offer.model), c.proposed_offer?.description].filter(Boolean).join(': ') || 'Not recorded',
     offer: {
-      price: c.proposed_offer?.price?.value != null ? String(c.proposed_offer.price.value) : 'Price unknown',
+      price: priceText(c.proposed_offer?.price),
       monetization: c.proposed_offer?.model ? titleCase(c.proposed_offer.model) : 'Not recorded',
     },
     seasonality: {
@@ -341,9 +350,30 @@ export function mapOpportunity(o: C.OpportunityEnvelope, runAt: string | null): 
     reuse: [],
     complexity: effort.includes('high') ? 'high' : effort.includes('low') ? 'low' : 'medium',
     verdict,
-    verdictReason: c.why_beats_alternatives ?? c.falsifying_test ?? `Recommendation strength: ${c.recommendation_strength ?? 'none'}.`,
+    verdictReason: c.why_beats_alternatives ?? `Recommendation strength: ${c.recommendation_strength ?? 'none'}.`,
     unconnected: (c.unconnected_sources ?? []).map((u) => ({ name: u.name, wouldAdd: u.would_add })),
+    effort: c.launch_effort ?? undefined,
+    supportLoad: c.support_load ?? undefined,
+    falsifyingTest: c.falsifying_test ?? undefined,
+    strength: c.recommendation_strength,
+    priceEvidence: c.proposed_offer?.price?.evidence ? ev(c.proposed_offer.price.evidence) : undefined,
   };
+}
+
+function priceText(p?: { value: number | string | null; currency?: string }): string {
+  if (!p || p.value == null || p.value === '') return 'Price unknown';
+  const n = typeof p.value === 'number' ? p.value : Number(p.value);
+  if (!Number.isFinite(n)) return String(p.value);
+  return !p.currency || p.currency === 'USD' ? `$${Number.isInteger(n) ? n : n.toFixed(2)}` : `${n} ${p.currency}`;
+}
+
+type RawRun = { id: string; kind: string; status: string; startedAt: string; finishedAt: string | null; unconnected?: string[]; report?: { sources?: ScoutRunInfo['sources'] } | null };
+
+/** Latest Scout run from GET /intelligence/runs (report.sources counts how its cited sources re-checked). */
+export function mapScoutRun(runs: RawRun[]): ScoutRunInfo | null {
+  const r = runs.filter((x) => x.kind === 'scout').sort((a, b) => b.startedAt.localeCompare(a.startedAt))[0];
+  if (!r) return null;
+  return { id: r.id, status: r.status, startedAt: r.startedAt, finishedAt: r.finishedAt, sources: r.report?.sources ?? null, unconnected: r.unconnected ?? [] };
 }
 
 export function mapOpportunityBoard(b: C.OpportunityBoard): OpportunityBoard {

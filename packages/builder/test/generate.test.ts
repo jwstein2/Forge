@@ -7,6 +7,10 @@ import { classifyPlaybook } from "../src/playbooks.ts";
 import { validateBlueprint } from "../src/validate.ts";
 import { NICHES, clone, loadBrief, registryProducts, syntheticNewBusinessBrief } from "./helpers.ts";
 
+const B74 = "Regenerated from the latest briefs (Bidline v1.0.2, Quilt Plan Kit v1.0.3, Loaf Ledger v1.0.4): break-even sales counts and off-Etsy price sources; Loaf Ledger adds competitors and leads its must-includes with the market-day loop.";
+/** Current committed blueprint per niche. */
+const CURRENT: Record<string, { version: string; changelog: string }> = { bidline: { version: "1.0.4", changelog: B74 }, "quilt-plan-kit": { version: "1.0.4", changelog: B74 }, "loaf-ledger": { version: "1.0.4", changelog: B74 } };
+
 describe("blueprint generator on the three real v1 briefs", () => {
   for (const niche of NICHES) {
     it(`${niche}: valid against schema, semantics and the brief`, async () => {
@@ -28,14 +32,33 @@ describe("blueprint generator on the three real v1 briefs", () => {
     });
 
     it(`${niche}: committed blueprint matches a fresh generation (no drift)`, async () => {
-      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, "launch-blueprint.v1.0.2.json"), "utf8"));
+      const { version, changelog } = CURRENT[niche]!;
+      const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", niche, `launch-blueprint.v${version}.json`), "utf8"));
       const fresh = await generateBlueprint(loadBrief(niche), {
-        registryProducts: registryProducts(), version: "1.0.2", supersedes: `bp_${niche}_v1-0-1`,
-        changelog: "Offer items that name alternatives (\"A or B\") stay undecided instead of becoming products (QA-009 S3).",
+        registryProducts: registryProducts(), version, supersedes: `bp_${niche}_v${version.replace(/\d+$/, (d) => String(Number(d) - 1)).replace(/\./g, "-")}`, changelog,
       });
       expect(await contentHash(committed)).toBe(await contentHash(fresh));
     });
   }
+
+  it("names products already on sale by their registry name, keeps the brief name otherwise (QA-014 B7-1)", async () => {
+    const names = async (n: string, o = {}) => (await generateBlueprint(loadBrief(n), { registryProducts: registryProducts(), ...o })).products.map((p) => p.name);
+    const bid = await generateBlueprint(loadBrief("bidline"), { registryProducts: registryProducts() });
+    expect(bid.products[0]!.name).toBe("Bidline Estimating Kit");
+    expect(bid.products[0]!.registry_product_id).toBe("prd_bidline_kit");
+    expect(bid.unknowns.some((u) => u.field.endsWith(".name"))).toBe(false); // brief v1.0.1 already uses the sold name
+    // A brief whose working name differs from the sold product: registry name wins, difference listed.
+    const old = loadBrief("quilt-plan-kit");
+    old.premium_product_recommendation.offer_ladder = old.premium_product_recommendation.offer_ladder.map((t) => t.tier === "entry" ? { ...t, item: "Quilt Planner PDF" } : t);
+    const qpk = await generateBlueprint(old, { registryProducts: registryProducts() });
+    expect(qpk.products.map((p) => p.name)).toContain("The Quilt Planner — Printable PDF");
+    expect(qpk.unknowns.some((u) => u.field.endsWith(".name") && u.statement.includes("Quilt Planner PDF"))).toBe(true);
+    const cur = await generateBlueprint(loadBrief("quilt-plan-kit"), { registryProducts: registryProducts() });
+    expect(cur.unknowns.some((u) => u.field.endsWith(".name"))).toBe(false); // brief v1.0.2 uses the sold name
+    expect(bid.sales_framework.cta.label).toBe("Get the Bidline Estimating Kit");
+    expect(await names("loaf-ledger")).not.toContain("Paid baking spreadsheet"); // registry entry is PROPOSED, not on sale
+    expect((await generateBlueprint(old, { registryProducts: [] })).products.map((p) => p.name)).toContain("Quilt Planner PDF");
+  });
 
   it("classifies the real offer ladders into the right playbooks", async () => {
     const pb = async (n: string) => (await generateBlueprint(loadBrief(n))).offer_ladder.map((t) => `${t.tier}:${t.playbook}`);

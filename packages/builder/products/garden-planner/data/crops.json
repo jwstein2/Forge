@@ -1,0 +1,497 @@
+{
+ "version": "1.0.0",
+ "status": "PROPOSED",
+ "relative_to": "50% last-spring 32F date (weeks; negative = before, positive = after)",
+ "rule": "Timings are general guidance from the cited sources, not local advice. Every crop cites its source; nothing is invented. Week ranges are copied from the source or derived by simple arithmetic shown in the note.",
+ "sources": {
+  "src_kidsgardening_when_to_plant": {
+   "title": "KidsGardening: When to Plant Seeds (Tables 1 and 2)",
+   "url": "https://kidsgardening.org/resources/gardening-basics-when-to-plant-seeds/",
+   "accessed": "2026-11-11",
+   "page_updated": "2026-03-28",
+   "use": "Facts (week offsets) with attribution; licence for reuse not stated, so G8 must confirm attribution is sufficient or replace with an extension source."
+  },
+  "src_johnnys_calc": {
+   "title": "Johnny's Selected Seeds: Seed-Starting Date Calculator",
+   "url": "https://www.johnnyseeds.com/growers-library/seed-planting-schedule-calculator-OLD.html",
+   "accessed": "2026-11-11",
+   "use": "Facts (week offsets) with attribution, and as a cross-check of KidsGardening transplant timings. Same G8 caveat."
+  }
+ },
+ "crops": [
+  {
+   "id": "basil",
+   "name": "Basil",
+   "kind": "herb",
+   "start_indoors": {
+    "from_weeks": -5,
+    "to_weeks": -5
+   },
+   "transplant": {
+    "from_weeks": 1,
+    "to_weeks": 1
+   },
+   "direct_sow": {
+    "from_weeks": 1,
+    "to_weeks": 1
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "beans",
+   "name": "Beans",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": 0,
+    "to_weeks": 0
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "beets",
+   "name": "Beets",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -4,
+    "to_weeks": -2
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "broccoli",
+   "name": "Broccoli",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -8,
+    "to_weeks": -6
+   },
+   "transplant": {
+    "from_weeks": -2,
+    "to_weeks": -2
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: sow 3-4 weeks before setting out, set out 2 weeks before frost-free date (same transplant timing)."
+  },
+  {
+   "id": "cabbage",
+   "name": "Cabbage",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -10,
+    "to_weeks": -8
+   },
+   "transplant": {
+    "from_weeks": -4,
+    "to_weeks": -4
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 4 weeks before frost-free date (same)."
+  },
+  {
+   "id": "carrots",
+   "name": "Carrots",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -3,
+    "to_weeks": -2
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "cauliflower",
+   "name": "Cauliflower",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -8,
+    "to_weeks": -6
+   },
+   "transplant": {
+    "from_weeks": -2,
+    "to_weeks": -2
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 2 weeks before frost-free date (same)."
+  },
+  {
+   "id": "cilantro",
+   "name": "Cilantro",
+   "kind": "herb",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -2,
+    "to_weeks": -1
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "corn",
+   "name": "Corn",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": 0,
+    "to_weeks": 1
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "cucumber",
+   "name": "Cucumber",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -3,
+    "to_weeks": -2
+   },
+   "transplant": {
+    "from_weeks": 1,
+    "to_weeks": 2
+   },
+   "direct_sow": {
+    "from_weeks": 1,
+    "to_weeks": 2
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 1-2 weeks after frost-free date (same)."
+  },
+  {
+   "id": "dill",
+   "name": "Dill",
+   "kind": "herb",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -2,
+    "to_weeks": -1
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "eggplant",
+   "name": "Eggplant",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -8,
+    "to_weeks": -6
+   },
+   "transplant": {
+    "from_weeks": 2,
+    "to_weeks": 3
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 2-3 weeks after frost-free date (same)."
+  },
+  {
+   "id": "kale",
+   "name": "Kale",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -10,
+    "to_weeks": -8
+   },
+   "transplant": {
+    "from_weeks": -4,
+    "to_weeks": -4
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 4 weeks before frost-free date (same)."
+  },
+  {
+   "id": "lettuce",
+   "name": "Lettuce",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -8,
+    "to_weeks": -7
+   },
+   "transplant": {
+    "from_weeks": -4,
+    "to_weeks": -3
+   },
+   "direct_sow": {
+    "from_weeks": -4,
+    "to_weeks": -3
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 3-4 weeks before frost-free date (same)."
+  },
+  {
+   "id": "melon",
+   "name": "Melon",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -2,
+    "to_weeks": -1
+   },
+   "transplant": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "direct_sow": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 2 weeks after frost-free date (same)."
+  },
+  {
+   "id": "onion",
+   "name": "Onion",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -12,
+    "to_weeks": -10
+   },
+   "transplant": {
+    "from_weeks": -4,
+    "to_weeks": -4
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 4 weeks before frost-free date (same)."
+  },
+  {
+   "id": "parsley",
+   "name": "Parsley",
+   "kind": "herb",
+   "start_indoors": {
+    "from_weeks": -12,
+    "to_weeks": -10
+   },
+   "transplant": {
+    "from_weeks": -3,
+    "to_weeks": -2
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "peas",
+   "name": "Peas",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -6,
+    "to_weeks": -6
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "pepper",
+   "name": "Pepper",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -6,
+    "to_weeks": -6
+   },
+   "transplant": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 2 weeks after frost-free date (same)."
+  },
+  {
+   "id": "pumpkin",
+   "name": "Pumpkin",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -2,
+    "to_weeks": -1
+   },
+   "transplant": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "direct_sow": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": "Johnny's: set out 2 weeks after frost-free date (same)."
+  },
+  {
+   "id": "radish",
+   "name": "Radish",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -6,
+    "to_weeks": -4
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "spinach",
+   "name": "Spinach",
+   "kind": "vegetable",
+   "start_indoors": null,
+   "transplant": null,
+   "direct_sow": {
+    "from_weeks": -6,
+    "to_weeks": -4
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "squash",
+   "name": "Squash",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -2,
+    "to_weeks": -1
+   },
+   "transplant": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "direct_sow": {
+    "from_weeks": 2,
+    "to_weeks": 2
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "swiss-chard",
+   "name": "Swiss chard",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -8,
+    "to_weeks": -6
+   },
+   "transplant": {
+    "from_weeks": -2,
+    "to_weeks": -2
+   },
+   "direct_sow": {
+    "from_weeks": -2,
+    "to_weeks": -1
+   },
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "tomato",
+   "name": "Tomato",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -8,
+    "to_weeks": -6
+   },
+   "transplant": {
+    "from_weeks": 1,
+    "to_weeks": 1
+   },
+   "direct_sow": null,
+   "source_id": "src_kidsgardening_when_to_plant",
+   "note": null
+  },
+  {
+   "id": "celery",
+   "name": "Celery",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -11,
+    "to_weeks": -9
+   },
+   "transplant": {
+    "from_weeks": 1,
+    "to_weeks": 1
+   },
+   "direct_sow": null,
+   "source_id": "src_johnnys_calc",
+   "note": "Derived: sow 10-12 weeks before setting out; set out 1 week after frost-free date."
+  },
+  {
+   "id": "collards",
+   "name": "Collards",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -10,
+    "to_weeks": -8
+   },
+   "transplant": {
+    "from_weeks": -4,
+    "to_weeks": -4
+   },
+   "direct_sow": null,
+   "source_id": "src_johnnys_calc",
+   "note": "Derived: sow 4-6 weeks before setting out; set out 4 weeks before frost-free date."
+  },
+  {
+   "id": "kohlrabi",
+   "name": "Kohlrabi",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -10,
+    "to_weeks": -8
+   },
+   "transplant": {
+    "from_weeks": -4,
+    "to_weeks": -4
+   },
+   "direct_sow": null,
+   "source_id": "src_johnnys_calc",
+   "note": "Derived: sow 4-6 weeks before setting out; set out 4 weeks before frost-free date."
+  },
+  {
+   "id": "leeks",
+   "name": "Leeks",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -12,
+    "to_weeks": -10
+   },
+   "transplant": {
+    "from_weeks": -2,
+    "to_weeks": -2
+   },
+   "direct_sow": null,
+   "source_id": "src_johnnys_calc",
+   "note": "Derived: sow 8-10 weeks before setting out; set out 2 weeks before frost-free date."
+  },
+  {
+   "id": "okra",
+   "name": "Okra",
+   "kind": "vegetable",
+   "start_indoors": {
+    "from_weeks": -4,
+    "to_weeks": 0
+   },
+   "transplant": {
+    "from_weeks": 2,
+    "to_weeks": 4
+   },
+   "direct_sow": null,
+   "source_id": "src_johnnys_calc",
+   "note": "Derived: sow 4-6 weeks before setting out; set out 2-4 weeks after frost-free date."
+  }
+ ]
+}

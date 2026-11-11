@@ -22,12 +22,34 @@ export function runway(queue: QueueItem[], now: Date): { future: number; lastPub
   return { future: future.length, lastPublish: last ? new Date(last).toISOString() : null, days: last && last > now.getTime() ? Math.floor((last - now.getTime()) / DAY) : 0 };
 }
 
-export function parseRssItems(xml: string): { link: string; title: string | null; pubDate: string | null }[] {
+export interface RssItem { link: string; title: string | null; pubDate: string | null; description: string | null }
+const unhtml = (s: string) => s.replace(/<[^>]*>/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, "&");
+export function parseRssItems(xml: string): RssItem[] {
   return xmlTags(xml, "item").map((it) => ({
-    link: xmlTags(it, "link")[0] ?? xmlTags(it, "guid")[0] ?? "",
+    link: unhtml(xmlTags(it, "link")[0] ?? xmlTags(it, "guid")[0] ?? "").trim(),
     title: xmlTags(it, "title")[0] ?? null,
     pubDate: (() => { const d = Date.parse(xmlTags(it, "pubDate")[0] ?? ""); return Number.isFinite(d) ? new Date(d).toISOString() : null; })(),
+    description: (() => { const d = xmlTags(it, "description")[0]; return d ? unhtml(d).replace(/\s+/g, " ").trim() : null; })(),
   })).filter((x) => /^https?:\/\//.test(x.link));
+}
+
+/** Text normalised for matching: lower case, letters/digits/fractions only, single spaces. */
+export const normText = (s: string | null | undefined) => unhtml(s ?? "").toLowerCase().replace(/[^a-z0-9/ ]+/g, " ").replace(/\s+/g, " ").trim();
+/**
+ * Pair each Pinterest pin with the site feed item it was made from. Pinterest's profile feed carries the pin text (the
+ * site item's description, sometimes truncated) as title or description; the account also holds unrelated personal pins,
+ * which must never count as this channel's publications. A pin matches when its text and a site item's description or
+ * title share the same opening (at least 40 normalised characters, or the whole shorter text).
+ */
+export function matchPins(pins: RssItem[], site: RssItem[]): { pin: RssItem; site: RssItem }[] {
+  const out: { pin: RssItem; site: RssItem }[] = [];
+  for (const pin of pins) {
+    const texts = [pin.title, pin.description].map(normText).filter((t) => t.length >= 20);
+    const hit = site.find((s) => [s.description, s.title].map(normText).filter((t) => t.length >= 20).some((st) =>
+      texts.some((pt) => { const n = Math.min(pt.length, st.length, 80); return n >= Math.min(40, pt.length, st.length) && pt.slice(0, n) === st.slice(0, n); })));
+    if (hit) out.push({ pin, site: hit });
+  }
+  return out;
 }
 
 /** Pinterest profile URL → public RSS URL (https://www.pinterest.com/<user>/feed.rss). */
@@ -88,9 +110,14 @@ export function pinRunway(fetcher: Fetcher): HandlerDef {
         if (!pf) out.platform = { state: "unconnected", reason: "No Pinterest profile URL on the channel record; publication on Pinterest cannot be verified by FORGE." };
         else {
           const p = await fetcher(pf, { timeoutMs: 15000 });
-          const items = p.ok ? pinOnly(parseRssItems(p.text)) : [];
-          for (const it of items) await db.prepare(`INSERT INTO op_publications (id,channel_id,niche_id,external_url,title,published_at,observed_at,source) VALUES (?,?,?,?,?,?,?,'platform_feed') ON CONFLICT(channel_id, external_url) DO NOTHING`)
-            .bind(newId("pub"), channelId, ch.niche_id, it.link, it.title, it.pubDate, nowIso()).run();
+          const allPins = p.ok ? pinOnly(parseRssItems(p.text)) : [];
+          // Only pins that match an item in this channel's own site feed count; other pins on the account are not ours.
+          const matched = matchPins(allPins, siteItems);
+          const items = matched.map((m) => m.pin);
+          for (const m of matched) await db.prepare(`INSERT INTO op_publications (id,channel_id,niche_id,external_url,title,published_at,observed_at,source) VALUES (?,?,?,?,?,?,?,'platform_feed') ON CONFLICT(channel_id, external_url) DO NOTHING`)
+            .bind(newId("pub"), channelId, ch.niche_id, m.pin.link, m.site.title ?? m.pin.title, m.pin.pubDate, nowIso()).run();
+          out.receipts = matched.map((m) => ({ pin: m.pin.link, pinnedAt: m.pin.pubDate, siteItem: m.site.link, title: m.site.title }));
+          out.unmatchedPins = allPins.length - matched.length;
           const newest = items.filter((i) => i.pubDate).sort((a, b) => (b.pubDate! > a.pubDate! ? 1 : -1))[0];
           const skey = `ops:pins:stale:${channelId}`;
           if (newest) {
@@ -105,11 +132,14 @@ export function pinRunway(fetcher: Fetcher): HandlerDef {
             // Feed unreadable: FORGE can no longer confirm publication, so the channel is not "verified" (QA-005 V7).
             await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=? AND status='verified'`).bind(nowIso(), channelId).run();
             await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `${ch.name} Pinterest profile feed could not be read`, detail: `Fetched ${pf}: ${p.status === null ? p.error ?? "no response" : `HTTP ${p.status}`}. Publication cannot be confirmed.` });
-          } else if (p.status !== null) {
+          } else if (p.status !== null && !allPins.length) {
             await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=? AND status='verified'`).bind(nowIso(), channelId).run();
             await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `${ch.name} Pinterest profile feed shows no pins`, detail: `Fetched ${pf}: HTTP ${p.status}, 0 items.` });
+          } else if (allPins.length) {
+            await db.prepare(`UPDATE channels SET status='running', updated_at=? WHERE id=? AND status='verified'`).bind(nowIso(), channelId).run();
+            await raiseAlert(db, { key: skey, severity: "warning", nicheId: ch.niche_id, source: "ops.pin_runway", title: `${ch.name}: no pin on Pinterest matches the site's pin feed`, detail: `${allPins.length} pin(s) in ${pf}, none matching an item in ${feedUrl}${feed.ok ? "" : " (site feed unreadable)"}. Publication cannot be confirmed.` });
           }
-          out.platform = { state: p.ok ? "read" : "error", status: p.status, items: items.length, newest: newest?.link ?? null };
+          out.platform = { state: p.ok ? "read" : "error", status: p.status, items: items.length, unmatched: allPins.length - items.length, newest: newest?.link ?? null };
         }
         return { output: out };
       },

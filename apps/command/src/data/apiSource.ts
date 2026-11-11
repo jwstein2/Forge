@@ -9,9 +9,10 @@ import {
   mapJob,
   mapNiche,
   mapOpportunityBoard,
+  mapScoutRun,
   mapSeries,
 } from './apiMap';
-import { mapContent, mapLifecycle, mapPolicy, mapRecommendation, mapSchedule, mapSummary, rollupChecks, type RawCheck, type RawContent, type RawLifecycle, type RawPolicy, type RawRecommendation, type RawSchedule, type RawSummary } from './operatorMap';
+import { mapContent, mapLifecycle, mapScheduler, type RawScheduler, mapPolicy, mapRecommendation, mapSchedule, mapSummary, rollupChecks, type RawCheck, type RawContent, type RawLifecycle, type RawPolicy, type RawRecommendation, type RawSchedule, type RawSummary } from './operatorMap';
 import type { BriefRef, CommandDataSource, Job, Niche, NicheId, OperatorBoard, PortfolioSummary, PublishingProposal } from './types';
 
 /** Shown when a request never got an answer: offline, or (behind Cloudflare Access) a sign-in that expired and redirected. */
@@ -87,6 +88,15 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
     }
   }
 
+  /** Latest Scout run; undefined when the endpoint isn't there or fails (the board still renders). */
+  async function scoutRun() {
+    try {
+      return mapScoutRun(await get<Parameters<typeof mapScoutRun>[0]>('/intelligence/runs'));
+    } catch {
+      return undefined;
+    }
+  }
+
   async function series(metric: 'revenue' | 'page_views', nicheId: string) {
     try {
       return mapSeries(await get<C.TrendSeries>(`/series?metric=${metric}&niche=${encodeURIComponent(nicheId)}&period=last7`));
@@ -134,8 +144,8 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
     },
     getNiche: (id: NicheId) => niche(id),
     async getOpportunities() {
-      const [board, briefs] = await Promise.all([get<C.OpportunityBoard>('/opportunities'), allBriefs()]);
-      return { ...mapOpportunityBoard(board), briefs };
+      const [board, briefs, run] = await Promise.all([get<C.OpportunityBoard>('/opportunities'), allBriefs(), scoutRun()]);
+      return { ...mapOpportunityBoard(board), briefs, run };
     },
     async getOperator(): Promise<OperatorBoard> {
       // Each part degrades on its own: a failed call becomes an empty list plus a note, never invented rows.
@@ -166,10 +176,11 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
           return null;
         }
       };
-      const [proposal, recos, lifecycle] = await Promise.all([
+      const [proposal, recos, lifecycle, sched] = await Promise.all([
         optional<PublishingProposal>('publishing proposal', '/operator/policies/proposal'),
         optional<RawRecommendation[]>('recommendations', '/operator/recommendations?status=proposed'),
         optional<RawLifecycle>('email lifecycle', '/operator/lifecycle'),
+        optional<RawScheduler>('scheduler state', '/system/scheduler'),
       ]);
       if (failed.length >= 6 && !proposal && !recos && !lifecycle) throw new ApiError(0, 'unreachable', 'The Operator endpoints did not answer.');
       return {
@@ -185,6 +196,7 @@ export function createApiSource(base: string, opts: ApiSourceOptions = {}): Comm
         proposal,
         recommendations: recos ? recos.map(mapRecommendation) : null,
         lifecycle: lifecycle ? mapLifecycle(lifecycle) : null,
+        scheduler: sched ? mapScheduler(sched) : null,
       };
     },
     async applyPublishingProposal(version: string) {

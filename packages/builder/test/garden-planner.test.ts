@@ -12,8 +12,8 @@ import { loadBrief, registryProducts } from "./helpers.ts";
 
 const brief = loadBrief("garden-planner");
 const opts = {
-  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.2", supersedes: "bp_garden-planner_v1-0-1",
-  changelog: "Regenerated from brief v1.0.2: Almanac competitor shows three plans (software band $35-$168/yr); USDA zone claim split into fact and inference. Offer, must-includes and price unchanged.",
+  businessKind: "new_business" as const, registryProducts: registryProducts(), version: "1.0.4", supersedes: "bp_garden-planner_v1-0-3",
+  changelog: "Regenerated from brief v1.0.4: c_g_obj_cheap now records planners from $1.99 off Etsy and a free 41-page planner (QA-021).",
 };
 const brand = JSON.parse(readFileSync(join(import.meta.dirname, "..", "brands", "garden-planner.brand.json"), "utf8")) as Brand;
 
@@ -21,7 +21,7 @@ describe("garden-planner (new business) blueprint", () => {
   it("is valid, traceable, and matches the committed file", async () => {
     const bp = await generateBlueprint(brief, opts);
     expect(validateBlueprint(bp, brief).errors).toEqual([]);
-    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.2.json"), "utf8"));
+    const committed = JSON.parse(readFileSync(join(import.meta.dirname, "..", "blueprints", "garden-planner", "launch-blueprint.v1.0.4.json"), "utf8"));
     expect(await contentHash(committed)).toBe(await contentHash(bp));
   });
 

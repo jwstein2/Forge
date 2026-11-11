@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
-  "brief_id": "brief_bidline_v1-0-0",
+  "brief_id": "brief_bidline_v1-0-2",
   "niche": "bidline",
   "display_name": "Bidline",
-  "version": "1.0.0",
-  "supersedes": null,
+  "version": "1.0.2",
+  "supersedes": "brief_bidline_v1-0-1",
   "status": "draft",
   "created_at": "2026-11-10T03:00:00Z",
-  "updated_at": "2026-11-10T03:00:00Z",
+  "updated_at": "2026-11-11T03:00:00Z",
   "refresh_by": "2027-02-10",
   "authors": [
     "forge-intelligence"
@@ -1389,7 +1389,7 @@
     {
       "id": "profit-kit",
       "model": "spreadsheet_template",
-      "description": "Estimate-to-Profit Kit: estimating workbook plus overhead recovery, price book and estimate-vs-actual job costing.",
+      "description": "Bidline Estimating Kit: estimating workbook plus overhead recovery, price book and estimate-vs-actual job costing.",
       "fit": "strong",
       "price_hypothesis": {
         "value": 29,
@@ -1497,7 +1497,7 @@
     }
   ],
   "premium_product_recommendation": {
-    "name": "Bidline Estimate-to-Profit Kit",
+    "name": "Bidline Estimating Kit",
     "target_segment_id": "owner-operator-remodeler",
     "format": "Excel workbook (also opens in Google Sheets) + one-page quick-start PDF + filled example job",
     "price": {
@@ -1512,7 +1512,7 @@
       ]
     },
     "must_include": [
-      "Overhead recovery: monthly overhead / billable hours = true hourly cost",
+      "Overhead recovery: a year of overhead / yearly billable hours = true hourly cost",
       "Labour hours by phase x rate, separate from materials",
       "Reusable unit-cost price book the estimate pulls from",
       "Correct pricing by target margin, with markup shown alongside",
@@ -1544,7 +1544,7 @@
       },
       {
         "tier": "core",
-        "item": "Estimate-to-Profit Kit",
+        "item": "Bidline Estimating Kit",
         "price": {
           "value": 19,
           "evidence": "INFERRED",
@@ -1607,6 +1607,19 @@
         "observed_at": "2026-11-10",
         "value": 17.55,
         "unit": "USD"
+      },
+      {
+        "id": "c_bl_ue_breakeven",
+        "statement": "At about $17.55 net per $19 sale, $100 a month needs 6 sales and $400 a month needs 23. The kill rule in this brief (300+ kit-page sessions in 60 days with no sale) stays the test of whether any of this demand exists. This is arithmetic on the estimated fee, not a forecast.",
+        "evidence": "ESTIMATED",
+        "confidence": "medium",
+        "method": "third_party_estimate",
+        "source_ids": [
+          "src_ls_fees"
+        ],
+        "observed_at": "2026-11-11",
+        "value": 23,
+        "unit": "sales/month for $400"
       }
     ],
     "scenarios": {
@@ -1930,6 +1943,18 @@
       "date": "2026-11-10",
       "author": "forge-intelligence",
       "change": "First brief from public sources; Trends and keyword volumes not collected (blocked/unconnected)."
+    },
+    {
+      "version": "1.0.1",
+      "date": "2026-11-10",
+      "author": "forge-intelligence",
+      "change": "QA-014 B7-1: the premium product now matches what shipped. It is named 'Bidline Estimating Kit' (was 'Estimate-to-Profit Kit'), and overhead recovery works from a year of overhead, not a month. The offer, price and must-includes are otherwise unchanged."
+    },
+    {
+      "version": "1.0.2",
+      "date": "2026-11-11",
+      "author": "forge-intelligence",
+      "change": "Break-even sales added (arithmetic on the estimated checkout fee). Etsy sources re-observed on 2026-11-11 by an assisted re-check; the figures still match."
     }
   ]
 }

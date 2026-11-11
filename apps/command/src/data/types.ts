@@ -130,6 +130,10 @@ export interface Job {
   lastResult: 'success' | 'failure' | 'none';
   /** Heartbeat check: is last success within 2x cadence? null = no heartbeat ledger yet. */
   heartbeatOk: boolean | null;
+  /** Watchdog verdict as the API states it (ok, late, stale, never_observed, not_scheduled, paused). Absent in the snapshot. */
+  heartbeat?: string;
+  /** Where the last success was learned: 'heartbeat' (the runner reported it), 'n8n.snapshot' (a dated export), FORGE itself, ... */
+  lastSuccessSource?: string;
   evidenceUrl?: string;
   defects: string[];
   monthlyRuns: Metric;
@@ -227,7 +231,8 @@ export interface Opportunity {
   segment: string;
   problem: string;
   hunch: string;
-  score: { total: number; components: { label: string; value: number; weight: number }[] };
+  /** components: value 0-100 for the bar; display overrides the number shown (e.g. "3/5"); weight omitted when the model has none per row. */
+  score: { total: number; raw?: number | null; coverage?: number | null; components: { label: string; value: number; weight?: number; display?: string; rationale?: string }[] };
   confidence: 'low' | 'medium' | 'high';
   demand: EvidenceClaim[];
   competitors: { name: string; scope: 'national' | 'local'; offer: string; price: string }[];
@@ -254,6 +259,23 @@ export interface Opportunity {
   verdictReason: string;
   /** Sources the Scout could not reach, and what each would add. */
   unconnected?: { name: string; wouldAdd: string }[];
+  /** Scout prose fields shown as written. */
+  effort?: string;
+  supportLoad?: string;
+  falsifyingTest?: string;
+  strength?: 'clear' | 'narrow' | 'none';
+  /** Evidence label of the proposed price. */
+  priceEvidence?: EvidenceLabel;
+}
+
+/** The Scout run behind the board (GET /intelligence/runs). */
+export interface ScoutRunInfo {
+  id: string;
+  status: string;
+  startedAt: string;
+  finishedAt: string | null;
+  sources: { checked: number; confirmed: number; reachable: number; unreachable: number; failed: number } | null;
+  unconnected: string[];
 }
 
 export interface OpportunityBoard {
@@ -264,6 +286,7 @@ export interface OpportunityBoard {
   opportunities: Opportunity[];
   /** Market briefs stored in FORGE (GET /briefs). Undefined when the source can't say. */
   briefs?: BriefRef[];
+  run?: ScoutRunInfo | null;
 }
 
 export interface BriefRef {
@@ -480,4 +503,16 @@ export interface OperatorBoard {
   proposal: PublishingProposal | null;
   recommendations: Recommendation[] | null;
   lifecycle: { snapshot: LifecycleSnapshot; sequences: LifecycleSequence[] } | null;
+  /** GET /system/scheduler (1.4.0). Null when not deployed (404) or the call failed (named in note). */
+  scheduler?: SchedulerState | null;
+}
+
+export interface SchedulerState {
+  state: 'ok' | 'backlog' | 'stale' | 'never_observed' | string;
+  minutesSinceTick: number | null;
+  lastTickAt: string | null;
+  queued: number | null;
+  failed24h: number | null;
+  backlogMinutes: number | null;
+  staleTickMinutes: number;
 }

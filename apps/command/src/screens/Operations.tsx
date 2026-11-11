@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useResource, useSource } from '../data/DataContext';
-import type { Job, OperatorBoard, PortfolioSummary, Severity } from '../data/types';
+import type { Job, OperatorBoard, PortfolioSummary, SchedulerState, Severity } from '../data/types';
+import { schedulerFact } from '../data/operatorMap';
 import { AlertList } from '../components/blocks';
 import { ControlsFindings, OperatorPanel } from '../components/operator';
 import { Icon } from '../components/Icon';
@@ -15,7 +16,7 @@ import {
   StatusTag,
 } from '../components/primitives';
 import { SEVERITY_ORDER, sortAlerts } from '../lib/derive';
-import { formatDateTime, freshness } from '../lib/format';
+import { formatDateTime, formatValue, freshness } from '../lib/format';
 import { useNow } from '../lib/clock';
 
 const RUNNER: Record<Job['runner'], string> = {
@@ -88,6 +89,7 @@ export function OperationsView({
         <span>{p.period.label}</span>
       </p>
       <div className="ops-strip">
+        {board?.scheduler && <SchedulerFact s={board.scheduler} />}
         <OpsFact label="Scheduled jobs" value={String(p.jobs.length)} sub={`${p.jobs.filter((j) => j.status === 'live').length} live`} />
         <OpsFact label="Failed last run" value={String(failing.length)} sub={failing.map((j) => j.id).join(', ') || 'None'} tone={failing.length ? 'critical' : undefined} />
         <OpsFact label="Jobs with known defects" value={String(withDefects.length)} sub="From the Nov 10 audit" tone={withDefects.length ? 'warn' : undefined} />
@@ -209,6 +211,27 @@ export function OperationsView({
   );
 }
 
+const HEARTBEAT: Record<string, { label: string; tone: string }> = {
+  ok: { label: 'On time', tone: 'good' },
+  late: { label: 'Late', tone: 'critical' },
+  stale: { label: 'Unknown (old data)', tone: 'outline' },
+  never_observed: { label: 'Never reported', tone: 'warn' },
+  not_scheduled: { label: 'Not scheduled', tone: 'outline' },
+  paused: { label: 'Paused', tone: 'outline' },
+};
+function HeartbeatTag({ h }: { h: string }) {
+  const t = HEARTBEAT[h] ?? { label: h, tone: 'outline' };
+  return <span className={`tag tag--${t.tone}`}>{t.label}</span>;
+}
+/** Where FORGE learned of the last success, in words. */
+export function sourceText(src: string): string {
+  if (src === 'heartbeat') return 'reported by the runner';
+  if (src.endsWith('.snapshot')) return 'from a dated export';
+  if (src.endsWith('.live')) return 'read live';
+  if (src === 'forge' || src.startsWith('forge')) return 'FORGE run record';
+  return src;
+}
+
 /** Headline claims only what the records support: without a heartbeat ledger, "on time" is unknowable. */
 export function opsHeadline(jobs: Job[], failed: number, heartbeat: boolean): string {
   const lead = failed ? `${failed} scheduled ${failed === 1 ? 'job has' : 'jobs have'} failed.` : 'No scheduled job reported a failure.';
@@ -223,6 +246,17 @@ export function opsHeadline(jobs: Job[], failed: number, heartbeat: boolean): st
   if (unseen) parts.push(`${unseen} with no heartbeat yet, so FORGE can't confirm they run`);
   if (!parts.length) return `${lead} The rest are on schedule.`;
   return `${lead} ${onTime} on schedule, ${parts.join(', ')}.`;
+}
+
+function SchedulerFact({ s }: { s: SchedulerState }) {
+  const f = schedulerFact(s);
+  return (
+    <div className={`ops-fact${f.tone ? ` ops-fact--${f.tone}` : ''}`} data-testid="scheduler" role={s.state === 'stale' ? 'alert' : undefined}>
+      <span className="ops-fact__label">FORGE scheduler</span>
+      <span className="ops-fact__value">{f.value}</span>
+      <span className="ops-fact__sub">{f.sub}</span>
+    </div>
+  );
 }
 
 function OpsFact({ label, value, sub, tone }: { label: string; value: string; sub: string; tone?: 'critical' | 'warn' }) {
@@ -243,7 +277,7 @@ function WeeklySummary({ p, board }: { p: PortfolioSummary; board: OperatorBoard
   const lines = useMemo(() => {
     const out: string[] = [];
     const rev = p.financials.grossRevenue;
-    out.push(rev.value === 0 ? 'No live revenue; checkout is still in test mode on every site.' : `Verified revenue ${rev.value}.`);
+    out.push(rev.value === null ? 'Revenue is unknown: the sales ledger could not be read.' : rev.value === 0 ? 'No live revenue; checkout is still in test mode on every site.' : `${rev.state === 'verified' ? 'Verified revenue' : 'Revenue'} ${formatValue(rev, { cents: true })}.`);
     const verifiedCh = p.niches.flatMap((n) => n.channels).filter((c) => c.state === 'verified');
     out.push(`${verifiedCh.length} channel${verifiedCh.length === 1 ? '' : 's'} published with receipts: ${verifiedCh.map((c) => `${c.platform} (${p.niches.find((n) => n.id === c.nicheId)?.name})`).join(', ') || 'none'}.`);
     const crit = p.alerts.filter((a) => a.severity === 'critical' && a.state !== 'resolved');
@@ -317,6 +351,7 @@ export function JobTable({ jobs, onChange }: { jobs: Job[]; onChange: (j: Job) =
               <th scope="col">Runner</th>
               <th scope="col">Cadence</th>
               <th scope="col">Last success</th>
+              {jobs.some((j) => j.heartbeat) && <th scope="col">Heartbeat</th>}
               <th scope="col">Status</th>
               <th scope="col">Known defects</th>
               <th scope="col">
@@ -339,7 +374,11 @@ export function JobTable({ jobs, onChange }: { jobs: Job[]; onChange: (j: Job) =
                   ) : (
                     <span className="text-critical">Never</span>
                   )}
+                  {j.lastSuccessAt && j.lastSuccessSource && <span className="job__name">{sourceText(j.lastSuccessSource)}</span>}
                 </td>
+                {jobs.some((x) => x.heartbeat) && (
+                  <td className="nowrap">{j.heartbeat ? <HeartbeatTag h={j.heartbeat} /> : <span className="muted">—</span>}</td>
+                )}
                 <td>
                   {j.paused ? <span className="tag tag--outline">Paused</span> : <StatusTag status={j.status} />}
                 </td>
